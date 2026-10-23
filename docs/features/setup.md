@@ -1,6 +1,6 @@
 # Setup
 
-**Status:** grilled
+**Status:** building
 
 ## Problem
 A practitioner needs to get into their own practice safely and have it ready to invoice in a few minutes.

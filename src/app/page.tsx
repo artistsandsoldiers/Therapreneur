@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { WaitlistForm } from "./waitlist-form";
 
 export default async function Home({
@@ -11,8 +12,9 @@ export default async function Home({
 
   return (
     <main className="mx-auto flex min-h-dvh max-w-5xl flex-col px-6">
-      <header className="py-6">
+      <header className="flex items-center justify-between py-6">
         <span className="font-semibold tracking-tight">Therapreneur</span>
+        <Link href="/login" className="text-sm text-neutral-500 hover:text-neutral-900">Log in</Link>
       </header>
 
       <section className="grid flex-1 content-center items-center gap-10 py-12 md:grid-cols-[1.2fr_1fr] md:gap-16">

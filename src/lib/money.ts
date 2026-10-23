@@ -12,3 +12,17 @@ export function formatRands(cents: number): string {
   const remainder = String(abs % 100).padStart(2, "0");
   return `${sign}R${rands}.${remainder}`;
 }
+
+/**
+ * Parses what a practitioner types as a rand amount into whole cents, e.g. "R1 250,50" -> 125050.
+ * Accepts a comma or a point as the decimal separator. Returns null if it isn't an amount.
+ */
+export function parseRands(input: string): number | null {
+  let text = input.replace(/[R\s]/gi, "");
+  // A comma followed by one or two digits at the end is a decimal comma; any other comma separates thousands.
+  if (/,\d{1,2}$/.test(text) && !text.includes(".")) text = text.replace(/,(\d{1,2})$/, ".$1");
+  text = text.replace(/,/g, "");
+  const match = /^(\d+)(?:\.(\d{1,2}))?$/.exec(text);
+  if (!match) return null;
+  return Number(match[1]) * 100 + Number((match[2] ?? "").padEnd(2, "0"));
+}
