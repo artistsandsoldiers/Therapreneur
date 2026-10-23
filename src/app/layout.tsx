@@ -5,8 +5,9 @@ import "./globals.css";
 const inter = Inter({ variable: "--font-inter", subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Therapreneur",
-  description: "Practice management for allied health practitioners.",
+  title: "Therapreneur: run your practice, not your paperwork",
+  description:
+    "Software, support and business coaching for OTs, physios and speech therapists in private practice in South Africa.",
 };
 
 export const viewport: Viewport = {
