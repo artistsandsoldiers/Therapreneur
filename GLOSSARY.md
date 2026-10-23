@@ -41,8 +41,16 @@ _Avoid_: diagnosis code
 A gazetted code for a billable service, including cancellations and no-shows.
 _Avoid_: tariff code, procedure code, item code
 
+**Medical aid rate**:
+What a medical aid pays for a billing code. We keep these for every practice.
+_Avoid_: tariff, scheme rate
+
+**Price adjustment**:
+How a practice's prices compare to medical aid rates: at the rate, or a percentage above or below it.
+_Avoid_: markup, discount
+
 **Price list**:
-The practice's own price for each billing code, set at, above or below the medical aid's rate.
+The practice's price for each billing code, worked out from the medical aid rate and its price adjustment.
 _Avoid_: rate card, fee schedule
 
 ## Treating and billing
