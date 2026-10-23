@@ -3,9 +3,7 @@
 import { useActionState, useState } from "react";
 import { joinWaitlist, type WaitlistState } from "./actions";
 import { OCCUPATIONS } from "@/lib/waitlist";
-
-const field =
-  "w-full rounded-md border border-neutral-200 bg-white px-3 py-2.5 text-base outline-none focus:border-accent focus:ring-2 focus:ring-accent/15";
+import { field } from "./ui";
 
 export function WaitlistForm({ source }: { source: string | null }) {
   const [state, action, pending] = useActionState<WaitlistState, FormData>(

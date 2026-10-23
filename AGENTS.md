@@ -17,6 +17,7 @@ Software, services and business coaching that help allied health practitioners r
 | [GLOSSARY.md](GLOSSARY.md) | The ubiquitous language. Use these words in code, UI and conversation |
 | [docs/design.md](docs/design.md) | Look, feel and tone of voice |
 | [docs/decisions/](docs/decisions/) | Hard-to-reverse choices and why we made them |
+| [docs/database.md](docs/database.md) | What the database stores, in plain English |
 | [docs/future-ideas.md](docs/future-ideas.md) | Ideas parked until evidence says they matter |
 | [CHANGELOG.md](CHANGELOG.md) | What changed and when |
 
@@ -36,7 +37,7 @@ Barry Morisse is the founder. He's non-technical, builds in the cloud with codin
 - `npm run dev`: run the app locally
 - `npm run typecheck`, `npm run lint`, `npm test`, `npm run build`: the checks CI runs on every PR
 
-Code lives in `src/`: pages in `src/app/`, shared logic in `src/lib/`. Money is always whole cents (`src/lib/money.ts`). Schema changes live in `supabase/migrations/`, applied via the Supabase connector.
+Code lives in `src/`: pages in `src/app/`, shared logic in `src/lib/`. Money is always whole cents (`src/lib/money.ts`). Schema changes live in `supabase/migrations/`, applied via the Supabase connector, and update `docs/database.md` in the same PR.
 
 ## Git workflow
 
