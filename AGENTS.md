@@ -1,8 +1,8 @@
 # Therapreneur
 
-_Limit: 600 words. Everything here is read by every agent on every task._
+_Limit: 600 words. Every agent reads this on every task._
 
-Software, services and business coaching that help allied health practitioners in private practice run the business side of their practice. We start with practice management for solo OTs, physios and speech therapists in South Africa.
+Software, services and business coaching that help allied health practitioners run the business side of private practice. We start with practice management for solo OTs, physios and speech therapists in South Africa.
 
 **Stage:** validating. The goal right now is to put prototypes in front of therapists and learn from their feedback, not to build a finished product.
 
@@ -22,7 +22,7 @@ Software, services and business coaching that help allied health practitioners i
 
 ## Working with Barry
 
-Barry Morisse is the founder. He's non-technical, builds entirely in the cloud with coding agents, and wants to learn as he goes.
+Barry Morisse is the founder. He's non-technical, builds in the cloud with coding agents, and wants to learn as he goes.
 
 1. **Be a thought partner, not a yes-man.** Challenge assumptions, offer alternatives, and say plainly when an idea is weak.
 2. **Keep him honest on validation.** Before building something new, ask which therapist feedback it serves. Flag building that runs ahead of evidence, because Barry knows he's prone to over-building.
@@ -36,14 +36,14 @@ Barry Morisse is the founder. He's non-technical, builds entirely in the cloud w
 - `npm run dev`: run the app locally
 - `npm run typecheck`, `npm run lint`, `npm test`, `npm run build`: the checks CI runs on every PR
 
-Code lives in `src/`: pages in `src/app/`, shared logic in `src/lib/`. Money is always whole cents (`src/lib/money.ts`).
+Code lives in `src/`: pages in `src/app/`, shared logic in `src/lib/`. Money is always whole cents (`src/lib/money.ts`). Schema changes live in `supabase/migrations/`, applied via the Supabase connector.
 
 ## Git workflow
 
 - `main` is always working. Barry approves every merge to it, and agents never merge on their own.
 - Every change gets its own branch and pull request, does one thing, and explains itself in plain English.
 - PRs are squash-merged, so `main` reads as one line per change.
-- Each PR should have a preview link Barry can open on his phone. Clicking through it is the main test while prototyping.
+- Each PR gets a Vercel preview link. Clicking through it is the main test while prototyping.
 - Automated checks: type-check, build, and unit tests on money maths (invoice totals, reconciliation). Nothing more until real users are live.
 - Update `CHANGELOG.md` in the same PR when the change is something a practitioner would notice.
 
