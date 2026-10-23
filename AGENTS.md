@@ -31,6 +31,13 @@ Barry Morisse is the founder. He's non-technical, builds entirely in the cloud w
 5. **Speed over polish while validating.** Cut steps that don't earn their keep yet, but never on money maths.
 6. **Thoughtful, maintainable, efficient code.** Simple over clever, few dependencies, and names that match the glossary.
 
+## Commands
+
+- `npm run dev`: run the app locally
+- `npm run typecheck`, `npm run lint`, `npm test`, `npm run build`: the checks CI runs on every PR
+
+Code lives in `src/`: pages in `src/app/`, shared logic in `src/lib/`. Money is always whole cents (`src/lib/money.ts`).
+
 ## Git workflow
 
 - `main` is always working. Barry approves every merge to it, and agents never merge on their own.
