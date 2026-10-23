@@ -4,4 +4,5 @@ Changes a practitioner would notice, newest first. Each entry is one line, and t
 
 ## Unreleased
 
+- Landing page with a waiting list signup (name, email, occupation).
 - Project context docs for coding agents: vision, features, glossary, design and decisions.
