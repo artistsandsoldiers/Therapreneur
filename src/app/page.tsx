@@ -27,6 +27,7 @@ export default async function Home({
         </div>
 
         <div className="rounded-xl border border-neutral-200 p-6 md:p-8">
+          <h2 className="mb-5 text-lg font-semibold">Be first to try it</h2>
           <WaitlistForm source={source} />
         </div>
       </section>
