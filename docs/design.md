@@ -1,0 +1,23 @@
+# Design
+
+_Limit: 300 words._
+
+**Modern, minimal, sleek, professional.** Think Notion: white space, quiet chrome, and content first.
+
+## Look
+
+- White background, greys for structure, and one accent colour: teal `#0E7C86`. No purple. The accent marks the primary action and little else.
+- One sans-serif typeface (Inter). Hierarchy comes from size and weight, not colour.
+- Hairline borders over shadows and boxes. Generous spacing.
+- The app looks neutral (Therapreneur). The practice's logo and colour appear only on patient-facing output: invoices, claims and emails.
+
+## Screens
+
+- **Capture is phone-first.** It's used straight after a session, one-handed, in under a minute.
+- **Admin is desktop-first** (claims, reconciliation, reports, settings) but must still work on a phone.
+
+## Tone of voice
+
+- Plain, warm and brief. Short labels, no jargon.
+- South African English: rands (R1,250.00), "medical aid", DD/MM/YYYY dates.
+- Use the words in [GLOSSARY.md](../GLOSSARY.md).
