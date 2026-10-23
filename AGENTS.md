@@ -6,7 +6,7 @@ Software, services and business coaching that help allied health practitioners i
 
 **Stage:** validating. The goal right now is to put prototypes in front of therapists and learn from their feedback, not to build a finished product.
 
-**Stack:** not chosen yet. Don't add application code or pick a framework until it has been grilled with Barry and recorded in `docs/decisions/`.
+**Stack:** Next.js and TypeScript on Vercel, with Supabase for the database, logins and file storage (decision 0005). Prefer mainstream, well-documented tools, and grill Barry before adding a significant dependency.
 
 ## Read first
 
@@ -17,6 +17,7 @@ Software, services and business coaching that help allied health practitioners i
 | [GLOSSARY.md](GLOSSARY.md) | The ubiquitous language. Use these words in code, UI and conversation |
 | [docs/design.md](docs/design.md) | Look, feel and tone of voice |
 | [docs/decisions/](docs/decisions/) | Hard-to-reverse choices and why we made them |
+| [docs/future-ideas.md](docs/future-ideas.md) | Ideas parked until evidence says they matter |
 | [CHANGELOG.md](CHANGELOG.md) | What changed and when |
 
 ## Working with Barry

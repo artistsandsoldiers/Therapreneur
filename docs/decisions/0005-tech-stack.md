@@ -1,0 +1,3 @@
+# Next.js on Vercel, with Supabase
+
+The app is Next.js and TypeScript, hosted on Vercel, with Supabase for Postgres, logins and file storage. Barry is non-technical and builds only through coding agents, so we chose the most mainstream stack agents know well, which Barry already uses and which is free until we have customers. It's one web app that practitioners add to their phone's home screen, with no app store app. Supabase has no South African region, so data sits abroad, which POPIA allows with safeguards. Revisit hosting and region before storing real patient data, and move to paid plans once we charge (Vercel's free plan is non-commercial).
