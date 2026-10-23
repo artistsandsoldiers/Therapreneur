@@ -31,6 +31,14 @@ describe("parseWaitlistForm", () => {
     expect(result.ok && result.signup.source).toBe("otasa-survey");
   });
 
+  it("uses the typed occupation when Other is chosen", () => {
+    const result = parseWaitlistForm(
+      form({ ...valid, occupation: "Other", otherOccupation: " Dietitian " }),
+    );
+    expect(result.ok && result.signup.occupation).toBe("Dietitian");
+    expect(parseWaitlistForm(form({ ...valid, occupation: "Other" })).ok).toBe(false);
+  });
+
   it("rejects a missing name, bad email or unknown occupation", () => {
     expect(parseWaitlistForm(form({ ...valid, name: "  " })).ok).toBe(false);
     expect(parseWaitlistForm(form({ ...valid, email: "robs@" })).ok).toBe(false);

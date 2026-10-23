@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { joinWaitlist, type WaitlistState } from "./actions";
 import { OCCUPATIONS } from "@/lib/waitlist";
 
@@ -12,6 +12,7 @@ export function WaitlistForm({ source }: { source: string | null }) {
     joinWaitlist,
     { status: "idle" },
   );
+  const [occupation, setOccupation] = useState("");
 
   if (state.status === "joined") {
     return (
@@ -33,12 +34,33 @@ export function WaitlistForm({ source }: { source: string | null }) {
       <input id="email" name="email" type="email" required autoComplete="email" placeholder="Email address" className={field} />
 
       <label className="sr-only" htmlFor="occupation">Occupation</label>
-      <select id="occupation" name="occupation" required defaultValue="" className={`${field} text-neutral-900 invalid:text-neutral-400`}>
+      <select
+        id="occupation"
+        name="occupation"
+        required
+        value={occupation}
+        onChange={(event) => setOccupation(event.target.value)}
+        className={`${field} text-neutral-900 invalid:text-neutral-400`}>
         <option value="" disabled>Your occupation</option>
         {OCCUPATIONS.map((occupation) => (
           <option key={occupation} value={occupation}>{occupation}</option>
         ))}
       </select>
+
+      {occupation === "Other" && (
+        <>
+          <label className="sr-only" htmlFor="otherOccupation">Your occupation</label>
+          <input
+            id="otherOccupation"
+            name="otherOccupation"
+            required
+            maxLength={100}
+            autoFocus
+            placeholder="What do you do?"
+            className={field}
+          />
+        </>
+      )}
 
       <input type="hidden" name="source" value={source ?? ""} />
       <div aria-hidden className="hidden">

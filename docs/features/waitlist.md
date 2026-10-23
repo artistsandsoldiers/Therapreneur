@@ -9,8 +9,8 @@ Barry needs somewhere to point therapists during market research, so interest tu
 None yet from therapists. This is a research tool, not a product feature.
 
 ## Scope
-- A public landing page at the site root: who it's for, what's coming, and a signup form.
-- The form takes name, email and occupation, all required. A `?ref=` or `utm_source=` link parameter records where the visitor came from.
+- A public landing page at the site root: one line on who it's for, one on what it is, and a signup form.
+- The form takes name, email and occupation, all required. Occupation is OT, physio, speech or Other, and choosing Other asks them to type it. A `?ref=` or `utm_source=` link parameter records where the visitor came from.
 - Signups are stored in the Supabase `waitlist` table. The public can add to it but never read it.
 - Signing up twice still says "You're on the list", and a hidden field quietly drops bots.
 

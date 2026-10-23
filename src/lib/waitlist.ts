@@ -2,7 +2,6 @@ export const OCCUPATIONS = [
   "Occupational therapist",
   "Physiotherapist",
   "Speech therapist",
-  "Other allied health",
   "Other",
 ] as const;
 
@@ -23,7 +22,9 @@ const EMAIL_PATTERN = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 export function parseWaitlistForm(form: FormData): ParseResult {
   const name = String(form.get("name") ?? "").trim();
   const email = String(form.get("email") ?? "").trim().toLowerCase();
-  const occupation = String(form.get("occupation") ?? "");
+  const choice = String(form.get("occupation") ?? "");
+  const occupation =
+    choice === "Other" ? String(form.get("otherOccupation") ?? "").trim() : choice;
   const source = String(form.get("source") ?? "").trim().slice(0, 200) || null;
 
   if (!name || name.length > 200) {
@@ -32,8 +33,11 @@ export function parseWaitlistForm(form: FormData): ParseResult {
   if (!EMAIL_PATTERN.test(email) || email.length > 254) {
     return { ok: false, error: "Please enter a valid email address." };
   }
-  if (!(OCCUPATIONS as readonly string[]).includes(occupation)) {
+  if (!(OCCUPATIONS as readonly string[]).includes(choice)) {
     return { ok: false, error: "Please choose your occupation." };
+  }
+  if (!occupation || occupation.length > 100) {
+    return { ok: false, error: "Please tell us your occupation." };
   }
   return { ok: true, signup: { name, email, occupation, source } };
 }
