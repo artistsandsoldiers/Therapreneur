@@ -6,12 +6,14 @@ One doc per feature. A feature doc is written after a grill and before any code,
 
 | Feature | Status | In one line |
 | --- | --- | --- |
+| [Setup](setup.md) | grilled | Invite-only login with an emailed code, then practice details and prices |
 | [Capture](capture.md) | grilled | Codes and note on the phone after a session, which creates the invoice |
 | [Invoicing](invoicing.md) | grilled | One invoice per session, to the medical aid or the patient |
 | [Claims](claims.md) | grilled | Email claim batches to each medical aid and record reference numbers |
 | [Reconciliation](reconciliation.md) | grilled | Match remittances to claims and mark invoices paid |
 | [Notes](notes.md) | grilled | Free-text session notes and a list of sessions missing one |
 | [Reports](reports.md) | grilled | Income per month, income per patient, outstanding by age |
+| [Patients](patients.md) | idea | A patient list and page with details and notes |
 | [Waitlist](waitlist.md) | building | Landing page that collects name, email and occupation |
 
 The PRD and clickable prototype for all six are in [the PRD](https://claude.ai/artifact/S7Z9PWvmCQmF1SztK1Br5p) and [the prototype](https://claude.ai/artifact/VrfhY8P4SrjSAQ4im9D4LL).
