@@ -113,6 +113,28 @@ A claim the medical aid refused to pay.
 Invoiced but not yet paid.
 _Avoid_: debt, debtors, owing
 
+## Running the business
+
+**Expense**:
+Money the practice spent to run itself, such as rent or OTASA fees.
+_Avoid_: cost, spend, purchase
+
+**Expense category**:
+A plain-language group of expenses, from our central list or added by the practice.
+_Avoid_: account, ledger, tax category
+
+**Receipt**:
+A photo or PDF that proves an expense, kept for SARS.
+_Avoid_: slip, proof of payment
+
+**Tax year**:
+1 March to the end of February, as SARS counts it.
+_Avoid_: financial year
+
+**Profit before tax**:
+Invoiced income less expenses, for a month or the tax year so far.
+_Avoid_: net income, earnings
+
 ## Relationships
 
 - A **Practice** has one **Practitioner** and many **Patients**.
@@ -120,6 +142,7 @@ _Avoid_: debt, debtors, owing
 - A **Session** has one **Note** and produces one **Invoice**.
 - A medical aid **Invoice** becomes a **Claim**, sent in a **Claim batch** that gets one **Reference number**.
 - A **Remittance** is reconciled against **Claims** to record **Payments**.
+- An **Expense** has one **Expense category** and may have a **Receipt**.
 
 ## Flagged ambiguities
 

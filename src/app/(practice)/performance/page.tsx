@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { MonthChart } from "./month-chart";
-import { toLocalInput } from "@/lib/dates";
+import { formatDate, toLocalInput } from "@/lib/dates";
+import { profitByMonth, taxYearSoFar, type ReportExpense } from "@/lib/expenses";
 import { invoiceNumber } from "@/lib/invoices";
 import { formatRands } from "@/lib/money";
 import { requireSetUpPractice } from "@/lib/practice";
@@ -21,6 +22,15 @@ export default async function PerformancePage() {
       "id, number, issued_on, paid_on, bill_to, claimed_details, invoice_lines(quantity, unit_price_cents), sessions(patients(id, first_name, last_name, medical_aids(name)))",
     );
   if (error) throw error;
+  const { data: expenseRows, error: expensesError } = await supabase
+    .from("expenses")
+    .select("spent_on, amount_cents, expense_categories(name)");
+  if (expensesError) throw expensesError;
+  const expenses: ReportExpense[] = expenseRows.map((e) => ({
+    spentOn: e.spent_on,
+    amountCents: e.amount_cents,
+    categoryName: e.expense_categories?.name ?? "Other",
+  }));
 
   const invoices: ReportInvoice[] = data.flatMap((invoice) => {
     const patient = invoice.sessions?.patients;
@@ -44,7 +54,8 @@ export default async function PerformancePage() {
   });
 
   const today = toLocalInput(new Date()).slice(0, 10);
-  const months = incomeByMonth(invoices, today);
+  const months = profitByMonth(incomeByMonth(invoices, today), expenses);
+  const year = taxYearSoFar(invoices, expenses, today);
   const patients = incomeByPatient(invoices);
   const owed = outstanding(invoices, today);
   const thisMonth = months.at(-1)!;
@@ -59,11 +70,11 @@ export default async function PerformancePage() {
     <main className="py-6">
       <h1 className="mb-2 text-2xl font-semibold tracking-tight">Performance</h1>
       <p className="text-sm text-neutral-500">
-        Live from your invoices. An invoice counts as paid once you mark it paid on its page.
+        Live from your invoices and expenses. An invoice counts as paid once you mark it paid on its page.
       </p>
 
-      {invoices.length === 0 ? (
-        <p className="mt-8 text-neutral-500">No invoices yet. This page fills in as you capture sessions.</p>
+      {invoices.length === 0 && expenses.length === 0 ? (
+        <p className="mt-8 text-neutral-500">No invoices yet. This page fills in as you capture sessions and add expenses.</p>
       ) : (
         <>
           <dl className="mt-6 grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-neutral-200 bg-neutral-200 sm:grid-cols-3">
@@ -78,9 +89,38 @@ export default async function PerformancePage() {
           </dl>
 
           <section className="mt-10">
+            <h2 className="mb-1 text-lg font-semibold">Tax year so far</h2>
+            <p className="mb-4 text-sm text-neutral-500">
+              From {formatDate(year.from)}. Profit before tax is invoiced income less expenses. Tax hasn&apos;t been taken off.
+            </p>
+            <dl className="grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-neutral-200 bg-neutral-200 sm:grid-cols-3">
+              <Tile label="Income" value={formatRands(year.incomeCents)} />
+              <Tile label="Expenses" value={formatRands(year.expensesCents)} />
+              <Tile label="Profit before tax" value={formatRands(year.profitCents)} wide />
+            </dl>
+            {year.byCategory.length > 0 ? (
+              <>
+                <p className="mt-6 mb-1 text-sm font-medium text-neutral-500">Expenses by category</p>
+                <ul className="divide-y divide-neutral-100 border-y border-neutral-100 text-sm">
+                  {year.byCategory.map((category) => (
+                    <li key={category.name} className="flex justify-between gap-4 py-2">
+                      <span>{category.name}</span>
+                      <span className="tabular-nums">{formatRands(category.cents)}</span>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            ) : (
+              <p className="mt-4 text-sm text-neutral-500">
+                No expenses this tax year yet. <Link href="/expenses/new" className="font-medium text-accent">Add one</Link> to see your profit.
+              </p>
+            )}
+          </section>
+
+          <section className="mt-10">
             <h2 className="mb-1 text-lg font-semibold">Income per month</h2>
             <p className="mb-4 text-sm text-neutral-500">
-              Invoiced by invoice date, paid by the date it was paid. Last 6 months.
+              Invoiced by invoice date, paid by the date it was paid, expenses by the date you paid them. Last 6 months.
             </p>
             <MonthChart months={months} />
           </section>

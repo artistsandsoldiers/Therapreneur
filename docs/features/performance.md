@@ -14,9 +14,10 @@ Discovery interview with Robynne Stock (solo adult OT), October 2026. She uses T
 - Income per patient: invoiced and paid, with payer type.
 - Paid means marked paid on the invoice, with a date, until reconciliation sets it.
 - Outstanding: unpaid invoices by age (0 to 30, 31 to 60, 61 to 90, 90+ days), by medical aid and cash.
+- Expenses and profit before tax, per month and for the tax year so far ([Expenses](expenses.md)).
 
 ## Out of scope
-- Expenses and tax.
+- Tax owed and the tax year summary.
 
 ## Open questions
 - Should debt age from the invoice date (as now) or the due date?

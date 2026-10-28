@@ -8,6 +8,7 @@ What we store in Supabase, in plain English. Money is whole cents.
 
 - **medical_aids**: name and claims email (unused while testing).
 - **billing_codes**: every billing code, by profession, with its description. One is the no-show code.
+- **expense_categories**: plain categories like Rooms and rent, each with a hint. Practices add their own too.
 - **medical_aid_rates**: what each medical aid pays for each billing code, from a date. Empty means no fixed amount. For now only Discovery's 2026 OT rates.
 
 ## A practice's own data (only that practice can see it)
@@ -18,6 +19,7 @@ What we store in Supabase, in plain English. Money is whole cents.
 - **invoices**: one per session: number (1, 2, 3… per practice), date, due date (30 days later), who pays, the date it was paid in full and its remittance. Once claimed, its claim batch and the patient details sent.
 - **claim_batches**: one email of claims to a medical aid: when and where sent, and its reference number.
 - **remittances**: one payment from a medical aid: date and reference.
+- **expenses**: date paid, who was paid, amount, category, note and its receipt.
 - **invoice_lines**: each billing code on an invoice, with quantity, price and ICD-10 codes. Code and description are copied in, so central list changes never alter an old invoice.
 
 ## Other
@@ -34,4 +36,4 @@ A practice has patients, patients have sessions, and each session has one invoic
 - **save_capture** saves a session, invoice and lines together and gives out invoice numbers one at a time.
 - **Claimed invoices are locked.** Once a batch is sent, the database refuses to change its invoices, lines, or session (except the note and payment). **start_claim_batch** checks and reserves invoices before the email goes. **record_remittance** pays only sent, unpaid claims.
 - **Invites:** an agent adds a **practices** row with the email; the first login links to it.
-- **Logos** live in a private file storage bucket, one folder per practice.
+- **Logos** and **receipts** live in private file storage buckets, one folder per practice.
