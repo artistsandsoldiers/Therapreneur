@@ -3,10 +3,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PatientActions } from "./patient-actions";
 import { button, secondaryButton } from "@/app/ui";
-import { formatDate, formatDateTime } from "@/lib/dates";
+import { formatDate, formatSessionTime } from "@/lib/dates";
 import { invoiceNumber } from "@/lib/invoices";
 import { formatRands } from "@/lib/money";
 import { requireSetUpPractice } from "@/lib/practice";
+import { ModalButton } from "../../modal";
+import { NewSession } from "../../sessions/new-session";
 import { invoiceTotal } from "@/lib/pricing";
 
 export const metadata: Metadata = { title: "Patient · Therapreneur" };
@@ -17,7 +19,7 @@ export default async function PatientPage({ params }: { params: Promise<{ id: st
   const { data: patient } = await supabase
     .from("patients")
     .select(
-      "*, medical_aids(name), sessions(id, starts_at, outcome, note, invoices(id, number, invoice_lines(code, quantity, unit_price_cents, position)))",
+      "*, medical_aids(name), sessions(id, starts_at, duration_minutes, outcome, note, invoices(id, number, invoice_lines(code, quantity, unit_price_cents, position)))",
     )
     .eq("id", id)
     .maybeSingle();
@@ -41,7 +43,9 @@ export default async function PatientPage({ params }: { params: Promise<{ id: st
         <div className="flex gap-2">
           <Link href={`/patients/${patient.id}/edit`} className={secondaryButton}>Edit</Link>
           {!patient.past_since && (
-            <Link href={`/sessions/new?patient=${patient.id}`} className={button}>New session</Link>
+            <ModalButton label="New session" title="New session" className={button}>
+              <NewSession patientId={patient.id} />
+            </ModalButton>
           )}
         </div>
       </div>
@@ -98,7 +102,7 @@ export default async function PatientPage({ params }: { params: Promise<{ id: st
                   <li key={session.id} className="rounded-lg border border-neutral-200 p-4">
                     <div className="flex items-baseline justify-between gap-3">
                       <p className="font-medium">
-                        {formatDateTime(session.starts_at)}
+                        {formatSessionTime(session.starts_at, session.duration_minutes)}
                         {session.outcome === "no_show" && <span className="ml-2 text-sm font-normal text-neutral-500">No-show</span>}
                       </p>
                       {invoice && (

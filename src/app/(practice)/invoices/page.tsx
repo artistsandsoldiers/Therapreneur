@@ -5,6 +5,8 @@ import { formatDate } from "@/lib/dates";
 import { invoiceNumber } from "@/lib/invoices";
 import { formatRands } from "@/lib/money";
 import { requireSetUpPractice } from "@/lib/practice";
+import { ModalButton } from "../modal";
+import { NewSession } from "../sessions/new-session";
 import { invoiceTotal } from "@/lib/pricing";
 
 export const metadata: Metadata = { title: "Invoices · Therapreneur" };
@@ -24,13 +26,19 @@ export default async function InvoicesPage() {
   return (
     <main className="py-6">
       {/* Phone: a big button, used straight after a session. Desktop: a normal button beside the heading. */}
-      <Link href="/sessions/new" className={`${button} block w-full py-4 text-center text-lg md:hidden`}>
-        New session
-      </Link>
+      <div className="md:hidden">
+        <ModalButton label="New session" title="New session" className={`${button} block w-full py-4 text-center text-lg`}>
+          <NewSession />
+        </ModalButton>
+      </div>
 
       <div className="mt-10 mb-3 flex items-center justify-between gap-4 md:mt-0">
         <h1 className="text-lg font-semibold md:text-2xl md:tracking-tight">Invoices</h1>
-        <Link href="/sessions/new" className={`${button} hidden md:block`}>New session</Link>
+        <div className="hidden md:block">
+          <ModalButton label="New session" title="New session" className={button}>
+            <NewSession />
+          </ModalButton>
+        </div>
       </div>
       {invoices.length === 0 ? (
         <p className="text-neutral-500">

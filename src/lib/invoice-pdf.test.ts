@@ -13,6 +13,7 @@ const invoice = {
   patient: { patient_name: "Zoë Mokoena", medical_aid_name: "Discovery", member_number: "123", dependant_code: "01", date_of_birth: "2015-06-01" },
   lines: [{ id: "a", code: "R001", description: "Assessment", icd10Codes: ["M54.5"], quantity: 1, unitPriceCents: 85050 }],
   totalCents: 85050,
+  session: { id: "s", startsAt: "2026-10-27T07:00:00.000Z", durationMinutes: 45, outcome: "attended", note: null },
 } as InvoiceDocument;
 
 describe("renderInvoicePdf", () => {

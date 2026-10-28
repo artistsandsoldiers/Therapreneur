@@ -1,5 +1,5 @@
 import { Document, Image, Page, StyleSheet, Text, View, renderToBuffer } from "@react-pdf/renderer";
-import { formatDate } from "./dates";
+import { formatDate, formatSessionTime } from "./dates";
 import { billToLines, type InvoiceDocument } from "./invoice-document";
 import { invoiceNumber } from "./invoices";
 import type { LogoImage } from "./logo";
@@ -44,6 +44,7 @@ export function invoicePdf(invoice: InvoiceDocument, logo: LogoImage | null = nu
             <Text>{invoiceNumber(invoice.number)}</Text>
             <Text style={styles.muted}>Date {formatDate(invoice.issuedOn)}</Text>
             <Text style={styles.muted}>Due {formatDate(invoice.dueOn)}</Text>
+            <Text style={styles.muted}>Session {formatSessionTime(invoice.session.startsAt, invoice.session.durationMinutes)}</Text>
           </View>
         </View>
 

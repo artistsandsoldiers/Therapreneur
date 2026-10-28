@@ -1,3 +1,4 @@
+import { isSessionLength, SESSION_MINUTES } from "./capture";
 import { parseRands } from "./money";
 import type { Profession } from "./supabase/database.types";
 
@@ -21,6 +22,7 @@ export type SetupDetails = {
   profession: Profession;
   price_adjustment_percent: number;
   no_show_price_cents: number;
+  session_minutes: number;
 };
 
 /** Validates the setup form. Returns the practice details or the first problem, in plain words. */
@@ -56,6 +58,14 @@ export function parseSetupForm(form: FormData): { ok: true; details: SetupDetail
   const noShow = parseRands(text("no_show_price"));
   if (noShow === null) return { ok: false, error: "Please enter your no-show price in rands, like 350.00." };
 
+  const sessionMinutes = Number(text("session_minutes"));
+  if (!text("session_minutes") || !isSessionLength(sessionMinutes)) {
+    return {
+      ok: false,
+      error: `Please enter your usual session length in minutes, from ${SESSION_MINUTES.min} to ${SESSION_MINUTES.max}.`,
+    };
+  }
+
   return {
     ok: true,
     details: {
@@ -72,6 +82,7 @@ export function parseSetupForm(form: FormData): { ok: true; details: SetupDetail
       profession,
       price_adjustment_percent: adjustment,
       no_show_price_cents: noShow,
+      session_minutes: sessionMinutes,
     },
   };
 }
