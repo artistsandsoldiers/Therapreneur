@@ -1,15 +1,15 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState } from "react";
 import { saveSetup, type SetupState } from "./actions";
+import { PricingField } from "./pricing-field";
+import type { PriceExample } from "@/lib/capture-data";
 import { button, field, label } from "@/app/ui";
 import { PROFESSIONS } from "@/lib/setup";
 import type { Practice } from "@/lib/practice";
 
-export function SetupForm({ practice }: { practice: Practice }) {
+export function SetupForm({ practice, priceExample }: { practice: Practice; priceExample: PriceExample | null }) {
   const [state, action, pending] = useActionState<SetupState, FormData>(saveSetup, {});
-  const adjustment = practice.price_adjustment_percent;
-  const [direction, setDirection] = useState(adjustment > 0 ? "above" : adjustment < 0 ? "below" : "at");
   const isFirstTime = !practice.setup_completed_at;
 
   return (
@@ -44,44 +44,11 @@ export function SetupForm({ practice }: { practice: Practice }) {
       </fieldset>
 
       <fieldset className="flex flex-col gap-4">
-        <legend className="mb-1 text-lg font-semibold">Your prices</legend>
+        <legend className="mb-1 text-lg font-semibold">Pricing</legend>
         <p className="text-sm text-neutral-500">
-          We keep every billing code and medical aid rate up to date for you. Choose how your prices compare.
+          We keep every billing code and medical aid rate up to date for you. Slide to set how your prices compare.
         </p>
-        <div className="flex flex-col gap-2">
-          {[
-            ["at", "Medical aid rates"],
-            ["above", "Above medical aid rates"],
-            ["below", "Below medical aid rates"],
-          ].map(([value, text]) => (
-            <label key={value} className="flex items-center gap-3 rounded-md border border-neutral-200 px-3 py-2.5 has-checked:border-accent">
-              <input
-                type="radio"
-                name="price_direction"
-                value={value}
-                checked={direction === value}
-                onChange={() => setDirection(value)}
-                className="accent-accent"
-              />
-              {text}
-            </label>
-          ))}
-        </div>
-        {direction !== "at" && (
-          <div>
-            <label htmlFor="price_percent" className={label}>By how much? (%)</label>
-            <input
-              id="price_percent"
-              name="price_percent"
-              required
-              inputMode="numeric"
-              pattern="[0-9]{1,3}"
-              defaultValue={adjustment === 0 ? "" : Math.abs(adjustment)}
-              placeholder="5"
-              className={field}
-            />
-          </div>
-        )}
+        <PricingField initial={practice.price_adjustment_percent} example={priceExample} />
         <div>
           <label htmlFor="no_show_price" className={label}>No-show price (R)</label>
           <input
