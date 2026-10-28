@@ -1,5 +1,5 @@
 import { formatRands } from "@/lib/money";
-import type { MonthIncome } from "@/lib/performance";
+import type { MonthProfit } from "@/lib/expenses";
 
 const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
@@ -13,7 +13,7 @@ function monthName(month: string): string {
 }
 
 /** Invoiced and paid side by side for each month, with the exact amounts on hover or tap and in a table below. */
-export function MonthChart({ months }: { months: MonthIncome[] }) {
+export function MonthChart({ months }: { months: MonthProfit[] }) {
   const max = Math.max(...months.flatMap((m) => [m.invoicedCents, m.paidCents]), 1);
   const height = (cents: number) => (cents === 0 ? "0" : `max(${(cents / max) * 100}%, 2px)`);
 
@@ -43,12 +43,15 @@ export function MonthChart({ months }: { months: MonthIncome[] }) {
         ))}
       </div>
 
-      <table className="mt-6 w-full text-sm">
+      <div className="mt-6 overflow-x-auto">
+      <table className="w-full text-sm">
         <thead>
           <tr className="border-b border-neutral-200 text-xs text-neutral-400 uppercase">
             <th className="py-2 text-left font-medium">Month</th>
-            <th className="py-2 text-right font-medium">Invoiced</th>
-            <th className="py-2 text-right font-medium">Paid</th>
+            <th className="py-2 pl-2 text-right font-medium">Invoiced</th>
+            <th className="py-2 pl-2 text-right font-medium">Paid</th>
+            <th className="py-2 pl-2 text-right font-medium">Expenses</th>
+            <th className="py-2 pl-2 text-right font-medium">Profit before tax</th>
           </tr>
         </thead>
         <tbody>
@@ -57,10 +60,13 @@ export function MonthChart({ months }: { months: MonthIncome[] }) {
               <td className="py-2">{monthName(m.month)} {m.month.slice(0, 4)}</td>
               <td className="py-2 text-right tabular-nums">{formatRands(m.invoicedCents)}</td>
               <td className="py-2 text-right tabular-nums">{formatRands(m.paidCents)}</td>
+              <td className="py-2 pl-2 text-right tabular-nums">{formatRands(m.expensesCents)}</td>
+              <td className={`py-2 pl-2 text-right tabular-nums ${m.profitCents < 0 ? "text-red-600" : ""}`}>{formatRands(m.profitCents)}</td>
             </tr>
           ))}
         </tbody>
       </table>
+      </div>
     </div>
   );
 }

@@ -12,6 +12,7 @@ const LINKS = [
   { href: "/patients", text: "Patients" },
   { href: "/claims", text: "Claims" },
   { href: "/reconcile", text: "Reconcile" },
+  { href: "/expenses", text: "Expenses" },
   { href: "/performance", text: "Performance" },
   { href: "/settings", text: "Settings" },
 ];

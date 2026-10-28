@@ -84,6 +84,92 @@ export type Database = {
           },
         ]
       }
+      expense_categories: {
+        Row: {
+          created_at: string
+          hint: string | null
+          id: string
+          name: string
+          position: number
+          practice_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          hint?: string | null
+          id?: string
+          name: string
+          position?: number
+          practice_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          hint?: string | null
+          id?: string
+          name?: string
+          position?: number
+          practice_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "expense_categories_practice_id_fkey"
+            columns: ["practice_id"]
+            isOneToOne: false
+            referencedRelation: "practices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      expenses: {
+        Row: {
+          amount_cents: number
+          category_id: string
+          created_at: string
+          id: string
+          note: string | null
+          practice_id: string
+          receipt_path: string | null
+          spent_on: string
+          supplier: string
+        }
+        Insert: {
+          amount_cents: number
+          category_id: string
+          created_at?: string
+          id?: string
+          note?: string | null
+          practice_id: string
+          receipt_path?: string | null
+          spent_on: string
+          supplier: string
+        }
+        Update: {
+          amount_cents?: number
+          category_id?: string
+          created_at?: string
+          id?: string
+          note?: string | null
+          practice_id?: string
+          receipt_path?: string | null
+          spent_on?: string
+          supplier?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "expenses_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "expense_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "expenses_practice_id_fkey"
+            columns: ["practice_id"]
+            isOneToOne: false
+            referencedRelation: "practices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       invoice_lines: {
         Row: {
           billing_code_id: string | null

@@ -4,6 +4,7 @@ Changes a practitioner would notice, newest first. Each entry is one line, and t
 
 ## Unreleased
 
+- Expenses: add what you spend with a receipt photo or PDF, in plain categories you can add to, and see profit before tax on Performance.
 - Reconcile: tick the claims a medical aid's remittance paid to mark them paid on its date, see each remittance's total, and undo one recorded by mistake.
 - Practice logo: upload it in Settings and it shows in the menu, on invoices and on claim PDFs.
 - Performance: a live dashboard of income per month, income per patient, and what's outstanding by age and payer. Mark any invoice paid, with a date.
