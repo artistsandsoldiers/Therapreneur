@@ -25,6 +25,12 @@ export function PatientFields({
         <input name="first_name" defaultValue={patient?.first_name} placeholder="First name" aria-label="First name" autoComplete="off" className={field} />
         <input name="last_name" defaultValue={patient?.last_name} placeholder="Surname" aria-label="Surname" autoComplete="off" className={field} />
       </div>
+      <div>
+        <label htmlFor="date_of_birth" className="mb-1 block text-sm text-neutral-500">
+          Date of birth{payerType === "cash" && " (optional)"}
+        </label>
+        <input id="date_of_birth" name="date_of_birth" type="date" defaultValue={patient?.date_of_birth ?? ""} className={field} />
+      </div>
       <div className="grid grid-cols-2 gap-1 rounded-lg bg-neutral-100 p-1">
         {(
           [
@@ -74,14 +80,41 @@ export function PatientFields({
             The patient is the main member
           </label>
           {!isMainMember && (
+            <div className="grid grid-cols-[1fr_8rem] gap-2">
+              <input
+                name="main_member_name"
+                defaultValue={patient?.main_member_name ?? ""}
+                placeholder="Main member's full name"
+                aria-label="Main member"
+                className={field}
+              />
+              <input
+                name="dependant_code"
+                defaultValue={patient?.dependant_code === "00" ? "" : (patient?.dependant_code ?? "")}
+                placeholder="Dependant code"
+                aria-label="Dependant code"
+                inputMode="numeric"
+                maxLength={2}
+                className={field}
+              />
+            </div>
+          )}
+          <div className="grid grid-cols-2 gap-2">
             <input
-              name="main_member_name"
-              defaultValue={patient?.main_member_name ?? ""}
-              placeholder="Main member's full name"
-              aria-label="Main member"
+              name="referring_doctor_name"
+              defaultValue={patient?.referring_doctor_name ?? ""}
+              placeholder="Referring doctor (optional)"
+              aria-label="Referring doctor"
               className={field}
             />
-          )}
+            <input
+              name="referring_doctor_practice_number"
+              defaultValue={patient?.referring_doctor_practice_number ?? ""}
+              placeholder="Doctor's practice no."
+              aria-label="Referring doctor's practice number"
+              className={field}
+            />
+          </div>
         </>
       )}
       <div>

@@ -96,3 +96,23 @@ export async function deleteInvoice(invoiceId: string) {
   revalidatePath("/invoices");
   redirect("/invoices");
 }
+
+/** Saves just the note, which can change even after the session's invoice is claimed. */
+export async function saveNote(sessionId: string, _previous: { error?: string }, form: FormData): Promise<{ error?: string }> {
+  const note = String(form.get("note") ?? "").trim();
+  if (note.length > 20000) return { error: "That note is too long." };
+
+  const { supabase } = await requireSetUpPractice();
+  const { data, error } = await supabase
+    .from("sessions")
+    .update({ note: note || null })
+    .eq("id", sessionId)
+    .select("invoices(id)")
+    .single();
+  if (error || !data.invoices) {
+    console.error("Saving note failed", error);
+    return { error: "Something went wrong. Please try again." };
+  }
+  revalidatePath("/patients");
+  redirect(`/invoices/${data.invoices.id}`);
+}

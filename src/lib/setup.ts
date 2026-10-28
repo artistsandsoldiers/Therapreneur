@@ -10,6 +10,7 @@ export const PROFESSIONS: { value: Profession; label: string }[] = [
 export type SetupDetails = {
   name: string;
   practice_number: string | null;
+  hpcsa_number: string | null;
   address: string;
   phone: string | null;
   email: string | null;
@@ -60,6 +61,7 @@ export function parseSetupForm(form: FormData): { ok: true; details: SetupDetail
     details: {
       name: text("name"),
       practice_number: optional("practice_number"),
+      hpcsa_number: optional("hpcsa_number"),
       address: text("address"),
       phone: optional("phone"),
       email: optional("email"),

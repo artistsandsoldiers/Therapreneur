@@ -24,6 +24,9 @@ _Avoid_: archived, discharged, inactive, dormant
 The person who holds the medical aid membership a patient is covered under, such as a parent of a child patient. May be the patient.
 _Avoid_: account holder, principal member
 
+**Dependant code**:
+The two-digit number a medical aid gives each person on a membership. The main member is 00.
+
 **Payer type**:
 Whether a patient's invoices go to a **Medical aid** or are paid in **Cash** by the patient.
 

@@ -57,11 +57,25 @@ export default async function PatientPage({ params }: { params: Promise<{ id: st
             <dt className="text-neutral-500">Medical aid</dt>
             <dd>{patient.medical_aids?.name}{patient.plan && ` · ${patient.plan}`}</dd>
             <dt className="text-neutral-500">Member no.</dt>
-            <dd>{patient.member_number}</dd>
+            <dd>
+              {patient.member_number}
+              {patient.dependant_code && ` · Dependant ${patient.dependant_code}`}
+            </dd>
             <dt className="text-neutral-500">Main member</dt>
             <dd>{isMainMember ? "The patient" : patient.main_member_name}</dd>
+            {patient.referring_doctor_name && (
+              <>
+                <dt className="text-neutral-500">Referred by</dt>
+                <dd>
+                  {patient.referring_doctor_name}
+                  {patient.referring_doctor_practice_number && ` · Practice no. ${patient.referring_doctor_practice_number}`}
+                </dd>
+              </>
+            )}
           </>
         )}
+        <dt className="text-neutral-500">Date of birth</dt>
+        <dd>{patient.date_of_birth ? formatDate(patient.date_of_birth) : "Not added yet"}</dd>
         <dt className="text-neutral-500">ICD-10</dt>
         <dd>{patient.icd10_codes.length ? patient.icd10_codes.join(", ") : "None yet"}</dd>
       </dl>

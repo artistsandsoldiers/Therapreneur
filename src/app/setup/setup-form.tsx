@@ -17,7 +17,8 @@ export function SetupForm({ practice }: { practice: Practice }) {
       <fieldset className="flex flex-col gap-4">
         <legend className="mb-3 text-lg font-semibold">Your practice</legend>
         <Field name="name" label="Practice name" initial={practice.name} required autoComplete="organization" />
-        <Field name="practice_number" label="Practice number (optional)" initial={practice.practice_number} />
+        <Field name="practice_number" label="Practice number (optional, needed for claims)" initial={practice.practice_number} />
+        <Field name="hpcsa_number" label="HPCSA registration number (optional, needed for claims)" initial={practice.hpcsa_number} />
         <div>
           <label htmlFor="address" className={label}>Address</label>
           <textarea id="address" name="address" required rows={3} defaultValue={practice.address ?? ""} className={field} />

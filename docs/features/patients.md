@@ -18,7 +18,7 @@ None yet from therapists. Grilled with Barry on 28 October 2026 because capture 
 - Delete a patient only if they have no sessions.
 
 ## Out of scope
-- New fields such as date of birth, dependant code, phone or email. They wait for the claims grill.
+- Phone and email. (Date of birth, dependant code and referring doctor came with claims.)
 - Deleting a patient with history.
 
 ## Open questions
