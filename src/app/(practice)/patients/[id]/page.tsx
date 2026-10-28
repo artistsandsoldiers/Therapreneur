@@ -27,7 +27,8 @@ export default async function PatientPage({ params }: { params: Promise<{ id: st
   if (!patient) notFound();
 
   const name = `${patient.first_name} ${patient.last_name}`;
-  const sessions = [...patient.sessions].sort((a, b) => b.starts_at.localeCompare(a.starts_at));
+  // Sessions booked ahead live in the calendar until they're captured.
+  const sessions = patient.sessions.filter((s) => s.outcome).sort((a, b) => b.starts_at.localeCompare(a.starts_at));
   const isMainMember = patient.main_member_name === name;
 
   return (
@@ -138,7 +139,7 @@ export default async function PatientPage({ params }: { params: Promise<{ id: st
         </section>
       </div>
 
-      <PatientActions patientId={patient.id} isPast={Boolean(patient.past_since)} canDelete={sessions.length === 0} />
+      <PatientActions patientId={patient.id} isPast={Boolean(patient.past_since)} canDelete={patient.sessions.length === 0} />
     </main>
   );
 }

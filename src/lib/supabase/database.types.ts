@@ -597,9 +597,10 @@ export type Database = {
           created_at: string
           id: string
           note: string | null
-          outcome: Database["public"]["Enums"]["session_outcome"]
+          outcome: Database["public"]["Enums"]["session_outcome"] | null
           patient_id: string
           practice_id: string
+          series_id: string | null
           starts_at: string
           duration_minutes: number
         }
@@ -607,9 +608,10 @@ export type Database = {
           created_at?: string
           id?: string
           note?: string | null
-          outcome: Database["public"]["Enums"]["session_outcome"]
+          outcome?: Database["public"]["Enums"]["session_outcome"] | null
           patient_id: string
           practice_id: string
+          series_id?: string | null
           starts_at: string
           duration_minutes?: number
         }
@@ -617,9 +619,10 @@ export type Database = {
           created_at?: string
           id?: string
           note?: string | null
-          outcome?: Database["public"]["Enums"]["session_outcome"]
+          outcome?: Database["public"]["Enums"]["session_outcome"] | null
           patient_id?: string
           practice_id?: string
+          series_id?: string | null
           starts_at?: string
           duration_minutes?: number
         }

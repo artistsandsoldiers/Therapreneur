@@ -65,10 +65,12 @@ export async function saveCapture(input: CaptureInput): Promise<{ error: string 
   });
   if (!priced.ok) return { error: priced.error };
 
-  if (input.sessionId) {
-    // Fixing a capture: clear the old lines, and save_capture writes the new ones and keeps the number.
-    const { data: invoice } = await supabase.from("invoices").select("id").eq("session_id", input.sessionId).single();
-    if (!invoice) return { error: "That invoice no longer exists." };
+  // Fixing a capture: clear the old lines, and save_capture writes the new ones and keeps the number. A booked
+  // session has no invoice yet, so save_capture creates one.
+  const { data: invoice } = input.sessionId
+    ? await supabase.from("invoices").select("id").eq("session_id", input.sessionId).maybeSingle()
+    : { data: null };
+  if (invoice) {
     const { error } = await supabase.from("invoice_lines").delete().eq("invoice_id", invoice.id);
     if (error) {
       console.error("Clearing invoice lines failed", error);
@@ -92,6 +94,7 @@ export async function saveCapture(input: CaptureInput): Promise<{ error: string 
   }
 
   revalidatePath("/invoices");
+  revalidatePath("/home");
   redirect(`/invoices/${invoiceId}`);
 }
 

@@ -21,7 +21,33 @@ export default async function EditSessionPage({ params }: { params: Promise<{ id
       .eq("id", id)
       .maybeSingle(),
   ]);
-  if (!session?.invoices) notFound();
+  if (!session) notFound();
+
+  // A booked session has no invoice yet: capturing it creates one.
+  if (!session.invoices) {
+    return (
+      <main className={`py-6 ${narrow}`}>
+        <Link href="/calendar" className="text-sm text-neutral-500">← Calendar</Link>
+        <h1 className="mt-3 mb-6 text-2xl font-semibold tracking-tight">Capture session</h1>
+        <CaptureForm
+          {...data}
+          booked
+          adjustmentPercent={practice.price_adjustment_percent}
+          noShowPriceCents={practice.no_show_price_cents ?? 0}
+          initial={{
+            sessionId: session.id,
+            patientId: session.patient_id,
+            startsAt: toLocalInput(new Date(session.starts_at)),
+            durationMinutes: session.duration_minutes,
+            outcome: "attended",
+            billTo: null,
+            note: session.note ?? "",
+            lines: [],
+          }}
+        />
+      </main>
+    );
+  }
 
   // A claimed invoice is locked, so only its note can change.
   if (session.invoices.claim_batches?.sent_at) {
@@ -60,7 +86,7 @@ export default async function EditSessionPage({ params }: { params: Promise<{ id
           patientId: session.patient_id,
           startsAt: toLocalInput(new Date(session.starts_at)),
           durationMinutes: session.duration_minutes,
-          outcome: session.outcome,
+          outcome: session.outcome ?? "attended",
           billTo: session.invoices.bill_to,
           note: session.note ?? "",
           lines,

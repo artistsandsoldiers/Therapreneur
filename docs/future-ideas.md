@@ -6,3 +6,4 @@ _Parked ideas, one line each. An idea moves to `docs/features/` only when a ther
 - **Recurring expenses.** Rent and subscriptions added each month without retyping.
 - **Keep the sent PDF.** Save each claimed invoice's final PDF in file storage, so what was sent can be shown exactly as it was.
 - **Home, tasks and reminders.** One place for what's due: provisional tax dates, checking tax answers each March, claims to chase.
+- **Patient reminders.** An SMS or WhatsApp before each booked session, to cut no-shows.

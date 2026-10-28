@@ -17,7 +17,7 @@ export default async function PatientsPage({ searchParams }: { searchParams: Pro
   const { medicalAids, defaultMedicalAidId, referrers } = await loadPatientFormData(supabase);
   let query = supabase
     .from("patients")
-    .select("id, first_name, last_name, bill_to, medical_aids(name), sessions(starts_at)")
+    .select("id, first_name, last_name, bill_to, medical_aids(name), sessions(starts_at, outcome)")
     .order("last_name")
     .order("first_name");
   query = showPast ? query.not("past_since", "is", null) : query.is("past_since", null);
@@ -25,7 +25,7 @@ export default async function PatientsPage({ searchParams }: { searchParams: Pro
   if (error) throw error;
 
   const rows = patients.map((patient) => {
-    const last = patient.sessions.map((s) => s.starts_at).sort().at(-1);
+    const last = patient.sessions.filter((s) => s.outcome).map((s) => s.starts_at).sort().at(-1);
     return {
       id: patient.id,
       name: `${patient.first_name} ${patient.last_name}`,
