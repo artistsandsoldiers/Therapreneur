@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { BatchStatus } from "./batch-status";
-import { bottomLeft, button, list, listHead, listRow, topRight } from "@/app/ui";
+import { SentList } from "./sent-list";
+import { bottomLeft, button, listRow, topRight } from "@/app/ui";
 import { missingPracticeDetails } from "@/lib/claims";
 import { friendlyDate } from "@/lib/dates";
 import { invoiceNumber } from "@/lib/invoices";
@@ -16,7 +16,6 @@ export const metadata: Metadata = { title: "Claims · Therapreneur" };
 const STUCK_AFTER_MS = 10 * 60 * 1000;
 
 const READY_COLS = "md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,2fr)_minmax(0,1fr)]";
-const SENT_COLS = "md:grid-cols-[minmax(0,2fr)_repeat(4,minmax(0,1fr))]";
 
 export default async function ClaimsPage({ searchParams }: { searchParams: Promise<{ sent?: string }> }) {
   const { sent } = await searchParams;
@@ -157,42 +156,21 @@ export default async function ClaimsPage({ searchParams }: { searchParams: Promi
       {batches.data.length === 0 ? (
         <p className="text-neutral-500">No claims sent yet.</p>
       ) : (
-        <>
-          <div className={`${listHead} ${SENT_COLS}`}>
-            <span>Medical aid</span>
-            <span>Sent</span>
-            <span>Claims</span>
-            <span className="text-right">Amount</span>
-            <span className="text-right">Status</span>
-          </div>
-          <ul className={list}>
-            {batches.data.map((batch) => {
-              const total = batch.invoices.reduce(
-                (sum, invoice) =>
-                  sum +
-                  invoiceTotal(invoice.invoice_lines.map((line) => ({ quantity: line.quantity, unitPriceCents: line.unit_price_cents }))),
-                0,
-              );
-              return (
-                <li key={batch.id}>
-                  <Link href={`/claims/${batch.id}`} className={`${listRow} ${SENT_COLS}`}>
-                    <p className="truncate font-medium">{batch.medical_aids?.name}</p>
-                    <p className={`${bottomLeft} text-sm text-neutral-500 md:contents`}>
-                      <span>{friendlyDate(batch.sent_at!)}</span>
-                      <span className="md:hidden"> · </span>
-                      <span>{batch.invoices.length === 1 ? "1 claim" : `${batch.invoices.length} claims`}</span>
-                      <span className="md:hidden"> · </span>
-                      <span className="tabular-nums md:text-right md:font-medium md:text-neutral-900">{formatRands(total)}</span>
-                    </p>
-                    <span className="col-start-2 row-span-2 row-start-1 text-right md:col-start-auto md:row-span-1 md:row-start-auto">
-                      <BatchStatus referenceNumber={batch.reference_number} />
-                    </span>
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        </>
+        <SentList
+          batches={batches.data.map((batch) => ({
+            id: batch.id,
+            medicalAid: batch.medical_aids?.name ?? "",
+            sentAt: batch.sent_at!,
+            claims: batch.invoices.length,
+            totalCents: batch.invoices.reduce(
+              (sum, invoice) =>
+                sum +
+                invoiceTotal(invoice.invoice_lines.map((line) => ({ quantity: line.quantity, unitPriceCents: line.unit_price_cents }))),
+              0,
+            ),
+            referenceNumber: batch.reference_number,
+          }))}
+        />
       )}
     </main>
   );

@@ -30,6 +30,7 @@ export default async function PatientsPage({ searchParams }: { searchParams: Pro
       id: patient.id,
       name: `${patient.first_name} ${patient.last_name}`,
       payer: payerLabel(patient.medical_aids?.name ?? null, patient.bill_to),
+      kind: !patient.medical_aids ? ("none" as const) : patient.bill_to === "patient" ? ("patient_pays" as const) : ("medical_aid_pays" as const),
       lastSession: last ? friendlyDate(last) : null,
     };
   });

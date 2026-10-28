@@ -1,16 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { bottomLeft, button, list, listHead, listRow, topRight } from "@/app/ui";
+import { button } from "@/app/ui";
 import { friendlyDate, toLocalInput } from "@/lib/dates";
-import { expensesByMonth, nextTaxYearStart, taxYearStart } from "@/lib/expenses";
+import { nextTaxYearStart, taxYearStart } from "@/lib/expenses";
 import { formatRands } from "@/lib/money";
 import { requireSetUpPractice } from "@/lib/practice";
+import { ExpenseList } from "./expense-list";
 
 export const metadata: Metadata = { title: "Expenses · Therapreneur" };
-
-const COLS = "md:grid-cols-[minmax(0,2fr)_repeat(4,minmax(0,1fr))]";
-
-const MONTH_NAMES = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
 export default async function ExpensesPage() {
   const { supabase } = await requireSetUpPractice();
@@ -58,43 +55,7 @@ export default async function ExpensesPage() {
             )}
           </div>
 
-          {expensesByMonth(expenses).map((month) => (
-            <section key={month.month} className="mt-8">
-              <div className="mb-1 flex items-baseline justify-between gap-4 text-sm font-medium text-neutral-500">
-                <h2>{MONTH_NAMES[Number(month.month.slice(5, 7)) - 1]} {month.month.slice(0, 4)}</h2>
-                <span className="tabular-nums">{formatRands(month.totalCents)}</span>
-              </div>
-              <div className={`${listHead} ${COLS}`}>
-                <span>Supplier</span>
-                <span>Category</span>
-                <span>Date</span>
-                <span>Receipt</span>
-                <span className="text-right">Amount</span>
-              </div>
-              <ul className={list}>
-                {month.expenses.map((expense) => (
-                  <li key={expense.id}>
-                    <Link href={`/expenses/${expense.id}`} className={`${listRow} ${COLS}`}>
-                      <p className="truncate font-medium">{expense.supplier}</p>
-                      <p className={`${bottomLeft} text-sm text-neutral-500 md:contents`}>
-                        <span className="truncate">{expense.category}</span>
-                        <span className="md:hidden"> · </span>
-                        <span>{friendlyDate(expense.spentOn)}</span>
-                        <span className="text-amber-700">
-                          {!expense.hasReceipt && (
-                            <>
-                              <span className="md:hidden"> · </span>No receipt
-                            </>
-                          )}
-                        </span>
-                      </p>
-                      <span className={`${topRight} font-medium tabular-nums`}>{formatRands(expense.amountCents)}</span>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          ))}
+          <ExpenseList expenses={expenses} />
         </>
       )}
     </main>
