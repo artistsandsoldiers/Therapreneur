@@ -5,7 +5,7 @@ import { saveSetup, type SetupState } from "./actions";
 import { PricingField } from "./pricing-field";
 import type { PriceExample } from "@/lib/capture-data";
 import { button, field, label } from "@/app/ui";
-import { PROFESSIONS } from "@/lib/setup";
+import { BUSINESS_TYPES, PROFESSIONS } from "@/lib/setup";
 import type { Practice } from "@/lib/practice";
 
 export function SetupForm({ practice, priceExample }: { practice: Practice; priceExample: PriceExample | null }) {
@@ -31,6 +31,26 @@ export function SetupForm({ practice, priceExample }: { practice: Practice; pric
             <option value="" disabled>Choose…</option>
             {PROFESSIONS.map((p) => <option key={p.value} value={p.value}>{p.label}</option>)}
           </select>
+        </div>
+        <div>
+          <span className={label}>How your practice is set up</span>
+          <div className="flex flex-col gap-2">
+            {BUSINESS_TYPES.map((type) => (
+              <label key={type.value} className="flex items-start gap-3 rounded-md border border-neutral-200 px-3 py-2.5 has-checked:border-accent">
+                <input
+                  type="radio"
+                  name="business_type"
+                  value={type.value}
+                  defaultChecked={practice.business_type === type.value}
+                  className="mt-1 accent-accent"
+                />
+                <span>
+                  {type.label}
+                  <span className="block text-sm text-neutral-500">{type.hint}</span>
+                </span>
+              </label>
+            ))}
+          </div>
         </div>
       </fieldset>
 

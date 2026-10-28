@@ -13,6 +13,7 @@ One doc per feature. A feature doc is written after a grill and before any code,
 | [Reconciliation](reconciliation.md) | building | Tick the claims a remittance paid and mark them paid |
 | [Notes](notes.md) | grilled | Free-text session notes and a list of sessions missing one |
 | [Expenses](expenses.md) | building | Expenses with receipt photos, and profit before tax on Performance |
+| [Tax](tax.md) | building | Provisional tax to put aside and pay, estimated from invoices and expenses |
 | [Performance](performance.md) | building | Income per month, income per patient, outstanding by age |
 | [Patients](patients.md) | building | A patient list and page with details, sessions and notes |
 | [Waitlist](waitlist.md) | building | Landing page that collects name, email and occupation |

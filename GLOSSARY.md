@@ -132,6 +132,14 @@ _Avoid_: slip, proof of payment
 1 March to the end of February, as SARS counts it.
 _Avoid_: financial year
 
+**Provisional tax**:
+Income tax a sole proprietor pays SARS in advance from an estimate of the year: end of August, end of February, and an optional top-up by 30 September.
+_Avoid_: IRP6 (the form's name, fine for tax practitioners)
+
+**Inc**:
+A personal liability company, which pays its own tax. The other kind of practice is a **sole proprietor**.
+_Avoid_: company, Pty
+
 **Profit before tax**:
 Invoiced income less expenses, for a month or the tax year so far.
 _Avoid_: net income, earnings

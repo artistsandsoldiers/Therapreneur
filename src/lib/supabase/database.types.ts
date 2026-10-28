@@ -429,7 +429,9 @@ export type Database = {
           bank_account_number: string | null
           bank_branch_code: string | null
           bank_name: string | null
+          business_type: Database["public"]["Enums"]["business_type"]
           created_at: string
+          date_of_birth: string | null
           email: string | null
           id: string
           invite_email: string
@@ -443,6 +445,7 @@ export type Database = {
           session_minutes: number
           profession: Database["public"]["Enums"]["profession"] | null
           setup_completed_at: string | null
+          tax_estimate_on: boolean
         }
         Insert: {
           hpcsa_number?: string | null
@@ -451,7 +454,9 @@ export type Database = {
           bank_account_number?: string | null
           bank_branch_code?: string | null
           bank_name?: string | null
+          business_type?: Database["public"]["Enums"]["business_type"]
           created_at?: string
+          date_of_birth?: string | null
           email?: string | null
           id?: string
           invite_email: string
@@ -465,6 +470,7 @@ export type Database = {
           session_minutes?: number
           profession?: Database["public"]["Enums"]["profession"] | null
           setup_completed_at?: string | null
+          tax_estimate_on?: boolean
         }
         Update: {
           hpcsa_number?: string | null
@@ -473,7 +479,9 @@ export type Database = {
           bank_account_number?: string | null
           bank_branch_code?: string | null
           bank_name?: string | null
+          business_type?: Database["public"]["Enums"]["business_type"]
           created_at?: string
+          date_of_birth?: string | null
           email?: string | null
           id?: string
           invite_email?: string
@@ -487,6 +495,7 @@ export type Database = {
           session_minutes?: number
           profession?: Database["public"]["Enums"]["profession"] | null
           setup_completed_at?: string | null
+          tax_estimate_on?: boolean
         }
         Relationships: []
       }
@@ -580,6 +589,132 @@ export type Database = {
           },
         ]
       }
+      tax_other_income: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          kind: Database["public"]["Enums"]["other_income_kind"]
+          paye_cents: number
+          practice_id: string
+          tax_year: number
+          yearly_cents: number
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          kind: Database["public"]["Enums"]["other_income_kind"]
+          paye_cents?: number
+          practice_id: string
+          tax_year: number
+          yearly_cents: number
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          kind?: Database["public"]["Enums"]["other_income_kind"]
+          paye_cents?: number
+          practice_id?: string
+          tax_year?: number
+          yearly_cents?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tax_other_income_practice_id_fkey"
+            columns: ["practice_id"]
+            isOneToOne: false
+            referencedRelation: "practices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tax_payments: {
+        Row: {
+          amount_cents: number
+          created_at: string
+          id: string
+          paid_on: string
+          practice_id: string
+          tax_year: number
+        }
+        Insert: {
+          amount_cents: number
+          created_at?: string
+          id?: string
+          paid_on: string
+          practice_id: string
+          tax_year: number
+        }
+        Update: {
+          amount_cents?: number
+          created_at?: string
+          id?: string
+          paid_on?: string
+          practice_id?: string
+          tax_year?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tax_payments_practice_id_fkey"
+            columns: ["practice_id"]
+            isOneToOne: false
+            referencedRelation: "practices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tax_years: {
+        Row: {
+          created_at: string
+          expenses_before_cents: number
+          id: string
+          income_before_cents: number
+          last_taxable_income_cents: number | null
+          medical_aid_members: number
+          practice_id: string
+          profit_override_cents: number | null
+          records_from: string
+          retirement_annuity_monthly_cents: number
+          tax_year: number
+        }
+        Insert: {
+          created_at?: string
+          expenses_before_cents?: number
+          id?: string
+          income_before_cents?: number
+          last_taxable_income_cents?: number | null
+          medical_aid_members?: number
+          practice_id: string
+          profit_override_cents?: number | null
+          records_from: string
+          retirement_annuity_monthly_cents?: number
+          tax_year: number
+        }
+        Update: {
+          created_at?: string
+          expenses_before_cents?: number
+          id?: string
+          income_before_cents?: number
+          last_taxable_income_cents?: number | null
+          medical_aid_members?: number
+          practice_id?: string
+          profit_override_cents?: number | null
+          records_from?: string
+          retirement_annuity_monthly_cents?: number
+          tax_year?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tax_years_practice_id_fkey"
+            columns: ["practice_id"]
+            isOneToOne: false
+            referencedRelation: "practices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       waitlist: {
         Row: {
           created_at: string
@@ -645,6 +780,8 @@ export type Database = {
     }
     Enums: {
       bill_to: "medical_aid" | "patient"
+      business_type: "sole_proprietor" | "inc"
+      other_income_kind: "salary" | "interest" | "rent" | "other"
       profession: "occupational_therapy" | "physiotherapy" | "speech_therapy"
       session_outcome: "attended" | "no_show"
     }
