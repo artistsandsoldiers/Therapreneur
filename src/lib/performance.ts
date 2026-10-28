@@ -13,6 +13,8 @@ export type ReportInvoice = {
   patientName: string;
   /** The medical aid's name for a medical aid invoice, or null when the patient pays cash. */
   medicalAidName: string | null;
+  /** Who referred the patient, as the patient's details say now. Null when no one is recorded. */
+  referrer: { id: string; name: string } | null;
 };
 
 export type MonthIncome = { month: string; invoicedCents: number; paidCents: number }; // month is YYYY-MM
@@ -49,6 +51,46 @@ export function incomeByPatient(invoices: ReportInvoice[]): PatientIncome[] {
     patients.set(invoice.patientId, patient);
   }
   return [...patients.values()].sort((a, b) => b.invoicedCents - a.invoicedCents || a.patientName.localeCompare(b.patientName));
+}
+
+export type ReferrerIncome = {
+  /** Null for patients with no referrer. */
+  referrerId: string | null;
+  name: string;
+  patientCount: number;
+  invoicedCents: number;
+  paidCents: number;
+};
+
+/** Income per referrer, biggest invoiced total first, with patients who have no referrer last. */
+export function incomeByReferrer(invoices: ReportInvoice[]): ReferrerIncome[] {
+  const referrers = new Map<string | null, ReferrerIncome & { patients: Set<string> }>();
+  for (const invoice of invoices) {
+    const id = invoice.referrer?.id ?? null;
+    const row = referrers.get(id) ?? {
+      referrerId: id,
+      name: invoice.referrer?.name ?? "No referrer",
+      patientCount: 0,
+      invoicedCents: 0,
+      paidCents: 0,
+      patients: new Set<string>(),
+    };
+    row.patients.add(invoice.patientId);
+    row.invoicedCents += invoice.totalCents;
+    if (invoice.paidOn) row.paidCents += invoice.totalCents;
+    referrers.set(id, row);
+  }
+  return [...referrers.values()]
+    .map(({ patients, ...row }) => ({ ...row, patientCount: patients.size }))
+    .sort((a, b) =>
+      a.referrerId === null ? 1 : b.referrerId === null ? -1 : b.invoicedCents - a.invoicedCents || a.name.localeCompare(b.name),
+    );
+}
+
+/** The invoices for one referrer's patients: a referrer id, "none" for patients with no referrer, or "" for everyone. */
+export function forReferrer(invoices: ReportInvoice[], referrer: string): ReportInvoice[] {
+  if (!referrer) return invoices;
+  return invoices.filter((invoice) => (invoice.referrer?.id ?? "none") === referrer);
 }
 
 export const AGE_BUCKETS = ["0–30 days", "31–60 days", "61–90 days", "90+ days"] as const;

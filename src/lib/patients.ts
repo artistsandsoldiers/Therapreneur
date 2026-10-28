@@ -1,3 +1,4 @@
+import { parseReferrerChoice, type ReferrerChoice } from "./referrers";
 import type { Enums } from "./supabase/database.types";
 
 // An ICD-10 code is a letter, two digits, and optionally a point and up to four more characters, e.g. M54.5.
@@ -25,13 +26,13 @@ export type NewPatient = {
   main_member_name: string | null;
   date_of_birth: string | null;
   dependant_code: string | null;
-  referring_doctor_name: string | null;
-  referring_doctor_practice_number: string | null;
   icd10_codes: string[];
 };
 
-/** Validates the add patient form. */
-export function parsePatientForm(form: FormData): { ok: true; patient: NewPatient } | { ok: false; error: string } {
+/** Validates the add patient form. The referrer is saved separately, since a new one may need adding first. */
+export function parsePatientForm(
+  form: FormData,
+): { ok: true; patient: NewPatient; referrer: ReferrerChoice } | { ok: false; error: string } {
   const text = (name: string) => String(form.get(name) ?? "").trim();
   const first_name = text("first_name");
   const last_name = text("last_name");
@@ -42,6 +43,9 @@ export function parsePatientForm(form: FormData): { ok: true; patient: NewPatien
 
   const date_of_birth = text("date_of_birth") || null;
   if (date_of_birth && !isPastDate(date_of_birth)) return { ok: false, error: "Please check the date of birth." };
+
+  const referrer = parseReferrerChoice(form);
+  if (!referrer.ok) return referrer;
 
   if (text("has_medical_aid") === "no") {
     return {
@@ -56,10 +60,9 @@ export function parsePatientForm(form: FormData): { ok: true; patient: NewPatien
         main_member_name: null,
         date_of_birth,
         dependant_code: null,
-        referring_doctor_name: null,
-        referring_doctor_practice_number: null,
         icd10_codes: icd10.codes,
       },
+      referrer: referrer.choice,
     };
   }
 
@@ -90,10 +93,9 @@ export function parsePatientForm(form: FormData): { ok: true; patient: NewPatien
       main_member_name,
       date_of_birth,
       dependant_code,
-      referring_doctor_name: text("referring_doctor_name") || null,
-      referring_doctor_practice_number: text("referring_doctor_practice_number") || null,
       icd10_codes: icd10.codes,
     },
+    referrer: referrer.choice,
   };
 }
 

@@ -27,6 +27,10 @@ _Avoid_: account holder, principal member
 **Dependant code**:
 The two-digit number a medical aid gives each person on a membership. The main member is 00.
 
+**Referrer**:
+Who or what sent a patient to the practice: a doctor, another therapist, the website, social media, word of mouth. Optional, one per patient.
+_Avoid_: source, lead, referral source
+
 **Who pays**:
 Whether an invoice goes to the patient's **Medical aid** or to the **Patient**, who may claim back themselves. Each patient has a usual choice, and each session can change it. Separate from whether the patient has medical aid at all.
 _Avoid_: payer type, cash patient

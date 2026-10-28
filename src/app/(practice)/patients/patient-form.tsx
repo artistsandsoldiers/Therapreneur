@@ -5,9 +5,15 @@ import { savePatient } from "./actions";
 import { PatientFields } from "./patient-fields";
 import { button } from "@/app/ui";
 import type { MedicalAid, Patient } from "@/lib/capture-data";
+import type { Referrer } from "@/lib/referrers";
 
 /** Add or edit a patient on their own page. */
-export function PatientForm(props: { medicalAids: MedicalAid[]; defaultMedicalAidId: string; patient?: Patient }) {
+export function PatientForm(props: {
+  medicalAids: MedicalAid[];
+  defaultMedicalAidId: string;
+  referrers: Referrer[];
+  patient?: Patient;
+}) {
   const [state, action, saving] = useActionState(savePatient.bind(null, props.patient?.id ?? null), {});
 
   return (

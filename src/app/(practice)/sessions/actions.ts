@@ -7,6 +7,7 @@ import { isSessionLength, priceCapture, sessionBillTo, SESSION_MINUTES, type Cap
 import { fromLocalInput } from "@/lib/dates";
 import { parsePatientForm } from "@/lib/patients";
 import { requireSetUpPractice } from "@/lib/practice";
+import { resolveReferrer } from "@/lib/referrers";
 import type { Enums } from "@/lib/supabase/database.types";
 
 export async function addPatient(form: FormData): Promise<{ patient?: Patient; error?: string }> {
@@ -14,9 +15,11 @@ export async function addPatient(form: FormData): Promise<{ patient?: Patient; e
   if (!parsed.ok) return { error: parsed.error };
 
   const { supabase, practice } = await requireSetUpPractice();
+  const referrer = await resolveReferrer(supabase, practice.id, parsed.referrer);
+  if (!referrer.ok) return { error: referrer.error };
   const { data, error } = await supabase
     .from("patients")
-    .insert({ ...parsed.patient, practice_id: practice.id })
+    .insert({ ...parsed.patient, ...referrer.columns, practice_id: practice.id })
     .select("*")
     .single();
   if (error) {

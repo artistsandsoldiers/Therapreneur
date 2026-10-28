@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { toLocalInput } from "@/lib/dates";
 import { parsePatientForm } from "@/lib/patients";
 import { requireSetUpPractice } from "@/lib/practice";
+import { resolveReferrer } from "@/lib/referrers";
 
 export type PatientFormState = { error?: string };
 
@@ -18,9 +19,12 @@ export async function savePatient(
   if (!parsed.ok) return { error: parsed.error };
 
   const { supabase, practice } = await requireSetUpPractice();
+  const referrer = await resolveReferrer(supabase, practice.id, parsed.referrer);
+  if (!referrer.ok) return { error: referrer.error };
+  const row = { ...parsed.patient, ...referrer.columns };
   const { data, error } = patientId
-    ? await supabase.from("patients").update(parsed.patient).eq("id", patientId).select("id").single()
-    : await supabase.from("patients").insert({ ...parsed.patient, practice_id: practice.id }).select("id").single();
+    ? await supabase.from("patients").update(row).eq("id", patientId).select("id").single()
+    : await supabase.from("patients").insert({ ...row, practice_id: practice.id }).select("id").single();
   if (error) {
     console.error("Saving patient failed", error);
     return { error: "Something went wrong. Please try again." };
