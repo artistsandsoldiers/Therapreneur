@@ -120,10 +120,19 @@ export type TaxYearSoFar = {
   byCategory: { name: string; cents: number }[];
 };
 
-/** Income by invoice date, expenses and profit before tax from 1 March up to today. */
+/** The day after the tax year that today falls in ends: the next 1 March, as YYYY-MM-DD. */
+export function nextTaxYearStart(today: string): string {
+  return `${Number(taxYearStart(today).slice(0, 4)) + 1}-03-01`;
+}
+
+/**
+ * Income by invoice date, expenses and profit before tax for the tax year today falls in. Anything dated later in the
+ * same tax year counts too, so an expense dated tomorrow doesn't vanish.
+ */
 export function taxYearSoFar(invoices: ReportInvoice[], expenses: ReportExpense[], today: string): TaxYearSoFar {
   const from = taxYearStart(today);
-  const inYear = (date: string) => date >= from && date <= today;
+  const to = nextTaxYearStart(today);
+  const inYear = (date: string) => date >= from && date < to;
 
   const yearExpenses = expenses.filter((e) => inYear(e.spentOn));
   const categories = new Map<string, number>();

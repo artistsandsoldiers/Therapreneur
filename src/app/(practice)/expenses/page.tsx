@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { button } from "@/app/ui";
 import { formatDate, toLocalInput } from "@/lib/dates";
-import { expensesByMonth, taxYearStart } from "@/lib/expenses";
+import { expensesByMonth, nextTaxYearStart, taxYearStart } from "@/lib/expenses";
 import { formatRands } from "@/lib/money";
 import { requireSetUpPractice } from "@/lib/practice";
 
@@ -29,7 +29,7 @@ export default async function ExpensesPage() {
     category: e.expense_categories?.name ?? "",
     hasReceipt: Boolean(e.receipt_path),
   }));
-  const yearTotal = expenses.filter((e) => e.spentOn >= from && e.spentOn <= today).reduce((sum, e) => sum + e.amountCents, 0);
+  const yearTotal = expenses.filter((e) => e.spentOn >= from && e.spentOn < nextTaxYearStart(today)).reduce((sum, e) => sum + e.amountCents, 0);
   const missingReceipts = expenses.filter((e) => !e.hasReceipt).length;
 
   return (
