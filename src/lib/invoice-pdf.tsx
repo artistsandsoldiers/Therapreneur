@@ -1,6 +1,6 @@
 import { Document, Image, Page, StyleSheet, Text, View, renderToBuffer } from "@react-pdf/renderer";
 import { formatDate } from "./dates";
-import type { InvoiceDocument } from "./invoice-document";
+import { billToLines, type InvoiceDocument } from "./invoice-document";
 import { invoiceNumber } from "./invoices";
 import type { LogoImage } from "./logo";
 import { formatRands } from "./money";
@@ -49,29 +49,9 @@ export function invoicePdf(invoice: InvoiceDocument, logo: LogoImage | null = nu
 
         <View style={styles.section}>
           <Text style={styles.label}>Bill to</Text>
-          {invoice.toMedicalAid ? (
-            <>
-              <Text style={{ fontFamily: "Helvetica-Bold" }}>{patient.medical_aid_name}</Text>
-              <Text>Main member: {patient.main_member_name}</Text>
-              <Text>
-                Member no. {patient.member_number}
-                {patient.dependant_code && ` · Dependant ${patient.dependant_code}`}
-                {patient.plan && ` · ${patient.plan}`}
-              </Text>
-              <Text>
-                Patient: {patient.patient_name}
-                {patient.date_of_birth && ` · Born ${formatDate(patient.date_of_birth)}`}
-              </Text>
-              {patient.referring_doctor_name && (
-                <Text>
-                  Referred by {patient.referring_doctor_name}
-                  {patient.referring_doctor_practice_number && ` (practice no. ${patient.referring_doctor_practice_number})`}
-                </Text>
-              )}
-            </>
-          ) : (
-            <Text style={{ fontFamily: "Helvetica-Bold" }}>{patient.patient_name}</Text>
-          )}
+          {billToLines(invoice).map((line, index) => (
+            <Text key={index} style={index === 0 ? { fontFamily: "Helvetica-Bold" } : undefined}>{line}</Text>
+          ))}
         </View>
 
         <View style={styles.section}>

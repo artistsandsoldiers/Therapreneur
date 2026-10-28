@@ -186,7 +186,7 @@ export default async function PerformancePage() {
                         <p className={`${bottomLeft} text-sm text-neutral-500 md:contents`}>
                           <span>{invoiceNumber(invoice.number)}</span>
                           <span className="md:hidden"> · </span>
-                          <span className="truncate">{invoice.medicalAidName ?? "Cash"}</span>
+                          <span className="truncate">{invoice.medicalAidName ?? "Patient"}</span>
                           <span className="md:hidden"> · </span>
                           <span>{invoice.days === 1 ? "1 day" : `${invoice.days} days`} old</span>
                         </p>

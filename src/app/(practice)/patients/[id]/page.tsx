@@ -49,10 +49,12 @@ export default async function PatientPage({ params }: { params: Promise<{ id: st
       {/* Details beside the sessions on a wide screen, above them on a phone. */}
       <div className="lg:grid lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)] lg:items-start lg:gap-10">
         <dl className="mt-6 grid grid-cols-[auto_1fr] gap-x-6 gap-y-2 border-y border-neutral-100 py-4 text-sm">
-          {patient.payer_type === "cash" ? (
+          <dt className="text-neutral-500">Who pays</dt>
+          <dd>{patient.bill_to === "patient" ? "The patient" : "Medical aid"}</dd>
+          {!patient.medical_aids ? (
             <>
-              <dt className="text-neutral-500">Pays</dt>
-              <dd>Cash</dd>
+              <dt className="text-neutral-500">Medical aid</dt>
+              <dd>None</dd>
             </>
           ) : (
             <>

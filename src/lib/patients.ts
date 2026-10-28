@@ -17,7 +17,8 @@ export function parseIcd10Codes(input: string): { ok: true; codes: string[] } | 
 export type NewPatient = {
   first_name: string;
   last_name: string;
-  payer_type: Enums<"payer_type">;
+  /** Who the patient's invoices go to unless a session says otherwise. Medical aid only when they have one. */
+  bill_to: Enums<"bill_to">;
   medical_aid_id: string | null;
   plan: string | null;
   member_number: string | null;
@@ -42,13 +43,13 @@ export function parsePatientForm(form: FormData): { ok: true; patient: NewPatien
   const date_of_birth = text("date_of_birth") || null;
   if (date_of_birth && !isPastDate(date_of_birth)) return { ok: false, error: "Please check the date of birth." };
 
-  if (text("payer_type") === "cash") {
+  if (text("has_medical_aid") === "no") {
     return {
       ok: true,
       patient: {
         first_name,
         last_name,
-        payer_type: "cash",
+        bill_to: "patient",
         medical_aid_id: null,
         plan: null,
         member_number: null,
@@ -82,7 +83,7 @@ export function parsePatientForm(form: FormData): { ok: true; patient: NewPatien
     patient: {
       first_name,
       last_name,
-      payer_type: "medical_aid",
+      bill_to: text("bill_to") === "patient" ? "patient" : "medical_aid",
       medical_aid_id,
       plan: text("plan") || null,
       member_number,
@@ -109,4 +110,10 @@ export function missingClaimDetails(patient: { date_of_birth: string | null; dep
   if (!patient.date_of_birth) missing.push("date of birth");
   if (!patient.dependant_code) missing.push("dependant code");
   return missing;
+}
+
+/** How a patient's medical aid and who pays read in a list, like "Discovery Health Medical Scheme · Patient pays". */
+export function payerLabel(medicalAidName: string | null, billTo: Enums<"bill_to">): string {
+  if (!medicalAidName) return "No medical aid";
+  return billTo === "patient" ? `${medicalAidName} · Patient pays` : medicalAidName;
 }

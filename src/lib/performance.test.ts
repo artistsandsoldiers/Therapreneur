@@ -43,8 +43,8 @@ describe("incomeByPatient", () => {
       invoice({ number: 3, patientId: "p1", medicalAidName: null, totalCents: 10000 }),
     ]);
     expect(patients).toEqual([
-      { patientId: "p2", patientName: "Sam Naidoo", payerType: "Cash", invoicedCents: 90000, paidCents: 0, outstandingCents: 90000 },
-      { patientId: "p1", patientName: "Thandi Mokoena", payerType: "Cash", invoicedCents: 50000, paidCents: 40000, outstandingCents: 10000 },
+      { patientId: "p2", patientName: "Sam Naidoo", payerType: "Patient", invoicedCents: 90000, paidCents: 0, outstandingCents: 90000 },
+      { patientId: "p1", patientName: "Thandi Mokoena", payerType: "Patient", invoicedCents: 50000, paidCents: 40000, outstandingCents: 10000 },
     ]);
   });
 });
@@ -70,7 +70,7 @@ describe("outstanding", () => {
     expect(result.rows).toEqual([
       { payer: "Bonitas", bucketCents: [20000, 0, 0, 0], totalCents: 20000 },
       { payer: "Discovery", bucketCents: [0, 0, 0, 10000], totalCents: 10000 },
-      { payer: "Cash", bucketCents: [0, 30000, 0, 0], totalCents: 30000 },
+      { payer: "Patients", bucketCents: [0, 30000, 0, 0], totalCents: 30000 },
     ]);
     expect(result.totals).toEqual({ payer: "Total", bucketCents: [20000, 30000, 0, 10000], totalCents: 60000 });
     expect(result.invoices.map((i) => i.id)).toEqual(["a", "c", "b"]);

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { priceCapture, type CaptureContext } from "./capture";
+import { priceCapture, sessionBillTo, type CaptureContext } from "./capture";
 
 const context: CaptureContext = {
   rates: [
@@ -37,5 +37,19 @@ describe("priceCapture", () => {
   it("needs at least one code and a sensible quantity", () => {
     expect(priceCapture("attended", [], context).ok).toBe(false);
     expect(priceCapture("attended", [{ billingCodeId: "consult", quantity: 0, typedPriceCents: null }], context).ok).toBe(false);
+  });
+});
+
+describe("sessionBillTo", () => {
+  const withAid = { medical_aid_id: "discovery" };
+
+  it("follows the practitioner's choice for a patient with medical aid", () => {
+    expect(sessionBillTo("attended", "medical_aid", withAid)).toBe("medical_aid");
+    expect(sessionBillTo("attended", "patient", withAid)).toBe("patient");
+  });
+
+  it("bills the patient for a no-show, or when they have no medical aid", () => {
+    expect(sessionBillTo("no_show", "medical_aid", withAid)).toBe("patient");
+    expect(sessionBillTo("attended", "medical_aid", { medical_aid_id: null })).toBe("patient");
   });
 });

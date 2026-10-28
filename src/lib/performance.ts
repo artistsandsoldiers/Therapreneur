@@ -41,7 +41,7 @@ export function incomeByMonth(invoices: ReportInvoice[], today: string, count = 
 export type PatientIncome = {
   patientId: string;
   patientName: string;
-  payerType: "Medical aid" | "Cash";
+  payerType: "Medical aid" | "Patient";
   invoicedCents: number;
   paidCents: number;
   outstandingCents: number;
@@ -55,14 +55,14 @@ export function incomeByPatient(invoices: ReportInvoice[]): PatientIncome[] {
     const patient = patients.get(invoice.patientId) ?? {
       patientId: invoice.patientId,
       patientName: invoice.patientName,
-      payerType: "Cash",
+      payerType: "Patient",
       invoicedCents: 0,
       paidCents: 0,
       outstandingCents: 0,
     };
     if (invoice.number > (latest.get(invoice.patientId) ?? -1)) {
       latest.set(invoice.patientId, invoice.number);
-      patient.payerType = invoice.medicalAidName ? "Medical aid" : "Cash";
+      patient.payerType = invoice.medicalAidName ? "Medical aid" : "Patient";
     }
     patient.invoicedCents += invoice.totalCents;
     if (invoice.paidOn) patient.paidCents += invoice.totalCents;
@@ -90,7 +90,7 @@ export function ageBucket(days: number): number {
 export type OutstandingRow = { payer: string; bucketCents: number[]; totalCents: number };
 
 export type Outstanding = {
-  /** One row per medical aid, alphabetically, then Cash. */
+  /** One row per medical aid, alphabetically, then patients. */
   rows: OutstandingRow[];
   totals: OutstandingRow;
   /** Unpaid invoices, oldest first, so the ones to chase come first. */
@@ -107,7 +107,7 @@ export function outstanding(invoices: ReportInvoice[], today: string): Outstandi
   const rows = new Map<string, OutstandingRow>();
   const totals = emptyRow("Total");
   for (const invoice of unpaid) {
-    const payer = invoice.medicalAidName ?? "Cash";
+    const payer = invoice.medicalAidName ?? "Patients";
     const row = rows.get(payer) ?? emptyRow(payer);
     const bucket = ageBucket(invoice.days);
     for (const target of [row, totals]) {
@@ -118,7 +118,7 @@ export function outstanding(invoices: ReportInvoice[], today: string): Outstandi
   }
 
   const sorted = [...rows.values()].sort((a, b) =>
-    a.payer === "Cash" ? 1 : b.payer === "Cash" ? -1 : a.payer.localeCompare(b.payer),
+    a.payer === "Patients" ? 1 : b.payer === "Patients" ? -1 : a.payer.localeCompare(b.payer),
   );
   return { rows: sorted, totals, invoices: unpaid };
 }

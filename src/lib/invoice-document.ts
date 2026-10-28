@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { formatDate } from "./dates";
 import type { Practice } from "./practice";
 import { invoiceTotal } from "./pricing";
 import type { Database, Json } from "./supabase/database.types";
@@ -106,4 +107,38 @@ export async function loadInvoiceDocuments(
 export async function loadInvoiceDocument(supabase: SupabaseClient<Database>, practice: Practice, id: string) {
   const [invoice] = await loadInvoiceDocuments(supabase, practice, [id]);
   return invoice ?? null;
+}
+
+/**
+ * The "Bill to" block as lines, shared by the invoice page and its PDF; the first line is who pays. A patient with
+ * medical aid gets their medical aid details on every invoice, so a patient who pays can claim back themselves.
+ */
+export function billToLines(invoice: Pick<InvoiceDocument, "toMedicalAid" | "patient">): string[] {
+  const { patient } = invoice;
+  const join = (...parts: (string | null | false)[]) => parts.filter(Boolean).join(" · ");
+  const born = patient.date_of_birth && `Born ${formatDate(patient.date_of_birth)}`;
+  const referral =
+    patient.referring_doctor_name &&
+    `Referred by ${patient.referring_doctor_name}${
+      patient.referring_doctor_practice_number ? ` (practice no. ${patient.referring_doctor_practice_number})` : ""
+    }`;
+  const member = join(`Member no. ${patient.member_number}`, patient.dependant_code && `Dependant ${patient.dependant_code}`);
+
+  const lines = !patient.medical_aid_name
+    ? [patient.patient_name, born]
+    : invoice.toMedicalAid
+      ? [
+          patient.medical_aid_name,
+          `Main member: ${patient.main_member_name}`,
+          join(member, patient.plan),
+          join(`Patient: ${patient.patient_name}`, born),
+        ]
+      : [
+          patient.patient_name,
+          born,
+          join(`Medical aid: ${patient.medical_aid_name}`, patient.plan),
+          `Main member: ${patient.main_member_name}`,
+          member,
+        ];
+  return [...lines, referral].filter((line): line is string => Boolean(line));
 }

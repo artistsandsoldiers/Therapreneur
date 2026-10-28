@@ -14,7 +14,8 @@ export function PatientFields({
   defaultMedicalAidId: string;
   patient?: Patient;
 }) {
-  const [payerType, setPayerType] = useState(patient?.payer_type ?? "medical_aid");
+  const [hasMedicalAid, setHasMedicalAid] = useState(patient ? patient.medical_aid_id !== null : true);
+  const [billTo, setBillTo] = useState(patient?.bill_to ?? "medical_aid");
   const [isMainMember, setIsMainMember] = useState(
     !patient?.main_member_name || patient.main_member_name === `${patient.first_name} ${patient.last_name}`,
   );
@@ -27,34 +28,21 @@ export function PatientFields({
       </div>
       <div>
         <label htmlFor="date_of_birth" className="mb-1 block text-sm text-neutral-500">
-          Date of birth{payerType === "cash" && " (optional)"}
+          Date of birth{!hasMedicalAid && " (optional)"}
         </label>
         <input id="date_of_birth" name="date_of_birth" type="date" defaultValue={patient?.date_of_birth ?? ""} className={field} />
       </div>
-      <div className="grid grid-cols-2 gap-1 rounded-lg bg-neutral-100 p-1">
-        {(
-          [
-            ["medical_aid", "Medical aid"],
-            ["cash", "Cash"],
-          ] as const
-        ).map(([value, text]) => (
-          <label
-            key={value}
-            className={`cursor-pointer rounded-md py-2 text-center font-medium ${payerType === value ? "bg-white shadow-sm" : "text-neutral-500"}`}
-          >
-            <input
-              type="radio"
-              name="payer_type"
-              value={value}
-              checked={payerType === value}
-              onChange={() => setPayerType(value)}
-              className="sr-only"
-            />
-            {text}
-          </label>
-        ))}
-      </div>
-      {payerType === "medical_aid" && (
+      <Toggle
+        label="Has medical aid"
+        name="has_medical_aid"
+        value={hasMedicalAid ? "yes" : "no"}
+        options={[
+          ["yes", "Yes"],
+          ["no", "No"],
+        ]}
+        onChange={(value) => setHasMedicalAid(value === "yes")}
+      />
+      {hasMedicalAid && (
         <>
           <select
             name="medical_aid_id"
@@ -115,6 +103,19 @@ export function PatientFields({
               className={field}
             />
           </div>
+          <Toggle
+            label="Who pays you"
+            name="bill_to"
+            value={billTo}
+            options={[
+              ["medical_aid", "Medical aid"],
+              ["patient", "Patient"],
+            ]}
+            onChange={setBillTo}
+          />
+          {billTo === "patient" && (
+            <p className="-mt-2 text-sm text-neutral-500">Their invoices still show their medical aid details, so they can claim back.</p>
+          )}
         </>
       )}
       <div>
@@ -129,5 +130,44 @@ export function PatientFields({
         <p className="mt-1 text-sm text-neutral-500">From the referring doctor.</p>
       </div>
     </>
+  );
+}
+
+/** A two-way choice shown as a segmented control, posted as a radio group. */
+export function Toggle<T extends string>({
+  label,
+  name,
+  value,
+  options,
+  onChange,
+}: {
+  label: string;
+  name: string;
+  value: T;
+  options: [T, string][];
+  onChange: (value: T) => void;
+}) {
+  return (
+    <fieldset>
+      <legend className="mb-1 block text-sm text-neutral-500">{label}</legend>
+      <div className="grid grid-cols-2 gap-1 rounded-lg bg-neutral-100 p-1">
+        {options.map(([option, text]) => (
+          <label
+            key={option}
+            className={`cursor-pointer rounded-md py-2 text-center font-medium ${value === option ? "bg-white shadow-sm" : "text-neutral-500"}`}
+          >
+            <input
+              type="radio"
+              name={name}
+              value={option}
+              checked={value === option}
+              onChange={() => onChange(option)}
+              className="sr-only"
+            />
+            {text}
+          </label>
+        ))}
+      </div>
+    </fieldset>
   );
 }

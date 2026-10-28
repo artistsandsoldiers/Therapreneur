@@ -30,6 +30,7 @@ export default async function NewSessionPage({ searchParams }: { searchParams: P
           patientId,
           startsAt: toLocalInput(new Date()),
           outcome: "attended",
+          billTo: null,
           note: "",
           lines: [],
         }}

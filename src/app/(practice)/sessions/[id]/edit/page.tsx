@@ -17,7 +17,7 @@ export default async function EditSessionPage({ params }: { params: Promise<{ id
     loadCaptureData(supabase, practice),
     supabase
       .from("sessions")
-      .select("id, patient_id, starts_at, outcome, note, invoices(id, claim_batches(sent_at), invoice_lines(billing_code_id, quantity, unit_price_cents, position))")
+      .select("id, patient_id, starts_at, outcome, note, invoices(id, bill_to, claim_batches(sent_at), invoice_lines(billing_code_id, quantity, unit_price_cents, position))")
       .eq("id", id)
       .maybeSingle(),
   ]);
@@ -60,6 +60,7 @@ export default async function EditSessionPage({ params }: { params: Promise<{ id
           patientId: session.patient_id,
           startsAt: toLocalInput(new Date(session.starts_at)),
           outcome: session.outcome,
+          billTo: session.invoices.bill_to,
           note: session.note ?? "",
           lines,
         }}
