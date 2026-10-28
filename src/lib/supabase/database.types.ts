@@ -145,6 +145,7 @@ export type Database = {
           id: string
           issued_on: string
           number: number
+          paid_on: string | null
           practice_id: string
           session_id: string
         }
@@ -157,6 +158,7 @@ export type Database = {
           id?: string
           issued_on: string
           number: number
+          paid_on?: string | null
           practice_id: string
           session_id: string
         }
@@ -169,6 +171,7 @@ export type Database = {
           id?: string
           issued_on?: string
           number?: number
+          paid_on?: string | null
           practice_id?: string
           session_id?: string
         }

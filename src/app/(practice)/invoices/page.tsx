@@ -14,7 +14,7 @@ export default async function InvoicesPage() {
   const { data: invoices, error } = await supabase
     .from("invoices")
     .select(
-      "id, number, issued_on, bill_to, invoice_lines(quantity, unit_price_cents), sessions(outcome, patients(first_name, last_name))",
+      "id, number, issued_on, paid_on, bill_to, invoice_lines(quantity, unit_price_cents), sessions(outcome, patients(first_name, last_name))",
     )
     .order("number", { ascending: false });
   if (error) throw error;
@@ -49,7 +49,12 @@ export default async function InvoicesPage() {
                       {invoice.sessions?.outcome === "no_show" && " · No-show"}
                     </p>
                   </div>
-                  <span className="shrink-0 font-medium">{formatRands(total)}</span>
+                  <div className="shrink-0 text-right">
+                    <p className="font-medium">{formatRands(total)}</p>
+                    <p className={`text-sm ${invoice.paid_on ? "text-accent" : "text-neutral-400"}`}>
+                      {invoice.paid_on ? "Paid" : "Outstanding"}
+                    </p>
+                  </div>
                 </Link>
               </li>
             );

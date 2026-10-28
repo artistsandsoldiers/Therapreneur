@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { DeleteButton } from "./delete-button";
+import { PaidForm } from "./paid-form";
 import { secondaryButton } from "@/app/ui";
-import { formatDate, formatDateTime } from "@/lib/dates";
+import { formatDate, formatDateTime, toLocalInput } from "@/lib/dates";
 import { loadInvoiceDocument } from "@/lib/invoice-document";
 import { invoiceNumber } from "@/lib/invoices";
 import { formatRands } from "@/lib/money";
@@ -34,6 +35,8 @@ export default async function InvoicePage({ params }: { params: Promise<{ id: st
           )}
         </div>
       </div>
+
+      <PaidForm invoiceId={invoice.id} paidOn={invoice.paidOn} today={toLocalInput(new Date()).slice(0, 10)} />
 
       {claim && (
         <p className="mt-4 rounded-md bg-neutral-50 px-3 py-2 text-sm text-neutral-600">
