@@ -22,6 +22,10 @@ export type NewPatient = {
   plan: string | null;
   member_number: string | null;
   main_member_name: string | null;
+  date_of_birth: string | null;
+  dependant_code: string | null;
+  referring_doctor_name: string | null;
+  referring_doctor_practice_number: string | null;
   icd10_codes: string[];
 };
 
@@ -35,6 +39,9 @@ export function parsePatientForm(form: FormData): { ok: true; patient: NewPatien
   const icd10 = parseIcd10Codes(text("icd10_codes"));
   if (!icd10.ok) return icd10;
 
+  const date_of_birth = text("date_of_birth") || null;
+  if (date_of_birth && !isPastDate(date_of_birth)) return { ok: false, error: "Please check the date of birth." };
+
   if (text("payer_type") === "cash") {
     return {
       ok: true,
@@ -46,6 +53,10 @@ export function parsePatientForm(form: FormData): { ok: true; patient: NewPatien
         plan: null,
         member_number: null,
         main_member_name: null,
+        date_of_birth,
+        dependant_code: null,
+        referring_doctor_name: null,
+        referring_doctor_practice_number: null,
         icd10_codes: icd10.codes,
       },
     };
@@ -53,12 +64,18 @@ export function parsePatientForm(form: FormData): { ok: true; patient: NewPatien
 
   const medical_aid_id = text("medical_aid_id");
   const member_number = text("member_number");
-  const main_member_name = form.get("patient_is_main_member")
-    ? `${first_name} ${last_name}`
-    : text("main_member_name");
+  const isMainMember = Boolean(form.get("patient_is_main_member"));
+  const main_member_name = isMainMember ? `${first_name} ${last_name}` : text("main_member_name");
+  // The main member is always dependant 00 on their own membership.
+  const typedCode = text("dependant_code");
+  const dependant_code = isMainMember ? "00" : typedCode && typedCode.padStart(2, "0");
   if (!medical_aid_id) return { ok: false, error: "Please choose the patient's medical aid." };
   if (!member_number) return { ok: false, error: "Please enter the membership number." };
   if (!main_member_name) return { ok: false, error: "Please enter the main member's name." };
+  if (!/^\d{2}$/.test(dependant_code)) {
+    return { ok: false, error: "Please enter the dependant code from the medical aid card, like 01." };
+  }
+  if (!date_of_birth) return { ok: false, error: "Please enter the patient's date of birth. Medical aids need it." };
 
   return {
     ok: true,
@@ -70,7 +87,26 @@ export function parsePatientForm(form: FormData): { ok: true; patient: NewPatien
       plan: text("plan") || null,
       member_number,
       main_member_name,
+      date_of_birth,
+      dependant_code,
+      referring_doctor_name: text("referring_doctor_name") || null,
+      referring_doctor_practice_number: text("referring_doctor_practice_number") || null,
       icd10_codes: icd10.codes,
     },
   };
+}
+
+/** True for a real YYYY-MM-DD date that isn't in the future. */
+function isPastDate(value: string): boolean {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const date = new Date(`${value}T00:00:00Z`);
+  return !Number.isNaN(date.getTime()) && date.toISOString().startsWith(value) && date.getTime() <= Date.now() && value >= "1900-01-01";
+}
+
+/** What a medical aid patient still needs before their invoices can be claimed, in plain words. Empty when ready. */
+export function missingClaimDetails(patient: { date_of_birth: string | null; dependant_code: string | null }): string[] {
+  const missing: string[] = [];
+  if (!patient.date_of_birth) missing.push("date of birth");
+  if (!patient.dependant_code) missing.push("dependant code");
+  return missing;
 }

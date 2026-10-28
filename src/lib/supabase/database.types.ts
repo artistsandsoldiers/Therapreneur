@@ -39,6 +39,51 @@ export type Database = {
         }
         Relationships: []
       }
+      claim_batches: {
+        Row: {
+          created_at: string
+          id: string
+          medical_aid_id: string
+          practice_id: string
+          reference_number: string | null
+          sent_at: string | null
+          sent_to: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          medical_aid_id: string
+          practice_id: string
+          reference_number?: string | null
+          sent_at?: string | null
+          sent_to?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          medical_aid_id?: string
+          practice_id?: string
+          reference_number?: string | null
+          sent_at?: string | null
+          sent_to?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "claim_batches_medical_aid_id_fkey"
+            columns: ["medical_aid_id"]
+            isOneToOne: false
+            referencedRelation: "medical_aids"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "claim_batches_practice_id_fkey"
+            columns: ["practice_id"]
+            isOneToOne: false
+            referencedRelation: "practices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       invoice_lines: {
         Row: {
           billing_code_id: string | null
@@ -92,6 +137,8 @@ export type Database = {
       }
       invoices: {
         Row: {
+          claim_batch_id: string | null
+          claimed_details: Json | null
           bill_to: Database["public"]["Enums"]["bill_to"]
           created_at: string
           due_on: string
@@ -102,6 +149,8 @@ export type Database = {
           session_id: string
         }
         Insert: {
+          claim_batch_id?: string | null
+          claimed_details?: Json | null
           bill_to: Database["public"]["Enums"]["bill_to"]
           created_at?: string
           due_on: string
@@ -112,6 +161,8 @@ export type Database = {
           session_id: string
         }
         Update: {
+          claim_batch_id?: string | null
+          claimed_details?: Json | null
           bill_to?: Database["public"]["Enums"]["bill_to"]
           created_at?: string
           due_on?: string
@@ -122,6 +173,13 @@ export type Database = {
           session_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "invoices_claim_batch_id_fkey"
+            columns: ["claim_batch_id"]
+            isOneToOne: false
+            referencedRelation: "claim_batches"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "invoices_practice_id_fkey"
             columns: ["practice_id"]
@@ -176,14 +234,17 @@ export type Database = {
       }
       medical_aids: {
         Row: {
+          claims_email: string | null
           id: string
           name: string
         }
         Insert: {
+          claims_email?: string | null
           id?: string
           name: string
         }
         Update: {
+          claims_email?: string | null
           id?: string
           name?: string
         }
@@ -191,6 +252,10 @@ export type Database = {
       }
       patients: {
         Row: {
+          date_of_birth: string | null
+          dependant_code: string | null
+          referring_doctor_name: string | null
+          referring_doctor_practice_number: string | null
           created_at: string
           first_name: string
           icd10_codes: string[]
@@ -205,6 +270,10 @@ export type Database = {
           practice_id: string
         }
         Insert: {
+          date_of_birth?: string | null
+          dependant_code?: string | null
+          referring_doctor_name?: string | null
+          referring_doctor_practice_number?: string | null
           created_at?: string
           first_name: string
           icd10_codes?: string[]
@@ -219,6 +288,10 @@ export type Database = {
           practice_id: string
         }
         Update: {
+          date_of_birth?: string | null
+          dependant_code?: string | null
+          referring_doctor_name?: string | null
+          referring_doctor_practice_number?: string | null
           created_at?: string
           first_name?: string
           icd10_codes?: string[]
@@ -251,6 +324,7 @@ export type Database = {
       }
       practices: {
         Row: {
+          hpcsa_number: string | null
           address: string | null
           bank_account_holder: string | null
           bank_account_number: string | null
@@ -270,6 +344,7 @@ export type Database = {
           setup_completed_at: string | null
         }
         Insert: {
+          hpcsa_number?: string | null
           address?: string | null
           bank_account_holder?: string | null
           bank_account_number?: string | null
@@ -289,6 +364,7 @@ export type Database = {
           setup_completed_at?: string | null
         }
         Update: {
+          hpcsa_number?: string | null
           address?: string | null
           bank_account_holder?: string | null
           bank_account_number?: string | null
@@ -388,6 +464,7 @@ export type Database = {
     Functions: {
       claim_practice: { Args: never; Returns: string }
       current_practice_id: { Args: never; Returns: string }
+      invoice_is_claimed: { Args: { p_invoice_id: string }; Returns: boolean }
       is_invited: { Args: { email: string }; Returns: boolean }
       save_capture: {
         Args: {
@@ -398,6 +475,10 @@ export type Database = {
           p_session_id: string | null
           p_starts_at: string
         }
+        Returns: string
+      }
+      start_claim_batch: {
+        Args: { p_invoice_ids: string[]; p_medical_aid_id: string }
         Returns: string
       }
     }

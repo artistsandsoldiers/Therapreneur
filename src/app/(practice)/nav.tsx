@@ -9,6 +9,7 @@ import { logOut } from "@/app/login/actions";
 const LINKS = [
   { href: "/invoices", text: "Invoices" },
   { href: "/patients", text: "Patients" },
+  { href: "/claims", text: "Claims" },
   { href: "/settings", text: "Settings" },
 ];
 
