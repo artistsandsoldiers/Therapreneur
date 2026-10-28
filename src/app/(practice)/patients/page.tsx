@@ -5,7 +5,7 @@ import { button } from "@/app/ui";
 import { friendlyDate } from "@/lib/dates";
 import { payerLabel } from "@/lib/patients";
 import { requireSetUpPractice } from "@/lib/practice";
-import { loadMedicalAids } from "@/lib/capture-data";
+import { loadPatientFormData } from "@/lib/capture-data";
 import { ModalButton } from "../modal";
 import { PatientForm } from "./patient-form";
 
@@ -14,7 +14,7 @@ export const metadata: Metadata = { title: "Patients · Therapreneur" };
 export default async function PatientsPage({ searchParams }: { searchParams: Promise<{ show?: string }> }) {
   const showPast = (await searchParams).show === "past";
   const { supabase } = await requireSetUpPractice();
-  const { medicalAids, defaultMedicalAidId } = await loadMedicalAids(supabase);
+  const { medicalAids, defaultMedicalAidId, referrers } = await loadPatientFormData(supabase);
   let query = supabase
     .from("patients")
     .select("id, first_name, last_name, bill_to, medical_aids(name), sessions(starts_at)")
@@ -43,7 +43,7 @@ export default async function PatientsPage({ searchParams }: { searchParams: Pro
       <div className="flex items-center justify-between gap-4">
         <h1 className="text-2xl font-semibold tracking-tight">Patients</h1>
         <ModalButton label="Add patient" title="Add patient" className={button}>
-          <PatientForm medicalAids={medicalAids} defaultMedicalAidId={defaultMedicalAidId} />
+          <PatientForm medicalAids={medicalAids} defaultMedicalAidId={defaultMedicalAidId} referrers={referrers} />
         </ModalButton>
       </div>
       <div className="mt-6 inline-flex gap-1 rounded-lg bg-neutral-100 p-1">

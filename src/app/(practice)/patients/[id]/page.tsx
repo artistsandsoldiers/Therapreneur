@@ -10,6 +10,7 @@ import { requireSetUpPractice } from "@/lib/practice";
 import { ModalButton } from "../../modal";
 import { NewSession } from "../../sessions/new-session";
 import { invoiceTotal } from "@/lib/pricing";
+import { referrerKindLabel } from "@/lib/referrers";
 
 export const metadata: Metadata = { title: "Patient · Therapreneur" };
 
@@ -19,7 +20,7 @@ export default async function PatientPage({ params }: { params: Promise<{ id: st
   const { data: patient } = await supabase
     .from("patients")
     .select(
-      "*, medical_aids(name), sessions(id, starts_at, duration_minutes, outcome, note, invoices(id, number, invoice_lines(code, quantity, unit_price_cents, position)))",
+      "*, medical_aids(name), referrers(name, kind, practice_number), sessions(id, starts_at, duration_minutes, outcome, note, invoices(id, number, invoice_lines(code, quantity, unit_price_cents, position)))",
     )
     .eq("id", id)
     .maybeSingle();
@@ -71,15 +72,20 @@ export default async function PatientPage({ params }: { params: Promise<{ id: st
               </dd>
               <dt className="text-neutral-500">Main member</dt>
               <dd>{isMainMember ? "The patient" : patient.main_member_name}</dd>
-              {patient.referring_doctor_name && (
-                <>
-                  <dt className="text-neutral-500">Referred by</dt>
-                  <dd>
-                    {patient.referring_doctor_name}
-                    {patient.referring_doctor_practice_number && ` · Practice no. ${patient.referring_doctor_practice_number}`}
-                  </dd>
-                </>
-              )}
+            </>
+          )}
+          {patient.referrers && (
+            <>
+              <dt className="text-neutral-500">Referred by</dt>
+              <dd>
+                {patient.referrers.name}
+                <span className="text-neutral-500">
+                  {" · "}
+                  {patient.referrers.practice_number
+                    ? `Practice no. ${patient.referrers.practice_number}`
+                    : referrerKindLabel(patient.referrers.kind)}
+                </span>
+              </dd>
             </>
           )}
           <dt className="text-neutral-500">Date of birth</dt>

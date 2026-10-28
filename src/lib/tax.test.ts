@@ -7,6 +7,7 @@ import {
   medicalCredit,
   monthsUntil,
   parseTaxForm,
+  paymentTimeline,
   roughly,
   taxTable,
   taxYearDates,
@@ -199,4 +200,22 @@ describe("parseTaxForm", () => {
 
 it("rounds to the nearest R100", () => {
   expect(roughly(870_125)).toBe(870_000);
+});
+
+describe("paymentTimeline", () => {
+  it("places the dates and today, and counts each payment towards the next due date", () => {
+    const { stops, todayPosition } = paymentTimeline(2026, "2026-10-28", { kind: "second", due: "2027-02-26", amountCents: 1, monthlyCents: 1 }, [
+      { paid_on: "2026-08-28", amount_cents: rands(25_000) },
+      { paid_on: "2026-09-02", amount_cents: rands(1_000) },
+    ]);
+    expect(stops.map((s) => [s.kind, s.date, s.state, s.paidCents])).toEqual([
+      ["start", "2026-03-01", "past", 0],
+      ["first", "2026-08-31", "past", rands(25_000)],
+      ["second", "2027-02-26", "next", rands(1_000)],
+      ["top-up", "2027-09-30", "later", 0],
+    ]);
+    expect(stops[3].position).toBe(1);
+    expect(todayPosition).toBeGreaterThan(stops[1].position);
+    expect(todayPosition).toBeLessThan(stops[2].position);
+  });
 });

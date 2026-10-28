@@ -11,6 +11,7 @@ const invoice = (overrides: Partial<ReportInvoice>): ReportInvoice => ({
   patientId: "p1",
   patientName: "Thandi Mokoena",
   medicalAidName: "Discovery",
+  referrer: null,
   ...overrides,
 });
 

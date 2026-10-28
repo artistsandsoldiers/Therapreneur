@@ -10,7 +10,7 @@ export async function loadReportData(supabase: SupabaseClient<Database>): Promis
     supabase
       .from("invoices")
       .select(
-        "id, number, issued_on, paid_on, bill_to, claimed_details, invoice_lines(quantity, unit_price_cents), sessions(patients(id, first_name, last_name, medical_aids(name)))",
+        "id, number, issued_on, paid_on, bill_to, claimed_details, invoice_lines(quantity, unit_price_cents), sessions(patients(id, first_name, last_name, medical_aids(name), referrers(id, name)))",
       ),
     supabase.from("expenses").select("spent_on, amount_cents, expense_categories(name)"),
   ]);
@@ -40,6 +40,7 @@ export async function loadReportData(supabase: SupabaseClient<Database>): Promis
         patientId: patient.id,
         patientName: `${patient.first_name} ${patient.last_name}`,
         medicalAidName: invoice.bill_to === "medical_aid" ? (claimedAid ?? patient.medical_aids?.name ?? "Medical aid") : null,
+        referrer: patient.referrers,
       },
     ];
   });

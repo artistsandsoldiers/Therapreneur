@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { ageBucket, daysOld, incomeByPatient, outstanding, type ReportInvoice } from "./performance";
+import { ageBucket, daysOld, forReferrer, incomeByPatient, incomeByReferrer, outstanding, type ReportInvoice } from "./performance";
 
 const invoice = (overrides: Partial<ReportInvoice>): ReportInvoice => ({
   id: "i",
@@ -10,7 +10,34 @@ const invoice = (overrides: Partial<ReportInvoice>): ReportInvoice => ({
   patientId: "p1",
   patientName: "Thandi Mokoena",
   medicalAidName: "Discovery",
+  referrer: null,
   ...overrides,
+});
+
+describe("incomeByReferrer", () => {
+  const naidoo = { id: "r1", name: "Dr Naidoo" };
+  const instagram = { id: "r2", name: "Instagram" };
+  const invoices = [
+    invoice({ id: "a", patientId: "p1", referrer: naidoo, totalCents: 40000, paidOn: "2026-10-10" }),
+    invoice({ id: "b", patientId: "p1", referrer: naidoo, totalCents: 40000 }),
+    invoice({ id: "c", patientId: "p2", referrer: naidoo, totalCents: 10000 }),
+    invoice({ id: "d", patientId: "p3", referrer: null, totalCents: 99000 }),
+    invoice({ id: "e", patientId: "p4", referrer: instagram, totalCents: 20000 }),
+  ];
+
+  it("totals each referrer, biggest first, counting patients once, with no referrer last", () => {
+    expect(incomeByReferrer(invoices)).toEqual([
+      { referrerId: "r1", name: "Dr Naidoo", patientCount: 2, invoicedCents: 90000, paidCents: 40000 },
+      { referrerId: "r2", name: "Instagram", patientCount: 1, invoicedCents: 20000, paidCents: 0 },
+      { referrerId: null, name: "No referrer", patientCount: 1, invoicedCents: 99000, paidCents: 0 },
+    ]);
+  });
+
+  it("filters to one referrer, to patients with none, or not at all", () => {
+    expect(forReferrer(invoices, "r2").map((i) => i.id)).toEqual(["e"]);
+    expect(forReferrer(invoices, "none").map((i) => i.id)).toEqual(["d"]);
+    expect(forReferrer(invoices, "")).toHaveLength(5);
+  });
 });
 
 describe("incomeByPatient", () => {

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { MonthChart } from "./month-chart";
 import { PeriodPicker } from "./period-picker";
+import { ReferrerPicker } from "./referrer-picker";
 import { bottomLeft, list, listHead, listRow, topRight } from "@/app/ui";
 import { friendlyDate, toLocalInput } from "@/lib/dates";
 import { taxYearStart } from "@/lib/expenses";
@@ -9,8 +10,9 @@ import { invoiceNumber } from "@/lib/invoices";
 import { formatRands } from "@/lib/money";
 import { periodReport, readPeriod } from "@/lib/periods";
 import { requireSetUpPractice } from "@/lib/practice";
+import { AGE_BUCKETS, forReferrer, outstanding } from "@/lib/performance";
+import { loadReferrers } from "@/lib/referrers";
 import { loadReportData } from "@/lib/report-data";
-import { AGE_BUCKETS, outstanding } from "@/lib/performance";
 
 const OWED_COLS = "md:grid-cols-[minmax(0,2fr)_repeat(4,minmax(0,1fr))]";
 
@@ -26,17 +28,20 @@ const TABS = [
 ] as const;
 type Tab = (typeof TABS)[number][0];
 
-type Params = { tab?: string; period?: string; month?: string; year?: string; from?: string; to?: string };
+type Params = { tab?: string; referrer?: string; period?: string; month?: string; year?: string; from?: string; to?: string };
 
 export default async function PerformancePage({ searchParams }: { searchParams: Promise<Params> }) {
   const params = await searchParams;
   const { supabase } = await requireSetUpPractice();
-  const { invoices, expenses } = await loadReportData(supabase);
+  const [{ invoices, expenses }, referrers] = await Promise.all([loadReportData(supabase), loadReferrers(supabase)]);
 
   const today = toLocalInput(new Date()).slice(0, 10);
   const tab: Tab = TABS.some(([value]) => value === params.tab) ? (params.tab as Tab) : "overall";
   const period = readPeriod(params, today);
   const report = periodReport(invoices, expenses, period);
+  // The Income tab can narrow to one referrer's patients. Outstanding stays about everyone who owes money.
+  const referrer = params.referrer === "none" || referrers.some((r) => r.id === params.referrer) ? params.referrer! : "";
+  const income = referrer ? periodReport(forReferrer(invoices, referrer), expenses, period) : report;
   const owed = outstanding(invoices, today);
   const overSixty = owed.totals.bucketCents[2] + owed.totals.bucketCents[3];
 
@@ -49,9 +54,13 @@ export default async function PerformancePage({ searchParams }: { searchParams: 
   );
   const years = Array.from({ length: thisYear - firstYear + 1 }, (_, i) => thisYear - i);
 
-  const tabHref = (value: Tab) => {
+  // This page's address with some settings changed, keeping the rest. Null removes one.
+  const hrefWith = (changes: Record<string, string | null>) => {
     const next = new URLSearchParams(Object.entries(params).filter((entry): entry is [string, string] => typeof entry[1] === "string"));
-    next.set("tab", value);
+    for (const [name, value] of Object.entries(changes)) {
+      if (value === null) next.delete(name);
+      else next.set(name, value);
+    }
     return `/performance?${next}`;
   };
   const range = `${friendlyDate(period.from)} to ${friendlyDate(period.to)}`;
@@ -77,7 +86,7 @@ export default async function PerformancePage({ searchParams }: { searchParams: 
             {TABS.map(([value, text]) => (
               <Link
                 key={value}
-                href={tabHref(value)}
+                href={hrefWith({ tab: value })}
                 scroll={false}
                 aria-current={tab === value ? "page" : undefined}
                 className={`-mb-px border-b-2 pb-2 text-sm font-medium ${
@@ -90,7 +99,10 @@ export default async function PerformancePage({ searchParams }: { searchParams: 
           </nav>
 
           <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-            <PeriodPicker period={period} years={years} />
+            <div className="flex flex-wrap items-center gap-2">
+              <PeriodPicker period={period} years={years} />
+              {tab === "income" && referrers.length > 0 && <ReferrerPicker value={referrer} referrers={referrers} />}
+            </div>
             <p className="text-sm text-neutral-500">{range}</p>
           </div>
 
@@ -126,20 +138,60 @@ export default async function PerformancePage({ searchParams }: { searchParams: 
 
           {tab === "income" && (
             <>
+              {referrer && (
+                <p className="mt-4 text-sm text-neutral-500">
+                  Only patients {referrer === "none" ? "with no referrer" : `referred by ${referrers.find((r) => r.id === referrer)?.name}`}.{" "}
+                  <Link href={hrefWith({ referrer: null })} scroll={false} className="font-medium text-accent">Show everyone</Link>
+                </p>
+              )}
               <dl className="mt-6 grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-neutral-200 bg-neutral-200 sm:max-w-md">
-                <Tile label="Invoiced" value={formatRands(report.invoicedCents)} />
-                <Tile label="Paid" value={formatRands(report.paidCents)} />
+                <Tile label="Invoiced" value={formatRands(income.invoicedCents)} />
+                <Tile label="Paid" value={formatRands(income.paidCents)} />
               </dl>
               {manyMonths && (
                 <section className="mt-10">
                   <h2 className="mb-1 text-lg font-semibold">Per month</h2>
                   <p className="mb-4 text-sm text-neutral-500">Invoiced by invoice date, paid by the date it was paid.</p>
-                  <MonthChart months={report.months} />
+                  <MonthChart months={income.months} />
                 </section>
               )}
+      {referrers.length > 0 && !referrer && (
+        <section className="mt-10">
+          <h2 className="mb-1 text-lg font-semibold">Income per referrer</h2>
+          <p className="mb-3 text-sm text-neutral-500">Who sent you the patients invoiced in this period. Tap one to see only their patients.</p>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-neutral-200">
+                  <th className={th}>Referrer</th>
+                  <th className={thRight}>Patients</th>
+                  <th className={thRight}>Invoiced</th>
+                  <th className={thRight}>Paid</th>
+                </tr>
+              </thead>
+              <tbody>
+                {report.referrers.map((row) => (
+                  <tr key={row.referrerId ?? "none"} className="border-b border-neutral-100">
+                    <td className={td}>
+                      <Link href={hrefWith({ referrer: row.referrerId ?? "none" })} scroll={false} className={row.referrerId ? "font-medium" : "text-neutral-500"}>
+                        {row.name}
+                      </Link>
+                    </td>
+                    <td className={tdRight}>{row.patientCount}</td>
+                    <td className={tdRight}>{formatRands(row.invoicedCents)}</td>
+                    <td className={tdRight}>{formatRands(row.paidCents)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      )}
       <section className="mt-10">
         <h2 className="mb-1 text-lg font-semibold">Income per patient</h2>
-        <p className="mb-3 text-sm text-neutral-500">Patients invoiced in this period, biggest first.</p>
+        <p className="mb-3 text-sm text-neutral-500">
+          {income.patients.length ? "Patients invoiced in this period, biggest first." : "No patients invoiced in this period."}
+        </p>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
@@ -151,7 +203,7 @@ export default async function PerformancePage({ searchParams }: { searchParams: 
               </tr>
             </thead>
             <tbody>
-              {report.patients.map((patient) => (
+              {income.patients.map((patient) => (
                 <tr key={patient.patientId} className="border-b border-neutral-100">
                   <td className={td}>
                     <Link href={`/patients/${patient.patientId}`} className="font-medium">{patient.patientName}</Link>
