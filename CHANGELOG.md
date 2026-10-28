@@ -5,7 +5,6 @@ Changes a practitioner would notice, newest first. Each entry is one line, and t
 ## Unreleased
 
 - Desktop uses the whole screen: lists show as tables with columns, Performance sits side by side, and an invoice sits beside its payment and session details. Phones look the same as before.
-
 - Expenses: add what you spend with a receipt photo or PDF, in plain categories you can add to, and see profit before tax on Performance.
 - Reconcile: tick the claims a medical aid's remittance paid to mark them paid on its date, see each remittance's total, and undo one recorded by mistake.
 - Practice logo: upload it in Settings and it shows in the menu, on invoices and on claim PDFs.
