@@ -13,6 +13,7 @@ _Limit: 300 words._
 
 ## Screens
 
+- **One main nav.** A left sidebar on desktop; on a phone, a menu button opens it from the right. Every top-level page goes in it.
 - **Capture is phone-first.** It's used straight after a session, one-handed, in under a minute.
 - **Admin is desktop-first** (claims, reconciliation, reports, settings) but must still work on a phone.
 

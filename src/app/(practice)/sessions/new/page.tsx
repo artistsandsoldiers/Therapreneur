@@ -7,13 +7,18 @@ import { requireSetUpPractice } from "@/lib/practice";
 
 export const metadata: Metadata = { title: "New session · Therapreneur" };
 
-export default async function NewSessionPage() {
+export default async function NewSessionPage({ searchParams }: { searchParams: Promise<{ patient?: string }> }) {
+  const { patient } = await searchParams;
   const { supabase, practice } = await requireSetUpPractice();
   const data = await loadCaptureData(supabase, practice);
+  // Started from a patient's page, so that patient is already picked.
+  const patientId = data.patients.find((p) => p.id === patient && !p.past_since)?.id ?? "";
 
   return (
     <main className="py-6">
-      <Link href="/invoices" className="text-sm text-neutral-500">← Invoices</Link>
+      <Link href={patientId ? `/patients/${patientId}` : "/invoices"} className="text-sm text-neutral-500">
+        ← {patientId ? "Patient" : "Invoices"}
+      </Link>
       <h1 className="mt-3 mb-6 text-2xl font-semibold tracking-tight">New session</h1>
       <CaptureForm
         {...data}
@@ -21,7 +26,7 @@ export default async function NewSessionPage() {
         noShowPriceCents={practice.no_show_price_cents ?? 0}
         initial={{
           sessionId: null,
-          patientId: "",
+          patientId,
           startsAt: toLocalInput(new Date()),
           outcome: "attended",
           note: "",

@@ -199,6 +199,7 @@ export type Database = {
           main_member_name: string | null
           medical_aid_id: string | null
           member_number: string | null
+          past_since: string | null
           payer_type: Database["public"]["Enums"]["payer_type"]
           plan: string | null
           practice_id: string
@@ -212,6 +213,7 @@ export type Database = {
           main_member_name?: string | null
           medical_aid_id?: string | null
           member_number?: string | null
+          past_since?: string | null
           payer_type: Database["public"]["Enums"]["payer_type"]
           plan?: string | null
           practice_id: string
@@ -225,6 +227,7 @@ export type Database = {
           main_member_name?: string | null
           medical_aid_id?: string | null
           member_number?: string | null
+          past_since?: string | null
           payer_type?: Database["public"]["Enums"]["payer_type"]
           plan?: string | null
           practice_id?: string
