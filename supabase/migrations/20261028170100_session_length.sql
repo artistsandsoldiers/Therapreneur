@@ -21,8 +21,8 @@ begin
 end;
 $$;
 
--- save_capture now takes the session's length.
-drop function public.save_capture(uuid, uuid, timestamptz, public.session_outcome, text, jsonb, public.bill_to);
+-- save_capture now takes the session's length. The older versions stay until a clean-up, so the live app keeps
+-- working until this change is merged.
 
 create function public.save_capture(
   p_session_id uuid,
