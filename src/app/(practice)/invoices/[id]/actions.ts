@@ -5,8 +5,8 @@ import { toLocalInput } from "@/lib/dates";
 import { requireSetUpPractice } from "@/lib/practice";
 
 /**
- * Marks an invoice paid in full on a date, or outstanding again with no date. A stand-in for reconciliation, which
- * will set the same date from a medical aid's remittance (docs/features/reconciliation.md).
+ * Marks an invoice paid in full on a date, or outstanding again with no date. Reconciliation sets the same date from a
+ * medical aid's remittance; marking such an invoice unpaid takes it out of its remittance.
  */
 export async function setPaidOn(invoiceId: string, _previous: { error?: string }, form: FormData): Promise<{ error?: string }> {
   const paidOn = form.get("paid_on") === null ? null : String(form.get("paid_on"));
@@ -16,7 +16,7 @@ export async function setPaidOn(invoiceId: string, _previous: { error?: string }
   }
 
   const { supabase } = await requireSetUpPractice();
-  const { error } = await supabase.from("invoices").update({ paid_on: paidOn }).eq("id", invoiceId);
+  const { error } = await supabase.from("invoices").update(paidOn ? { paid_on: paidOn } : { paid_on: null, remittance_id: null }).eq("id", invoiceId);
   if (error) {
     console.error("Marking invoice paid failed", error);
     return { error: "Something went wrong. Please try again." };
@@ -24,5 +24,6 @@ export async function setPaidOn(invoiceId: string, _previous: { error?: string }
   revalidatePath(`/invoices/${invoiceId}`);
   revalidatePath("/invoices");
   revalidatePath("/performance");
+  revalidatePath("/reconcile", "layout");
   return {};
 }

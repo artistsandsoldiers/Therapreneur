@@ -1,12 +1,23 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState } from "react";
 import { setPaidOn } from "./actions";
 import { button, field, label } from "@/app/ui";
 import { formatDate } from "@/lib/dates";
 
 /** Marks the invoice paid on a date, or back to outstanding. */
-export function PaidForm({ invoiceId, paidOn, today }: { invoiceId: string; paidOn: string | null; today: string }) {
+export function PaidForm({
+  invoiceId,
+  paidOn,
+  remittanceId,
+  today,
+}: {
+  invoiceId: string;
+  paidOn: string | null;
+  remittanceId: string | null;
+  today: string;
+}) {
   const [state, action, saving] = useActionState(setPaidOn.bind(null, invoiceId), {});
 
   return (
@@ -15,6 +26,11 @@ export function PaidForm({ invoiceId, paidOn, today }: { invoiceId: string; paid
         <div className="flex items-center justify-between gap-3">
           <p>
             <span className="font-medium text-accent">Paid</span> on {formatDate(paidOn)}
+            {remittanceId && (
+              <>
+                {" "}in a <Link href={`/reconcile/remittances/${remittanceId}`} className="underline">remittance</Link>
+              </>
+            )}
           </p>
           <button type="submit" disabled={saving} className="text-neutral-500 underline">
             {saving ? "Saving…" : "Mark unpaid"}
