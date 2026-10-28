@@ -38,7 +38,7 @@ export default async function InvoicePage({ params }: { params: Promise<{ id: st
         </div>
       </div>
 
-      <PaidForm invoiceId={invoice.id} paidOn={invoice.paidOn} today={toLocalInput(new Date()).slice(0, 10)} />
+      <PaidForm invoiceId={invoice.id} paidOn={invoice.paidOn} remittanceId={invoice.remittanceId} today={toLocalInput(new Date()).slice(0, 10)} />
 
       {claim && (
         <p className="mt-4 rounded-md bg-neutral-50 px-3 py-2 text-sm text-neutral-600">

@@ -10,7 +10,7 @@ One doc per feature. A feature doc is written after a grill and before any code,
 | [Capture](capture.md) | building | Codes and note on the phone after a session, which creates the invoice |
 | [Invoicing](invoicing.md) | grilled | One invoice per session, to the medical aid or the patient |
 | [Claims](claims.md) | building | Email claim batches to each medical aid and record reference numbers |
-| [Reconciliation](reconciliation.md) | grilled | Match remittances to claims and mark invoices paid |
+| [Reconciliation](reconciliation.md) | building | Tick the claims a remittance paid and mark them paid |
 | [Notes](notes.md) | grilled | Free-text session notes and a list of sessions missing one |
 | [Performance](performance.md) | building | Income per month, income per patient, outstanding by age |
 | [Patients](patients.md) | building | A patient list and page with details, sessions and notes |

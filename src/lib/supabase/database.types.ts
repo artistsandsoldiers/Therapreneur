@@ -147,6 +147,7 @@ export type Database = {
           number: number
           paid_on: string | null
           practice_id: string
+          remittance_id: string | null
           session_id: string
         }
         Insert: {
@@ -160,6 +161,7 @@ export type Database = {
           number: number
           paid_on?: string | null
           practice_id: string
+          remittance_id?: string | null
           session_id: string
         }
         Update: {
@@ -173,6 +175,7 @@ export type Database = {
           number?: number
           paid_on?: string | null
           practice_id?: string
+          remittance_id?: string | null
           session_id?: string
         }
         Relationships: [
@@ -188,6 +191,13 @@ export type Database = {
             columns: ["practice_id"]
             isOneToOne: false
             referencedRelation: "practices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_remittance_id_fkey"
+            columns: ["remittance_id"]
+            isOneToOne: false
+            referencedRelation: "remittances"
             referencedColumns: ["id"]
           },
           {
@@ -391,6 +401,48 @@ export type Database = {
         }
         Relationships: []
       }
+      remittances: {
+        Row: {
+          created_at: string
+          id: string
+          medical_aid_id: string
+          paid_on: string
+          practice_id: string
+          reference: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          medical_aid_id: string
+          paid_on: string
+          practice_id: string
+          reference?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          medical_aid_id?: string
+          paid_on?: string
+          practice_id?: string
+          reference?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "remittances_medical_aid_id_fkey"
+            columns: ["medical_aid_id"]
+            isOneToOne: false
+            referencedRelation: "medical_aids"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "remittances_practice_id_fkey"
+            columns: ["practice_id"]
+            isOneToOne: false
+            referencedRelation: "practices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sessions: {
         Row: {
           created_at: string
@@ -472,6 +524,15 @@ export type Database = {
       current_practice_id: { Args: never; Returns: string }
       invoice_is_claimed: { Args: { p_invoice_id: string }; Returns: boolean }
       is_invited: { Args: { email: string }; Returns: boolean }
+      record_remittance: {
+        Args: {
+          p_invoice_ids: string[]
+          p_medical_aid_id: string
+          p_paid_on: string
+          p_reference: string
+        }
+        Returns: string
+      }
       save_capture: {
         Args: {
           p_lines: Json
