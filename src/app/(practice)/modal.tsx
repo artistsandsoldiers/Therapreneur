@@ -36,7 +36,7 @@ export function ModalButton({
         onClose={() => setOpen(false)}
         // A click on the dimmed backdrop lands on the dialog itself, not its content.
         onClick={(event) => event.target === event.currentTarget && setOpen(false)}
-        className="m-0 h-dvh max-h-none w-full max-w-none bg-white p-0 backdrop:bg-neutral-900/30 md:m-auto md:h-auto md:max-h-[calc(100dvh-4rem)] md:max-w-2xl md:rounded-xl md:shadow-xl"
+        className="m-0 h-dvh max-h-none w-full max-w-none bg-white p-0 backdrop:bg-neutral-900/30 md:m-auto md:h-fit md:max-h-[calc(100dvh-4rem)] md:max-w-2xl md:rounded-xl md:shadow-xl"
       >
         {open && (
           <div className="px-4 pt-4 md:px-6 md:pt-6">

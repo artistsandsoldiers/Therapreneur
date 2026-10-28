@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { field } from "@/app/ui";
 
-const control = `${field} py-2 text-sm`;
+// The shared field style without its full width, so filters sit side by side.
+const control = `${field.replace("w-full", "")} py-2 text-sm`;
 
 /** Filter values for a list, with a way to clear them all. Active means anything differs from the start. */
 export function useFilters<T extends Record<string, string>>(initial: T) {
@@ -26,7 +27,7 @@ export function SearchFilter({ value, onChange, placeholder }: { value: string; 
       onChange={(event) => onChange(event.target.value)}
       placeholder={placeholder}
       aria-label={placeholder}
-      className={`${control} basis-full md:basis-64`}
+      className={`${control} w-full md:w-64`}
     />
   );
 }
@@ -43,7 +44,7 @@ export function SelectFilter({
   options: [string, string][];
 }) {
   return (
-    <select value={value} onChange={(event) => onChange(event.target.value)} aria-label={label} className={`${control} w-auto`}>
+    <select value={value} onChange={(event) => onChange(event.target.value)} aria-label={label} className={control}>
       {options.map(([option, text]) => (
         <option key={option} value={option}>{text}</option>
       ))}
@@ -62,9 +63,9 @@ export function DateRangeFilter({
 }) {
   return (
     <div className="flex items-center gap-1.5 text-sm text-neutral-500">
-      <input type="date" value={from} onChange={(event) => onChange("from", event.target.value)} aria-label="From" className={`${control} w-auto`} />
+      <input type="date" value={from} onChange={(event) => onChange("from", event.target.value)} aria-label="From" className={control} />
       <span>to</span>
-      <input type="date" value={to} onChange={(event) => onChange("to", event.target.value)} aria-label="To" className={`${control} w-auto`} />
+      <input type="date" value={to} onChange={(event) => onChange("to", event.target.value)} aria-label="To" className={control} />
     </div>
   );
 }

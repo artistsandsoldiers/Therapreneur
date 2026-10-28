@@ -34,7 +34,7 @@ export function PricingField({ initial, example }: { initial: number; example: P
             value={typed}
             onChange={(event) => setTyped(event.target.value.replace(/[^\d-]/g, "").replace(/(?!^)-/g, ""))}
             aria-label="Price adjustment in percent"
-            className={`${field} w-20 py-1.5 text-right`}
+            className={`${field.replace("w-full", "w-20")} py-1.5 text-right`}
           />
           %
         </label>
