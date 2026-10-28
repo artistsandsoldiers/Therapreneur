@@ -7,6 +7,16 @@ export type BillingCode = Pick<Tables<"billing_codes">, "id" | "code" | "descrip
 export type Patient = Tables<"patients">;
 export type MedicalAid = Tables<"medical_aids">;
 
+/** The medical aids, and the one a new patient starts on. */
+export async function loadMedicalAids(supabase: SupabaseClient<Database>) {
+  const { data, error } = await supabase.from("medical_aids").select("*").order("name");
+  if (error) throw error;
+  return {
+    medicalAids: data,
+    defaultMedicalAidId: data.find((aid) => aid.name === DEFAULT_MEDICAL_AID)?.id ?? "",
+  };
+}
+
 /** Everything the capture screen and its server action need, read in parallel. */
 export async function loadCaptureData(supabase: SupabaseClient<Database>, practice: Practice) {
   const profession = practice.profession ?? "occupational_therapy";

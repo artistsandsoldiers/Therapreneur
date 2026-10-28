@@ -16,6 +16,10 @@ _Avoid_: clinic, account, business
 The person who receives treatment.
 _Avoid_: client, customer
 
+**Past patient**:
+A patient the practitioner no longer sees, for any reason. Hidden from everyday lists, with their history kept. Every other patient is **current**.
+_Avoid_: archived, discharged, inactive, dormant
+
 **Main member**:
 The person who holds the medical aid membership a patient is covered under, such as a parent of a child patient. May be the patient.
 _Avoid_: account holder, principal member
