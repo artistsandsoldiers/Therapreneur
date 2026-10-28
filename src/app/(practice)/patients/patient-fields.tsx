@@ -3,15 +3,18 @@
 import { useState } from "react";
 import { field } from "@/app/ui";
 import type { MedicalAid, Patient } from "@/lib/capture-data";
+import { NEW_REFERRER, REFERRER_KINDS, type Referrer } from "@/lib/referrers";
 
 /** The patient form's fields, shared by capture's Add patient and the Patients pages. */
 export function PatientFields({
   medicalAids,
   defaultMedicalAidId,
+  referrers,
   patient,
 }: {
   medicalAids: MedicalAid[];
   defaultMedicalAidId: string;
+  referrers: Referrer[];
   patient?: Patient;
 }) {
   const [hasMedicalAid, setHasMedicalAid] = useState(patient ? patient.medical_aid_id !== null : true);
@@ -87,22 +90,6 @@ export function PatientFields({
               />
             </div>
           )}
-          <div className="grid grid-cols-2 gap-2">
-            <input
-              name="referring_doctor_name"
-              defaultValue={patient?.referring_doctor_name ?? ""}
-              placeholder="Referring doctor (optional)"
-              aria-label="Referring doctor"
-              className={field}
-            />
-            <input
-              name="referring_doctor_practice_number"
-              defaultValue={patient?.referring_doctor_practice_number ?? ""}
-              placeholder="Doctor's practice no."
-              aria-label="Referring doctor's practice number"
-              className={field}
-            />
-          </div>
           <Toggle
             label="Who pays you"
             name="bill_to"
@@ -118,6 +105,7 @@ export function PatientFields({
           )}
         </>
       )}
+      <ReferrerField referrers={referrers} defaultReferrerId={patient?.referrer_id ?? ""} />
       <div>
         <input
           name="icd10_codes"
@@ -130,6 +118,42 @@ export function PatientFields({
         <p className="mt-1 text-sm text-neutral-500">From the referring doctor.</p>
       </div>
     </>
+  );
+}
+
+/** Who referred the patient, with a last option that reveals boxes to add a new referrer. */
+function ReferrerField({ referrers, defaultReferrerId }: { referrers: Referrer[]; defaultReferrerId: string }) {
+  const [referrerId, setReferrerId] = useState(defaultReferrerId);
+  const [kind, setKind] = useState("");
+
+  return (
+    <div>
+      <label htmlFor="referrer_id" className="mb-1 block text-sm text-neutral-500">Referred by (optional)</label>
+      <select id="referrer_id" name="referrer_id" value={referrerId} onChange={(e) => setReferrerId(e.target.value)} className={field}>
+        <option value="">No one</option>
+        {referrers.map((referrer) => <option key={referrer.id} value={referrer.id}>{referrer.name}</option>)}
+        <option value={NEW_REFERRER}>+ Add new referrer…</option>
+      </select>
+      {referrerId === NEW_REFERRER && (
+        <div className="mt-2 flex flex-col gap-2">
+          <div className="grid grid-cols-2 gap-2">
+            <input name="new_referrer_name" placeholder="Name, like Dr Naidoo" aria-label="New referrer's name" autoFocus autoComplete="off" className={field} />
+            <select name="new_referrer_kind" aria-label="Kind of referrer" value={kind} onChange={(e) => setKind(e.target.value)} className={field}>
+              <option value="" disabled>Kind…</option>
+              {REFERRER_KINDS.map(([value, text]) => <option key={value} value={value}>{text}</option>)}
+            </select>
+          </div>
+          {kind === "doctor" && (
+            <input
+              name="new_referrer_practice_number"
+              placeholder="Doctor's practice no. (optional)"
+              aria-label="Doctor's practice number"
+              className={field}
+            />
+          )}
+        </div>
+      )}
+    </div>
   );
 }
 

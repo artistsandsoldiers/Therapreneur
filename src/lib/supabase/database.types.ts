@@ -354,6 +354,7 @@ export type Database = {
           bill_to: Database["public"]["Enums"]["bill_to"]
           date_of_birth: string | null
           dependant_code: string | null
+          referrer_id: string | null
           referring_doctor_name: string | null
           referring_doctor_practice_number: string | null
           created_at: string
@@ -372,6 +373,7 @@ export type Database = {
           bill_to: Database["public"]["Enums"]["bill_to"]
           date_of_birth?: string | null
           dependant_code?: string | null
+          referrer_id?: string | null
           referring_doctor_name?: string | null
           referring_doctor_practice_number?: string | null
           created_at?: string
@@ -390,6 +392,7 @@ export type Database = {
           bill_to?: Database["public"]["Enums"]["bill_to"]
           date_of_birth?: string | null
           dependant_code?: string | null
+          referrer_id?: string | null
           referring_doctor_name?: string | null
           referring_doctor_practice_number?: string | null
           created_at?: string
@@ -417,6 +420,13 @@ export type Database = {
             columns: ["practice_id"]
             isOneToOne: false
             referencedRelation: "practices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "patients_referrer_id_fkey"
+            columns: ["referrer_id"]
+            isOneToOne: false
+            referencedRelation: "referrers"
             referencedColumns: ["id"]
           },
         ]
@@ -498,6 +508,41 @@ export type Database = {
           tax_estimate_on?: boolean
         }
         Relationships: []
+      }
+      referrers: {
+        Row: {
+          created_at: string
+          id: string
+          kind: Database["public"]["Enums"]["referrer_kind"]
+          name: string
+          practice_id: string
+          practice_number: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          kind: Database["public"]["Enums"]["referrer_kind"]
+          name: string
+          practice_id: string
+          practice_number?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          kind?: Database["public"]["Enums"]["referrer_kind"]
+          name?: string
+          practice_id?: string
+          practice_number?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referrers_practice_id_fkey"
+            columns: ["practice_id"]
+            isOneToOne: false
+            referencedRelation: "practices"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       remittances: {
         Row: {
@@ -783,6 +828,13 @@ export type Database = {
       business_type: "sole_proprietor" | "inc"
       other_income_kind: "salary" | "interest" | "rent" | "other"
       profession: "occupational_therapy" | "physiotherapy" | "speech_therapy"
+      referrer_kind:
+        | "doctor"
+        | "therapist"
+        | "website"
+        | "social_media"
+        | "word_of_mouth"
+        | "other"
       session_outcome: "attended" | "no_show"
     }
     CompositeTypes: {

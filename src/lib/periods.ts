@@ -3,7 +3,14 @@
  * Periods are whole days, from and to inclusive, as YYYY-MM-DD.
  */
 import { profitByMonth, taxYearStart, type MonthProfit, type ReportExpense } from "./expenses";
-import { incomeByPatient, type MonthIncome, type PatientIncome, type ReportInvoice } from "./performance";
+import {
+  incomeByPatient,
+  incomeByReferrer,
+  type MonthIncome,
+  type PatientIncome,
+  type ReferrerIncome,
+  type ReportInvoice,
+} from "./performance";
 
 export type PeriodKind = "month" | "year" | "custom";
 export type Period = { kind: PeriodKind; from: string; to: string; label: string };
@@ -81,6 +88,8 @@ export type PeriodReport = {
   byCategory: { name: string; cents: number }[];
   /** Patients invoiced in the period. */
   patients: PatientIncome[];
+  /** Referrers of patients invoiced in the period. */
+  referrers: ReferrerIncome[];
 };
 
 /**
@@ -112,6 +121,7 @@ export function periodReport(invoices: ReportInvoice[], expenses: ReportExpense[
       .map(([name, cents]) => ({ name, cents }))
       .sort((a, b) => b.cents - a.cents || a.name.localeCompare(b.name)),
     patients: incomeByPatient(invoiced),
+    referrers: incomeByReferrer(invoiced),
   };
 }
 

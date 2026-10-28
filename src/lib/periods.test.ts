@@ -41,6 +41,7 @@ describe("periodReport", () => {
     patientId: "p1",
     patientName: "Thandi Mokoena",
     medicalAidName: null,
+    referrer: null,
   });
   const invoices = [
     invoice("1", "2026-09-30", "2026-10-02", 50000), // invoiced in September, paid in October

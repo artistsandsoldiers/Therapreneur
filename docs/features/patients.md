@@ -16,6 +16,7 @@ None yet from therapists. Grilled with Barry on 28 October 2026 because capture 
 - Edits show on the patient's existing invoices. Once claims exist, sent claims will keep the details they were sent with.
 - Move a patient to past patients, for any reason, and back. Past patients are hidden from the list and capture, and keep their sessions and invoices.
 - Delete a patient only if they have no sessions.
+- Optionally, who referred them, picked from the practice's referrers or added on the spot. A doctor referrer is the referring doctor on invoices.
 
 ## Out of scope
 - Phone and email. (Date of birth, dependant code and referring doctor came with claims.)
@@ -23,3 +24,4 @@ None yet from therapists. Grilled with Barry on 28 October 2026 because capture 
 
 ## Open questions
 - Is "past patient" the word practitioners use?
+- Where do Robs' patients come from, and does she track it? Referrers were added without therapist evidence.
