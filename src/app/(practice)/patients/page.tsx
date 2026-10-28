@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { PatientList } from "./patient-list";
 import { button } from "@/app/ui";
-import { formatDate, toLocalInput } from "@/lib/dates";
+import { friendlyDate } from "@/lib/dates";
 import { payerLabel } from "@/lib/patients";
 import { requireSetUpPractice } from "@/lib/practice";
 import { loadMedicalAids } from "@/lib/capture-data";
@@ -30,7 +30,7 @@ export default async function PatientsPage({ searchParams }: { searchParams: Pro
       id: patient.id,
       name: `${patient.first_name} ${patient.last_name}`,
       payer: payerLabel(patient.medical_aids?.name ?? null, patient.bill_to),
-      lastSession: last ? formatDate(toLocalInput(new Date(last))) : null,
+      lastSession: last ? friendlyDate(last) : null,
     };
   });
 

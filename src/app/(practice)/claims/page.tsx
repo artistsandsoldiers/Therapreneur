@@ -3,7 +3,7 @@ import Link from "next/link";
 import { BatchStatus } from "./batch-status";
 import { bottomLeft, button, list, listHead, listRow, topRight } from "@/app/ui";
 import { missingPracticeDetails } from "@/lib/claims";
-import { formatDate } from "@/lib/dates";
+import { friendlyDate } from "@/lib/dates";
 import { invoiceNumber } from "@/lib/invoices";
 import { formatRands } from "@/lib/money";
 import { missingClaimDetails } from "@/lib/patients";
@@ -127,7 +127,7 @@ export default async function ClaimsPage({ searchParams }: { searchParams: Promi
                         <p className={`${bottomLeft} text-sm text-neutral-500 md:contents`}>
                           <span>{invoiceNumber(invoice.number)}</span>
                           <span className="md:hidden"> · </span>
-                          <span>{formatDate(invoice.issued_on)}</span>
+                          <span>{friendlyDate(invoice.issued_on)}</span>
                         </p>
                         <p className="col-span-2 text-sm md:col-span-1">
                           {missing.length > 0 && patient ? (
@@ -178,7 +178,7 @@ export default async function ClaimsPage({ searchParams }: { searchParams: Promi
                   <Link href={`/claims/${batch.id}`} className={`${listRow} ${SENT_COLS}`}>
                     <p className="truncate font-medium">{batch.medical_aids?.name}</p>
                     <p className={`${bottomLeft} text-sm text-neutral-500 md:contents`}>
-                      <span>{formatDate(batch.sent_at!)}</span>
+                      <span>{friendlyDate(batch.sent_at!)}</span>
                       <span className="md:hidden"> · </span>
                       <span>{batch.invoices.length === 1 ? "1 claim" : `${batch.invoices.length} claims`}</span>
                       <span className="md:hidden"> · </span>

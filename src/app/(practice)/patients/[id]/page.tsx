@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PatientActions } from "./patient-actions";
 import { button, secondaryButton } from "@/app/ui";
-import { formatDate, formatSessionTime } from "@/lib/dates";
+import { formatDate, friendlyDate, friendlySessionTime } from "@/lib/dates";
 import { invoiceNumber } from "@/lib/invoices";
 import { formatRands } from "@/lib/money";
 import { requireSetUpPractice } from "@/lib/practice";
@@ -37,7 +37,7 @@ export default async function PatientPage({ params }: { params: Promise<{ id: st
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">{name}</h1>
           {patient.past_since && (
-            <p className="mt-1 text-sm text-neutral-500">Past patient since {formatDate(patient.past_since)}</p>
+            <p className="mt-1 text-sm text-neutral-500">Past patient since {friendlyDate(patient.past_since)}</p>
           )}
         </div>
         <div className="flex gap-2">
@@ -102,7 +102,7 @@ export default async function PatientPage({ params }: { params: Promise<{ id: st
                   <li key={session.id} className="rounded-lg border border-neutral-200 p-4">
                     <div className="flex items-baseline justify-between gap-3">
                       <p className="font-medium">
-                        {formatSessionTime(session.starts_at, session.duration_minutes)}
+                        {friendlySessionTime(session.starts_at, session.duration_minutes)}
                         {session.outcome === "no_show" && <span className="ml-2 text-sm font-normal text-neutral-500">No-show</span>}
                       </p>
                       {invoice && (

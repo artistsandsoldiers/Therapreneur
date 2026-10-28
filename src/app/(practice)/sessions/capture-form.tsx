@@ -6,7 +6,7 @@ import { PatientFields, Toggle } from "../patients/patient-fields";
 import { button, field, label, secondaryButton } from "@/app/ui";
 import type { CaptureData, Patient } from "@/lib/capture-data";
 import { isSessionLength, sessionBillTo, type CaptureLineInput } from "@/lib/capture";
-import { formatSessionTime, fromLocalInput } from "@/lib/dates";
+import { friendlySessionTime, fromLocalInput } from "@/lib/dates";
 import { formatRands, parseRands } from "@/lib/money";
 import { findRate, invoiceTotal, practicePrice } from "@/lib/pricing";
 import type { Enums } from "@/lib/supabase/database.types";
@@ -59,7 +59,7 @@ export function CaptureForm(props: CaptureFormProps) {
   const history = patient ? props.codeHistories[patient.id] : undefined;
   const durationMinutes = Number(duration);
   const startsAtIso = fromLocalInput(startsAt);
-  const sessionTime = startsAtIso && isSessionLength(durationMinutes) ? formatSessionTime(startsAtIso, durationMinutes) : null;
+  const sessionTime = startsAtIso && isSessionLength(durationMinutes) ? friendlySessionTime(startsAtIso, durationMinutes) : null;
   const medicalAidName = (id: string | null) => medicalAids.find((aid) => aid.id === id)?.name;
 
   // The same pricing the server uses, so what she sees is what gets saved.

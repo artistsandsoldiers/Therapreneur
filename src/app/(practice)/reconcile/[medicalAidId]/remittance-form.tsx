@@ -3,7 +3,7 @@
 import { useActionState, useState } from "react";
 import { recordRemittance } from "../actions";
 import { button, field, label } from "@/app/ui";
-import { formatDate } from "@/lib/dates";
+import { friendlyDate } from "@/lib/dates";
 import { invoiceNumber } from "@/lib/invoices";
 import { formatRands } from "@/lib/money";
 import type { OutstandingClaim } from "@/lib/reconciliation";
@@ -49,7 +49,7 @@ export function RemittanceForm({ medicalAidId, claims, today }: { medicalAidId: 
               <span className="min-w-0 flex-1">
                 <span className="block truncate font-medium">{claim.patientName}</span>
                 <span className="block text-sm text-neutral-500">
-                  {invoiceNumber(claim.number)} · {formatDate(claim.issuedOn)}
+                  {invoiceNumber(claim.number)} · {friendlyDate(claim.issuedOn)}
                   {claim.memberNumber && ` · Member no. ${claim.memberNumber}`}
                 </span>
               </span>

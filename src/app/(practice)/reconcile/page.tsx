@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { bottomLeft, list, listHead, listRow, topRight } from "@/app/ui";
-import { formatDate } from "@/lib/dates";
+import { friendlyDate } from "@/lib/dates";
 import { formatRands } from "@/lib/money";
 import { requireSetUpPractice } from "@/lib/practice";
 import { invoiceTotal } from "@/lib/pricing";
@@ -51,7 +51,7 @@ export default async function ReconcilePage() {
                   <p className={`${bottomLeft} text-sm text-neutral-500 md:contents`}>
                     <span>{group.claims.length === 1 ? "1 claim" : `${group.claims.length} claims`}</span>
                     <span className="md:hidden"> · oldest from </span>
-                    <span>{formatDate(group.claims[0].issuedOn)}</span>
+                    <span>{friendlyDate(group.claims[0].issuedOn)}</span>
                   </p>
                   <span className={`${topRight} font-medium tabular-nums`}>{formatRands(group.totalCents)}</span>
                 </Link>
@@ -87,7 +87,7 @@ export default async function ReconcilePage() {
                   <Link href={`/reconcile/remittances/${remittance.id}`} className={`${listRow} ${REMITTANCE_COLS}`}>
                     <p className="truncate font-medium">{remittance.medical_aids?.name}</p>
                     <p className={`${bottomLeft} text-sm text-neutral-500 md:contents`}>
-                      <span><span className="md:hidden">Paid </span>{formatDate(remittance.paid_on)}</span>
+                      <span><span className="md:hidden">Paid </span>{friendlyDate(remittance.paid_on)}</span>
                       <span className="md:hidden"> · </span>
                       <span>{count === 1 ? "1 claim" : `${count} claims`}</span>
                       <span className="truncate">

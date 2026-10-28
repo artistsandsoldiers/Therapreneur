@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { bottomLeft, button, list, listHead, listRow, topRight } from "@/app/ui";
-import { formatDate, toLocalInput } from "@/lib/dates";
+import { friendlyDate, toLocalInput } from "@/lib/dates";
 import { expensesByMonth, nextTaxYearStart, taxYearStart } from "@/lib/expenses";
 import { formatRands } from "@/lib/money";
 import { requireSetUpPractice } from "@/lib/practice";
@@ -49,7 +49,7 @@ export default async function ExpensesPage() {
       ) : (
         <>
           <div className="mt-6 rounded-lg border border-neutral-200 p-4 md:max-w-sm">
-            <p className="text-sm text-neutral-500">This tax year so far, from {formatDate(from)}</p>
+            <p className="text-sm text-neutral-500">This tax year so far, from {friendlyDate(from)}</p>
             <p className="mt-1 text-xl font-semibold tracking-tight tabular-nums">{formatRands(yearTotal)}</p>
             {missingReceipts > 0 && (
               <p className="mt-1 text-sm text-amber-700">
@@ -79,7 +79,7 @@ export default async function ExpensesPage() {
                       <p className={`${bottomLeft} text-sm text-neutral-500 md:contents`}>
                         <span className="truncate">{expense.category}</span>
                         <span className="md:hidden"> · </span>
-                        <span>{formatDate(expense.spentOn)}</span>
+                        <span>{friendlyDate(expense.spentOn)}</span>
                         <span className="text-amber-700">
                           {!expense.hasReceipt && (
                             <>

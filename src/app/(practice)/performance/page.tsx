@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { MonthChart } from "./month-chart";
 import { bottomLeft, list, listHead, listRow, topRight } from "@/app/ui";
-import { formatDate, toLocalInput } from "@/lib/dates";
+import { friendlyDate, toLocalInput } from "@/lib/dates";
 import { profitByMonth, taxYearSoFar, type ReportExpense } from "@/lib/expenses";
 import { invoiceNumber } from "@/lib/invoices";
 import { formatRands } from "@/lib/money";
@@ -96,7 +96,7 @@ export default async function PerformancePage() {
             <section className="mt-10">
               <h2 className="mb-1 text-lg font-semibold">Tax year so far</h2>
               <p className="mb-4 text-sm text-neutral-500">
-                From {formatDate(year.from)}. Profit before tax is invoiced income less expenses. Tax hasn&apos;t been taken off.
+                From {friendlyDate(year.from)}. Profit before tax is invoiced income less expenses. Tax hasn&apos;t been taken off.
               </p>
               <dl className="grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-neutral-200 bg-neutral-200 sm:grid-cols-3">
                 <Tile label="Income" value={formatRands(year.incomeCents)} />

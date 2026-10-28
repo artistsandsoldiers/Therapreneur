@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { bottomLeft, bottomRight, button, list, listHead, listRow, topRight } from "@/app/ui";
-import { formatDate } from "@/lib/dates";
+import { friendlyDate } from "@/lib/dates";
 import { invoiceNumber } from "@/lib/invoices";
 import { formatRands } from "@/lib/money";
 import { requireSetUpPractice } from "@/lib/practice";
@@ -69,7 +69,7 @@ export default async function InvoicesPage() {
                       <span>{invoiceNumber(invoice.number)}</span>
                       <span className="md:hidden"> · </span>
                       <span>
-                        {formatDate(invoice.issued_on)}
+                        {friendlyDate(invoice.issued_on)}
                         {invoice.sessions?.outcome === "no_show" && " · No-show"}
                       </span>
                     </p>

@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { BatchStatus } from "../batch-status";
 import { ReferenceForm } from "./reference-form";
 import { bottomLeft, list, listHead, listRow, topRight } from "@/app/ui";
-import { formatDate, formatDateTime } from "@/lib/dates";
+import { friendlyDate, friendlyDateTime } from "@/lib/dates";
 import { loadInvoiceDocuments } from "@/lib/invoice-document";
 import { invoiceNumber } from "@/lib/invoices";
 import { formatRands } from "@/lib/money";
@@ -36,7 +36,7 @@ export default async function ClaimBatchPage({ params }: { params: Promise<{ id:
         <BatchStatus referenceNumber={batch.reference_number} />
       </div>
       <p className="mt-1 text-sm text-neutral-500">
-        Sent {formatDateTime(batch.sent_at!)} to {batch.sent_to} · {claims.length === 1 ? "1 claim" : `${claims.length} claims`} ·{" "}
+        Sent {friendlyDateTime(batch.sent_at!)} to {batch.sent_to} · {claims.length === 1 ? "1 claim" : `${claims.length} claims`} ·{" "}
         {formatRands(total)}
       </p>
 
@@ -60,7 +60,7 @@ export default async function ClaimBatchPage({ params }: { params: Promise<{ id:
               <p className={`${bottomLeft} text-sm text-neutral-500 md:contents`}>
                 <span>{invoiceNumber(claim.number)}</span>
                 <span className="md:hidden"> · </span>
-                <span>{formatDate(claim.issuedOn)}</span>
+                <span>{friendlyDate(claim.issuedOn)}</span>
                 <span className="md:hidden"> · Member no. </span>
                 <span>{claim.patient.member_number}</span>
               </p>
