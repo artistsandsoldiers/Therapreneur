@@ -13,13 +13,16 @@ What we store in Supabase, in plain English. Money is whole cents.
 
 ## A practice's own data (only that practice can see it)
 
-- **practices**: one per practitioner. The invited email, then setup: name, practice and HPCSA numbers, address, contact and banking details, profession, price adjustment (+/- %), no-show price and where its logo is kept.
+- **practices**: one per practitioner. The invited email, then setup: name, practice and HPCSA numbers, address, contact and banking details, profession, price adjustment (+/- %), no-show price and where its logo is kept. Also sole proprietor or Inc, and for the tax estimate, the practitioner's date of birth and whether it's on.
 - **patients**: name, date of birth, and for patients with medical aid the medical aid, plan, member number, main member, dependant code and referring doctor. Who usually pays (medical aid or patient; only patient without medical aid). Also ICD-10 codes, and when they became a past patient.
 - **sessions**: one appointment: when, attended or no-show, and the note.
 - **invoices**: one per session: number (1, 2, 3… per practice), date, due date (30 days later), who pays (from the patient, changeable per session; no-shows always the patient), the date it was paid in full and its remittance. Once claimed, its claim batch and the patient details sent.
 - **claim_batches**: one email of claims to a medical aid: when and where sent, and its reference number.
 - **remittances**: one payment from a medical aid: date and reference.
 - **expenses**: date paid, who was paid, amount, category, note and its receipt.
+- **tax_years**: a practice's tax estimate answers for one tax year (named by the year it starts): where its records here start, rough totals from before, medical aid members, retirement annuity, its own profit figure and last year's taxable income.
+- **tax_other_income**: salary (with PAYE), interest, rent or other income for a tax year.
+- **tax_payments**: provisional tax paid to SARS, with the tax year it counts towards.
 - **invoice_lines**: each billing code on an invoice, with quantity, price and ICD-10 codes. Code and description are copied in, so central list changes never alter an old invoice.
 
 ## Other

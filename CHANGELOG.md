@@ -4,6 +4,7 @@ Changes a practitioner would notice, newest first. Each entry is one line, and t
 
 ## Unreleased
 
+- Tax: turn on a provisional tax estimate from your invoices and expenses, see what to put aside each month and pay by the next SARS date, and record payments. Settings now asks whether your practice is a sole proprietor or an Inc.
 - Patients: whether a patient has medical aid is now separate from who pays you, and each session can change who pays. Invoices a patient pays still show their medical aid details so they can claim back.
 - Desktop uses the whole screen: lists show as tables with columns, Performance sits side by side, and an invoice sits beside its payment and session details. Phones look the same as before.
 - Expenses: add what you spend with a receipt photo or PDF, in plain categories you can add to, and see profit before tax on Performance.

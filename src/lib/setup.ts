@@ -1,10 +1,17 @@
 import { parseRands } from "./money";
-import type { Profession } from "./supabase/database.types";
+import type { Enums, Profession } from "./supabase/database.types";
 
 export const PROFESSIONS: { value: Profession; label: string }[] = [
   { value: "occupational_therapy", label: "Occupational therapist" },
   { value: "physiotherapy", label: "Physiotherapist" },
   { value: "speech_therapy", label: "Speech therapist" },
+];
+
+export type BusinessType = Enums<"business_type">;
+
+export const BUSINESS_TYPES: { value: BusinessType; label: string; hint: string }[] = [
+  { value: "sole_proprietor", label: "Sole proprietor", hint: "Just you, taxed as a person. Most solo practices." },
+  { value: "inc", label: "Inc", hint: "A personal liability company, with its own tax return." },
 ];
 
 export type SetupDetails = {
@@ -19,6 +26,7 @@ export type SetupDetails = {
   bank_account_number: string;
   bank_branch_code: string;
   profession: Profession;
+  business_type: BusinessType;
   price_adjustment_percent: number;
   no_show_price_cents: number;
 };
@@ -42,6 +50,10 @@ export function parseSetupForm(form: FormData): { ok: true; details: SetupDetail
 
   const profession = PROFESSIONS.find((p) => p.value === text("profession"))?.value;
   if (!profession) return { ok: false, error: "Please choose your profession." };
+
+  // Older forms had no business type, and nearly every solo practice is a sole proprietor.
+  const businessType = BUSINESS_TYPES.find((b) => b.value === (text("business_type") || "sole_proprietor"))?.value;
+  if (!businessType) return { ok: false, error: "Please choose whether you're a sole proprietor or an Inc." };
 
   const direction = text("price_direction");
   const percent = direction === "at" ? 0 : Number(text("price_percent"));
@@ -70,6 +82,7 @@ export function parseSetupForm(form: FormData): { ok: true; details: SetupDetail
       bank_account_number: text("bank_account_number"),
       bank_branch_code: text("bank_branch_code"),
       profession,
+      business_type: businessType,
       price_adjustment_percent: adjustment,
       no_show_price_cents: noShow,
     },
