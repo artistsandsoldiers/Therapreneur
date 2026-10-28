@@ -3,6 +3,7 @@ import Link from "next/link";
 import { PatientList } from "./patient-list";
 import { button } from "@/app/ui";
 import { formatDate, toLocalInput } from "@/lib/dates";
+import { payerLabel } from "@/lib/patients";
 import { requireSetUpPractice } from "@/lib/practice";
 
 export const metadata: Metadata = { title: "Patients · Therapreneur" };
@@ -12,7 +13,7 @@ export default async function PatientsPage({ searchParams }: { searchParams: Pro
   const { supabase } = await requireSetUpPractice();
   let query = supabase
     .from("patients")
-    .select("id, first_name, last_name, payer_type, medical_aids(name), sessions(starts_at)")
+    .select("id, first_name, last_name, bill_to, medical_aids(name), sessions(starts_at)")
     .order("last_name")
     .order("first_name");
   query = showPast ? query.not("past_since", "is", null) : query.is("past_since", null);
@@ -24,7 +25,7 @@ export default async function PatientsPage({ searchParams }: { searchParams: Pro
     return {
       id: patient.id,
       name: `${patient.first_name} ${patient.last_name}`,
-      payer: patient.payer_type === "cash" ? "Cash" : (patient.medical_aids?.name ?? "Medical aid"),
+      payer: payerLabel(patient.medical_aids?.name ?? null, patient.bill_to),
       lastSession: last ? formatDate(toLocalInput(new Date(last))) : null,
     };
   });

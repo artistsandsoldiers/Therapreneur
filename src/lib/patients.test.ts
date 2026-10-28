@@ -18,7 +18,7 @@ describe("parsePatientForm", () => {
     for (const [name, value] of Object.entries({
       first_name: "Thandi",
       last_name: "Mokoena",
-      payer_type: "medical_aid",
+      has_medical_aid: "yes",
       medical_aid_id: "discovery",
       member_number: "123",
       date_of_birth: "2015-06-01",
@@ -38,10 +38,20 @@ describe("parsePatientForm", () => {
     expect(parsePatientForm(form({ main_member_name: "Sipho Mokoena" })).ok).toBe(false);
   });
 
-  it("needs a real past date of birth for medical aid patients, but not for cash", () => {
+  it("needs a real past date of birth for patients with medical aid, but not without", () => {
     expect(parsePatientForm(form({ patient_is_main_member: "yes", date_of_birth: "" })).ok).toBe(false);
     expect(parsePatientForm(form({ patient_is_main_member: "yes", date_of_birth: "2015-02-30" })).ok).toBe(false);
     expect(parsePatientForm(form({ patient_is_main_member: "yes", date_of_birth: "2999-01-01" })).ok).toBe(false);
-    expect(parsePatientForm(form({ payer_type: "cash", date_of_birth: "" })).ok).toBe(true);
+    expect(parsePatientForm(form({ has_medical_aid: "no", date_of_birth: "" })).ok).toBe(true);
+  });
+
+  it("keeps medical aid details when the patient pays the practice", () => {
+    const parsed = parsePatientForm(form({ patient_is_main_member: "yes", bill_to: "patient" }));
+    expect(parsed.ok && parsed.patient).toMatchObject({ bill_to: "patient", medical_aid_id: "discovery", member_number: "123" });
+  });
+
+  it("bills a patient without medical aid to the patient", () => {
+    const parsed = parsePatientForm(form({ has_medical_aid: "no", bill_to: "medical_aid" }));
+    expect(parsed.ok && parsed.patient).toMatchObject({ bill_to: "patient", medical_aid_id: null });
   });
 });

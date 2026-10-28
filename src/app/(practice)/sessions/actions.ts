@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { loadCaptureData, type Patient } from "@/lib/capture-data";
-import { priceCapture, type CaptureLineInput } from "@/lib/capture";
+import { priceCapture, sessionBillTo, type CaptureLineInput } from "@/lib/capture";
 import { fromLocalInput } from "@/lib/dates";
 import { parsePatientForm } from "@/lib/patients";
 import { requireSetUpPractice } from "@/lib/practice";
@@ -31,6 +31,7 @@ export type CaptureInput = {
   patientId: string;
   startsAt: string; // YYYY-MM-DDTHH:mm, South African time
   outcome: Enums<"session_outcome">;
+  billTo: Enums<"bill_to">;
   note: string;
   lines: CaptureLineInput[];
 };
@@ -75,6 +76,7 @@ export async function saveCapture(input: CaptureInput): Promise<{ error: string 
     p_outcome: input.outcome,
     p_note: input.note,
     p_lines: priced.lines,
+    p_bill_to: sessionBillTo(input.outcome, input.billTo, patient),
   });
   if (error) {
     console.error("Saving capture failed", error);

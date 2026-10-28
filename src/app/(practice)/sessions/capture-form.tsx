@@ -2,11 +2,12 @@
 
 import { useMemo, useState, useTransition } from "react";
 import { addPatient, saveCapture, type CaptureInput } from "./actions";
-import { PatientFields } from "../patients/patient-fields";
+import { PatientFields, Toggle } from "../patients/patient-fields";
 import { button, field, label, secondaryButton } from "@/app/ui";
 import type { CaptureData, Patient } from "@/lib/capture-data";
 import type { CaptureLineInput } from "@/lib/capture";
 import { formatRands, parseRands } from "@/lib/money";
+import { sessionBillTo } from "@/lib/capture";
 import { findRate, invoiceTotal, practicePrice } from "@/lib/pricing";
 import type { Enums } from "@/lib/supabase/database.types";
 
@@ -20,6 +21,8 @@ export type CaptureFormProps = CaptureData & {
     patientId: string;
     startsAt: string;
     outcome: Enums<"session_outcome">;
+    /** Who the invoice goes to, or null to start from the patient's usual choice. */
+    billTo: Enums<"bill_to"> | null;
     note: string;
     lines: { billingCodeId: string; quantity: number; unitPriceCents: number }[];
   };
@@ -32,6 +35,9 @@ export function CaptureForm(props: CaptureFormProps) {
     props.patients.filter((p) => !p.past_since || p.id === initial.patientId),
   );
   const [patientId, setPatientId] = useState(initial.patientId);
+  const [chosenBillTo, setChosenBillTo] = useState<Enums<"bill_to">>(
+    initial.billTo ?? patients.find((p) => p.id === initial.patientId)?.bill_to ?? "medical_aid",
+  );
   const [addingPatient, setAddingPatient] = useState(patients.length === 0);
   const [startsAt, setStartsAt] = useState(initial.startsAt);
   const [outcome, setOutcome] = useState(initial.outcome);
@@ -74,8 +80,14 @@ export function CaptureForm(props: CaptureFormProps) {
             unitPriceCents: line.fixedPrice ?? line.typedPriceCents ?? 0,
           })),
         );
-  const billTo =
-    outcome === "no_show" || patient?.payer_type === "cash" ? "the patient" : medicalAidName(patient?.medical_aid_id ?? null);
+  const billTo = patient ? sessionBillTo(outcome, chosenBillTo, patient) : null;
+  const billToText = billTo === "medical_aid" ? medicalAidName(patient?.medical_aid_id ?? null) : billTo && "the patient";
+
+  // A different patient starts from their own usual choice of who pays.
+  function pickPatient(picked: Patient) {
+    setPatientId(picked.id);
+    setChosenBillTo(picked.bill_to);
+  }
 
   function updateLine(billingCodeId: string, change: Partial<Line>) {
     setLines((current) => current.map((line) => (line.billingCodeId === billingCodeId ? { ...line, ...change } : line)));
@@ -88,6 +100,7 @@ export function CaptureForm(props: CaptureFormProps) {
       patientId,
       startsAt,
       outcome,
+      billTo: billTo ?? "patient",
       note,
       lines: lines.map(({ billingCodeId, quantity, typedPriceCents }) => ({ billingCodeId, quantity, typedPriceCents })),
     };
@@ -106,7 +119,10 @@ export function CaptureForm(props: CaptureFormProps) {
             <select
               id="patient"
               value={patientId}
-              onChange={(event) => setPatientId(event.target.value)}
+              onChange={(event) => {
+                const picked = patients.find((p) => p.id === event.target.value);
+                if (picked) pickPatient(picked);
+              }}
               className={field}
             >
               <option value="" disabled>{patients.length ? "Choose a patient…" : "No patients yet"}</option>
@@ -123,9 +139,9 @@ export function CaptureForm(props: CaptureFormProps) {
         </div>
         {patient && !addingPatient && (
           <p className="mt-2 text-sm text-neutral-500">
-            {patient.payer_type === "cash"
-              ? "Cash patient"
-              : `${medicalAidName(patient.medical_aid_id)} · ${patient.member_number}`}
+            {patient.medical_aid_id
+              ? `${medicalAidName(patient.medical_aid_id)} · ${patient.member_number}`
+              : "No medical aid"}
             {patient.icd10_codes.length > 0 && ` · ICD-10 ${patient.icd10_codes.join(", ")}`}
           </p>
         )}
@@ -140,7 +156,7 @@ export function CaptureForm(props: CaptureFormProps) {
                   `${a.first_name} ${a.last_name}`.localeCompare(`${b.first_name} ${b.last_name}`),
                 ),
               );
-              setPatientId(added.id);
+              pickPatient(added);
               setAddingPatient(false);
             }}
           />
@@ -183,6 +199,18 @@ export function CaptureForm(props: CaptureFormProps) {
         </p>
       ) : (
         <section className="flex flex-col gap-3">
+          {patient?.medical_aid_id && (
+            <Toggle
+              label="Who pays for this session"
+              name="bill_to"
+              value={chosenBillTo}
+              options={[
+                ["medical_aid", "Medical aid"],
+                ["patient", "Patient"],
+              ]}
+              onChange={setChosenBillTo}
+            />
+          )}
           <h2 className={label}>Billing codes</h2>
           {pricedLines.map((line) => {
             const code = codes.find((c) => c.id === line.billingCodeId);
@@ -271,7 +299,7 @@ export function CaptureForm(props: CaptureFormProps) {
 
       <section className="sticky bottom-0 -mx-4 flex flex-col gap-2 border-t border-neutral-100 bg-white px-4 py-3">
         <div className="flex items-baseline justify-between gap-3">
-          <span className="truncate text-sm text-neutral-500">{billTo ? `Bill to ${billTo}` : "Total"}</span>
+          <span className="truncate text-sm text-neutral-500">{billToText ? `Bill to ${billToText}` : "Total"}</span>
           <span className="text-lg font-semibold">{formatRands(total)}</span>
         </div>
         <button type="button" onClick={save} disabled={saving || addingPatient} className={button}>

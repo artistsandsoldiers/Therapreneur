@@ -351,6 +351,7 @@ export type Database = {
       }
       patients: {
         Row: {
+          bill_to: Database["public"]["Enums"]["bill_to"]
           date_of_birth: string | null
           dependant_code: string | null
           referring_doctor_name: string | null
@@ -364,11 +365,11 @@ export type Database = {
           medical_aid_id: string | null
           member_number: string | null
           past_since: string | null
-          payer_type: Database["public"]["Enums"]["payer_type"]
           plan: string | null
           practice_id: string
         }
         Insert: {
+          bill_to: Database["public"]["Enums"]["bill_to"]
           date_of_birth?: string | null
           dependant_code?: string | null
           referring_doctor_name?: string | null
@@ -382,11 +383,11 @@ export type Database = {
           medical_aid_id?: string | null
           member_number?: string | null
           past_since?: string | null
-          payer_type: Database["public"]["Enums"]["payer_type"]
           plan?: string | null
           practice_id: string
         }
         Update: {
+          bill_to?: Database["public"]["Enums"]["bill_to"]
           date_of_birth?: string | null
           dependant_code?: string | null
           referring_doctor_name?: string | null
@@ -400,7 +401,6 @@ export type Database = {
           medical_aid_id?: string | null
           member_number?: string | null
           past_since?: string | null
-          payer_type?: Database["public"]["Enums"]["payer_type"]
           plan?: string | null
           practice_id?: string
         }
@@ -621,6 +621,7 @@ export type Database = {
       }
       save_capture: {
         Args: {
+          p_bill_to: Database["public"]["Enums"]["bill_to"]
           p_lines: Json
           p_note: string
           p_outcome: Database["public"]["Enums"]["session_outcome"]
@@ -637,7 +638,6 @@ export type Database = {
     }
     Enums: {
       bill_to: "medical_aid" | "patient"
-      payer_type: "medical_aid" | "cash"
       profession: "occupational_therapy" | "physiotherapy" | "speech_therapy"
       session_outcome: "attended" | "no_show"
     }

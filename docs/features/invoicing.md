@@ -10,7 +10,7 @@ Discovery interview with Robynne Stock (solo adult OT), October 2026. She pays R
 
 ## Scope
 - One invoice per session: sequential number, date, due date (default 30 days), practice details and banking details.
-- Medical aid invoices are addressed to the medical aid with main member details. Cash invoices are addressed to the patient, who claims back.
+- Medical aid invoices are addressed to the medical aid with main member details. Invoices the patient pays are addressed to the patient, still with their medical aid details so they can claim back.
 - ICD-10 codes on every line, editable per line.
 - VAT off by default, with a setting to switch it on at 15%.
 - Practice logo on the PDF and invoice page, uploaded in Settings. No practice colour yet.

@@ -5,7 +5,7 @@ import { DeleteButton } from "./delete-button";
 import { PaidForm } from "./paid-form";
 import { secondaryButton } from "@/app/ui";
 import { formatDate, formatDateTime, toLocalInput } from "@/lib/dates";
-import { loadInvoiceDocument } from "@/lib/invoice-document";
+import { billToLines, loadInvoiceDocument } from "@/lib/invoice-document";
 import { logoUrl } from "@/lib/logo";
 import { invoiceNumber } from "@/lib/invoices";
 import { formatRands } from "@/lib/money";
@@ -20,7 +20,7 @@ export default async function InvoicePage({ params }: { params: Promise<{ id: st
   const invoice = await loadInvoiceDocument(supabase, practice, id);
   if (!invoice) notFound();
 
-  const { patient, session, claim } = invoice;
+  const { session, claim } = invoice;
   const logo = await logoUrl(supabase, practice);
 
   return (
@@ -76,29 +76,9 @@ export default async function InvoicePage({ params }: { params: Promise<{ id: st
 
           <section className="mt-6">
             <p className="text-xs font-medium tracking-wide text-neutral-400 uppercase">Bill to</p>
-            {invoice.toMedicalAid ? (
-              <>
-                <p className="font-medium">{patient.medical_aid_name}</p>
-                <p>Main member: {patient.main_member_name}</p>
-                <p>
-                  Member no. {patient.member_number}
-                  {patient.dependant_code && ` · Dependant ${patient.dependant_code}`}
-                  {patient.plan && ` · ${patient.plan}`}
-                </p>
-                <p>
-                  Patient: {patient.patient_name}
-                  {patient.date_of_birth && ` · Born ${formatDate(patient.date_of_birth)}`}
-                </p>
-                {patient.referring_doctor_name && (
-                  <p>
-                    Referred by {patient.referring_doctor_name}
-                    {patient.referring_doctor_practice_number && ` (practice no. ${patient.referring_doctor_practice_number})`}
-                  </p>
-                )}
-              </>
-            ) : (
-              <p className="font-medium">{patient.patient_name}</p>
-            )}
+            {billToLines(invoice).map((line, index) => (
+              <p key={index} className={index === 0 ? "font-medium" : undefined}>{line}</p>
+            ))}
           </section>
 
           <table className="mt-6 w-full">

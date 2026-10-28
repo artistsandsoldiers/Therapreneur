@@ -57,3 +57,16 @@ export function priceCapture(
   }
   return { ok: true, lines: priced };
 }
+
+/**
+ * Who a session's invoice goes to. The practitioner chooses per session, starting from the patient's usual choice,
+ * but a no-show is always the patient's to pay, and only a patient with medical aid can be billed to one.
+ */
+export function sessionBillTo(
+  outcome: Enums<"session_outcome">,
+  chosen: Enums<"bill_to">,
+  patient: { medical_aid_id: string | null },
+): Enums<"bill_to"> {
+  if (outcome === "no_show" || !patient.medical_aid_id) return "patient";
+  return chosen;
+}

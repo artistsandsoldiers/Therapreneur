@@ -27,8 +27,9 @@ _Avoid_: account holder, principal member
 **Dependant code**:
 The two-digit number a medical aid gives each person on a membership. The main member is 00.
 
-**Payer type**:
-Whether a patient's invoices go to a **Medical aid** or are paid in **Cash** by the patient.
+**Who pays**:
+Whether an invoice goes to the patient's **Medical aid** or to the **Patient**, who may claim back themselves. Each patient has a usual choice, and each session can change it. Separate from whether the patient has medical aid at all.
+_Avoid_: payer type, cash patient
 
 ## Medical aid
 
@@ -138,7 +139,7 @@ _Avoid_: net income, earnings
 ## Relationships
 
 - A **Practice** has one **Practitioner** and many **Patients**.
-- A **Patient** is covered under one **Main member**'s **Medical aid**, or pays **Cash**.
+- A **Patient** may be covered under one **Main member**'s **Medical aid**, and either the medical aid or the patient pays (**Who pays**).
 - A **Session** has one **Note** and produces one **Invoice**.
 - A medical aid **Invoice** becomes a **Claim**, sent in a **Claim batch** that gets one **Reference number**.
 - A **Remittance** is reconciled against **Claims** to record **Payments**.
