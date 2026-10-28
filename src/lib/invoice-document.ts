@@ -22,6 +22,8 @@ export type InvoiceDocument = {
   number: number;
   issuedOn: string;
   dueOn: string;
+  /** When it was paid in full, or null while outstanding. */
+  paidOn: string | null;
   toMedicalAid: boolean;
   /** The patient's medical aid now, which decides the claim batch an unclaimed invoice goes in. */
   medicalAidId: string | null;
@@ -71,6 +73,7 @@ export async function loadInvoiceDocuments(
         number: invoice.number,
         issuedOn: invoice.issued_on,
         dueOn: invoice.due_on,
+        paidOn: invoice.paid_on,
         toMedicalAid: invoice.bill_to === "medical_aid",
         medicalAidId: patient.medical_aid_id,
         practice,

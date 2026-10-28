@@ -12,7 +12,7 @@ One doc per feature. A feature doc is written after a grill and before any code,
 | [Claims](claims.md) | building | Email claim batches to each medical aid and record reference numbers |
 | [Reconciliation](reconciliation.md) | grilled | Match remittances to claims and mark invoices paid |
 | [Notes](notes.md) | grilled | Free-text session notes and a list of sessions missing one |
-| [Reports](reports.md) | grilled | Income per month, income per patient, outstanding by age |
+| [Performance](performance.md) | building | Income per month, income per patient, outstanding by age |
 | [Patients](patients.md) | building | A patient list and page with details, sessions and notes |
 | [Waitlist](waitlist.md) | building | Landing page that collects name, email and occupation |
 

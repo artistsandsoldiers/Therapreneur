@@ -28,5 +28,5 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   // Only the logged-in parts of the app; the landing page and static files skip this.
-  matcher: ["/login", "/setup", "/settings", "/invoices/:path*", "/sessions/:path*", "/patients/:path*"],
+  matcher: ["/login", "/setup", "/settings", "/invoices/:path*", "/sessions/:path*", "/patients/:path*", "/claims/:path*", "/performance"],
 };
