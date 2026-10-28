@@ -97,6 +97,23 @@ export function SetupForm({ practice }: { practice: Practice }) {
         </div>
       </fieldset>
 
+      <fieldset className="flex flex-col gap-4">
+        <legend className="mb-1 text-lg font-semibold">Sessions</legend>
+        <div>
+          <label htmlFor="session_minutes" className={label}>Usual session length (minutes)</label>
+          <input
+            id="session_minutes"
+            name="session_minutes"
+            required
+            inputMode="numeric"
+            pattern="[0-9]{1,3}"
+            defaultValue={practice.session_minutes}
+            className={field}
+          />
+          <p className="mt-1 text-sm text-neutral-500">New sessions start at this length. You can change it for any session.</p>
+        </div>
+      </fieldset>
+
       <div className="flex flex-col gap-3">
         <button type="submit" disabled={pending} className={button}>
           {pending ? "Saving…" : isFirstTime ? "Finish setup" : "Save"}

@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { DeleteButton } from "./delete-button";
 import { PaidForm } from "./paid-form";
 import { secondaryButton } from "@/app/ui";
-import { formatDate, formatDateTime, toLocalInput } from "@/lib/dates";
+import { formatDate, formatSessionTime, toLocalInput } from "@/lib/dates";
 import { billToLines, loadInvoiceDocument } from "@/lib/invoice-document";
 import { logoUrl } from "@/lib/logo";
 import { invoiceNumber } from "@/lib/invoices";
@@ -124,7 +124,7 @@ export default async function InvoicePage({ params }: { params: Promise<{ id: st
         <section className="mt-6 text-sm lg:col-start-2 lg:row-start-2">
           <p className="font-medium">Session</p>
           <p className="text-neutral-500">
-            {formatDateTime(session.startsAt)} · {session.outcome === "no_show" ? "No-show" : "Attended"}
+            {formatSessionTime(session.startsAt, session.durationMinutes)} · {session.outcome === "no_show" ? "No-show" : "Attended"}
           </p>
           <div className="mt-3 flex items-baseline justify-between gap-2">
             <p className="font-medium">Note <span className="font-normal text-neutral-400">(only you see this)</span></p>

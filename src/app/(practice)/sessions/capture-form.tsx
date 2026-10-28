@@ -5,9 +5,9 @@ import { addPatient, saveCapture, type CaptureInput } from "./actions";
 import { PatientFields, Toggle } from "../patients/patient-fields";
 import { button, field, label, secondaryButton } from "@/app/ui";
 import type { CaptureData, Patient } from "@/lib/capture-data";
-import type { CaptureLineInput } from "@/lib/capture";
+import { isSessionLength, sessionBillTo, type CaptureLineInput } from "@/lib/capture";
+import { formatSessionTime, fromLocalInput } from "@/lib/dates";
 import { formatRands, parseRands } from "@/lib/money";
-import { sessionBillTo } from "@/lib/capture";
 import { findRate, invoiceTotal, practicePrice } from "@/lib/pricing";
 import type { Enums } from "@/lib/supabase/database.types";
 
@@ -20,6 +20,7 @@ export type CaptureFormProps = CaptureData & {
     sessionId: string | null;
     patientId: string;
     startsAt: string;
+    durationMinutes: number;
     outcome: Enums<"session_outcome">;
     /** Who the invoice goes to, or null to start from the patient's usual choice. */
     billTo: Enums<"bill_to"> | null;
@@ -40,6 +41,7 @@ export function CaptureForm(props: CaptureFormProps) {
   );
   const [addingPatient, setAddingPatient] = useState(patients.length === 0);
   const [startsAt, setStartsAt] = useState(initial.startsAt);
+  const [duration, setDuration] = useState(String(initial.durationMinutes));
   const [outcome, setOutcome] = useState(initial.outcome);
   const [note, setNote] = useState(initial.note);
   const [lines, setLines] = useState<Line[]>(
@@ -54,6 +56,10 @@ export function CaptureForm(props: CaptureFormProps) {
   const [saving, startSaving] = useTransition();
 
   const patient = patients.find((p) => p.id === patientId);
+  const history = patient ? props.codeHistories[patient.id] : undefined;
+  const durationMinutes = Number(duration);
+  const startsAtIso = fromLocalInput(startsAt);
+  const sessionTime = startsAtIso && isSessionLength(durationMinutes) ? formatSessionTime(startsAtIso, durationMinutes) : null;
   const medicalAidName = (id: string | null) => medicalAids.find((aid) => aid.id === id)?.name;
 
   // The same pricing the server uses, so what she sees is what gets saved.
@@ -89,6 +95,8 @@ export function CaptureForm(props: CaptureFormProps) {
     setChosenBillTo(picked.bill_to);
   }
 
+  const newLine = (billingCodeId: string, quantity = 1): Line => ({ billingCodeId, quantity, typedPriceCents: null, typedPrice: "" });
+
   function updateLine(billingCodeId: string, change: Partial<Line>) {
     setLines((current) => current.map((line) => (line.billingCodeId === billingCodeId ? { ...line, ...change } : line)));
   }
@@ -99,6 +107,7 @@ export function CaptureForm(props: CaptureFormProps) {
       sessionId: initial.sessionId,
       patientId,
       startsAt,
+      durationMinutes,
       outcome,
       billTo: billTo ?? "patient",
       note,
@@ -174,6 +183,36 @@ export function CaptureForm(props: CaptureFormProps) {
         />
       </section>
 
+      <section>
+        <p className={label}>Length</p>
+        <div className="flex flex-wrap items-center gap-2">
+          {[30, 45, 60].map((minutes) => (
+            <button
+              key={minutes}
+              type="button"
+              onClick={() => setDuration(String(minutes))}
+              aria-pressed={durationMinutes === minutes}
+              className={`rounded-full border px-3 py-1.5 text-sm font-medium ${
+                durationMinutes === minutes ? "border-accent bg-accent/10 text-accent" : "border-neutral-200 text-neutral-600"
+              }`}
+            >
+              {minutes} min
+            </button>
+          ))}
+          <label className="flex items-center gap-2 text-sm text-neutral-500">
+            <input
+              inputMode="numeric"
+              value={duration}
+              onChange={(event) => setDuration(event.target.value.replace(/\D/g, ""))}
+              aria-label="Length in minutes"
+              className={`${field.replace("w-full", "w-20")} py-1.5`}
+            />
+            min
+          </label>
+        </div>
+        {sessionTime && <p className="mt-1 text-sm text-neutral-500">{sessionTime}</p>}
+      </section>
+
       <section className="grid grid-cols-2 gap-1 rounded-lg bg-neutral-100 p-1">
         {(
           [
@@ -211,7 +250,18 @@ export function CaptureForm(props: CaptureFormProps) {
               onChange={setChosenBillTo}
             />
           )}
-          <h2 className={label}>Billing codes</h2>
+          <div className="flex items-baseline justify-between gap-3">
+            <h2 className={label}>Billing codes</h2>
+            {history && history.last.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setLines(history.last.map((line) => newLine(line.billingCodeId, line.quantity)))}
+                className="text-sm font-medium text-accent"
+              >
+                Same as last time
+              </button>
+            )}
+          </div>
           {pricedLines.map((line) => {
             const code = codes.find((c) => c.id === line.billingCodeId);
             return (
@@ -277,10 +327,17 @@ export function CaptureForm(props: CaptureFormProps) {
           })}
           <CodePicker
             codes={codes.filter((code) => !lines.some((line) => line.billingCodeId === code.id))}
-            onPick={(billingCodeId) =>
-              setLines((current) => [...current, { billingCodeId, quantity: 1, typedPriceCents: null, typedPrice: "" }])
-            }
+            onPick={(billingCodeId) => setLines((current) => [...current, newLine(billingCodeId)])}
           />
+          {history && (
+            <UsualCodes
+              codes={history.usual.flatMap((id) => {
+                const code = codes.find((c) => c.id === id);
+                return code && !lines.some((line) => line.billingCodeId === id) ? [code] : [];
+              })}
+              onPick={(billingCodeId) => setLines((current) => [...current, newLine(billingCodeId)])}
+            />
+          )}
         </section>
       )}
 
@@ -307,6 +364,30 @@ export function CaptureForm(props: CaptureFormProps) {
         </button>
         {error && <p role="alert" className="text-sm text-red-600">{error}</p>}
       </section>
+    </div>
+  );
+}
+
+/** Codes used before for this patient, one tap to add. */
+function UsualCodes({ codes, onPick }: { codes: CaptureData["codes"]; onPick: (id: string) => void }) {
+  if (codes.length === 0) return null;
+  return (
+    <div>
+      <p className="mb-1.5 text-sm text-neutral-500">Used before for this patient</p>
+      <div className="flex flex-wrap gap-2">
+        {codes.map((code) => (
+          <button
+            key={code.id}
+            type="button"
+            onClick={() => onPick(code.id)}
+            title={code.description}
+            className="max-w-full truncate rounded-full border border-neutral-200 px-3 py-1.5 text-sm hover:bg-neutral-50"
+          >
+            <span className="font-medium">+ {code.code}</span>{" "}
+            <span className="text-neutral-500">{code.description}</span>
+          </button>
+        ))}
+      </div>
     </div>
   );
 }

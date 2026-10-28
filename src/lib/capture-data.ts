@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { codeHistories } from "./capture";
 import type { Practice } from "./practice";
 import { DEFAULT_MEDICAL_AID, type Rate } from "./pricing";
 import type { Database, Tables } from "./supabase/database.types";
@@ -18,9 +19,13 @@ export async function loadMedicalAids(supabase: SupabaseClient<Database>) {
 }
 
 /** Everything the capture screen and its server action need, read in parallel. */
-export async function loadCaptureData(supabase: SupabaseClient<Database>, practice: Practice) {
+export async function loadCaptureData(
+  supabase: SupabaseClient<Database>,
+  practice: Practice,
+  fixingSessionId: string | null = null,
+) {
   const profession = practice.profession ?? "occupational_therapy";
-  const [patients, medicalAids, codes, rates] = await Promise.all([
+  const [patients, medicalAids, codes, rates, pastInvoices] = await Promise.all([
     supabase.from("patients").select("*").order("first_name").order("last_name"),
     supabase.from("medical_aids").select("*").order("name"),
     supabase.from("billing_codes").select("id, code, description, is_no_show").eq("profession", profession).order("code"),
@@ -28,8 +33,12 @@ export async function loadCaptureData(supabase: SupabaseClient<Database>, practi
       .from("medical_aid_rates")
       .select("billing_code_id, medical_aid_id, rate_cents, effective_from, billing_codes!inner(profession)")
       .eq("billing_codes.profession", profession),
+    supabase
+      .from("invoices")
+      .select("invoice_lines(billing_code_id, quantity, position), sessions!inner(id, patient_id, starts_at, outcome)")
+      .eq("sessions.outcome", "attended"),
   ]);
-  const error = patients.error ?? medicalAids.error ?? codes.error ?? rates.error;
+  const error = patients.error ?? medicalAids.error ?? codes.error ?? rates.error ?? pastInvoices.error;
   if (error) throw error;
 
   const allCodes = codes.data ?? [];
@@ -46,6 +55,19 @@ export async function loadCaptureData(supabase: SupabaseClient<Database>, practi
       effectiveFrom: rate.effective_from,
     })),
     defaultMedicalAidId,
+    codeHistories: codeHistories(
+      (pastInvoices.data ?? []).map((invoice) => ({
+        sessionId: invoice.sessions.id,
+        patientId: invoice.sessions.patient_id,
+        startsAt: invoice.sessions.starts_at,
+        lines: invoice.invoice_lines.map((line) => ({
+          billingCodeId: line.billing_code_id,
+          quantity: line.quantity,
+          position: line.position,
+        })),
+      })),
+      fixingSessionId,
+    ),
   };
 }
 

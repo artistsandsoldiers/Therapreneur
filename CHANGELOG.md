@@ -4,6 +4,7 @@ Changes a practitioner would notice, newest first. Each entry is one line, and t
 
 ## Unreleased
 
+- New session and Add patient open as a pop-up. Sessions have a length (your usual one is in Settings), so they show an end time, also on the invoice PDF. Billing codes you used before for a patient show as chips, and "Same as last time" copies their last invoice's codes.
 - Patients: whether a patient has medical aid is now separate from who pays you, and each session can change who pays. Invoices a patient pays still show their medical aid details so they can claim back.
 - Desktop uses the whole screen: lists show as tables with columns, Performance sits side by side, and an invoice sits beside its payment and session details. Phones look the same as before.
 - Expenses: add what you spend with a receipt photo or PDF, in plain categories you can add to, and see profit before tax on Performance.

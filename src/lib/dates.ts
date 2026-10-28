@@ -27,3 +27,9 @@ export function fromLocalInput(value: string): string | null {
   const date = new Date(`${value}:00${OFFSET}`);
   return Number.isNaN(date.getTime()) ? null : date.toISOString();
 }
+
+/** A session as "23/10/2026 14:30–15:15" in South African time. */
+export function formatSessionTime(startsAt: string, durationMinutes: number): string {
+  const end = toLocalInput(new Date(new Date(startsAt).getTime() + durationMinutes * 60 * 1000));
+  return `${formatDateTime(startsAt)}–${end.slice(11, 16)}`;
+}

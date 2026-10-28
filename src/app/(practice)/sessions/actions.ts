@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { loadCaptureData, type Patient } from "@/lib/capture-data";
-import { priceCapture, sessionBillTo, type CaptureLineInput } from "@/lib/capture";
+import { isSessionLength, priceCapture, sessionBillTo, SESSION_MINUTES, type CaptureLineInput } from "@/lib/capture";
 import { fromLocalInput } from "@/lib/dates";
 import { parsePatientForm } from "@/lib/patients";
 import { requireSetUpPractice } from "@/lib/practice";
@@ -30,6 +30,7 @@ export type CaptureInput = {
   sessionId: string | null;
   patientId: string;
   startsAt: string; // YYYY-MM-DDTHH:mm, South African time
+  durationMinutes: number;
   outcome: Enums<"session_outcome">;
   billTo: Enums<"bill_to">;
   note: string;
@@ -40,6 +41,9 @@ export async function saveCapture(input: CaptureInput): Promise<{ error: string 
   const startsAt = fromLocalInput(input.startsAt);
   if (!startsAt) return { error: "Please enter when the session was." };
   if (!input.patientId) return { error: "Please choose a patient." };
+  if (!isSessionLength(input.durationMinutes)) {
+    return { error: `Please enter the session length in whole minutes, from ${SESSION_MINUTES.min} to ${SESSION_MINUTES.max}.` };
+  }
 
   const { supabase, practice } = await requireSetUpPractice();
   const data = await loadCaptureData(supabase, practice);
@@ -77,6 +81,7 @@ export async function saveCapture(input: CaptureInput): Promise<{ error: string 
     p_note: input.note,
     p_lines: priced.lines,
     p_bill_to: sessionBillTo(input.outcome, input.billTo, patient),
+    p_duration_minutes: input.durationMinutes,
   });
   if (error) {
     console.error("Saving capture failed", error);

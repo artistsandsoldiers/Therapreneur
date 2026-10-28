@@ -34,13 +34,13 @@ export type InvoiceDocument = {
   patient: BilledPatient;
   lines: { id: string; code: string; description: string; icd10Codes: string[]; quantity: number; unitPriceCents: number }[];
   totalCents: number;
-  session: { id: string; startsAt: string; outcome: Database["public"]["Enums"]["session_outcome"]; note: string | null };
+  session: { id: string; startsAt: string; durationMinutes: number; outcome: Database["public"]["Enums"]["session_outcome"]; note: string | null };
   /** Set once the invoice's claim batch has been sent. A claimed invoice can't be fixed or deleted. */
   claim: { batchId: string; sentAt: string; referenceNumber: string | null } | null;
 };
 
 const SELECT =
-  "*, invoice_lines(*), claim_batches(id, sent_at, reference_number), sessions(id, starts_at, outcome, note, patients(*, medical_aids(name)))";
+  "*, invoice_lines(*), claim_batches(id, sent_at, reference_number), sessions(id, starts_at, duration_minutes, outcome, note, patients(*, medical_aids(name)))";
 
 /** Loads invoices by id, oldest first, in the shape above. Invoices the practice can't see are left out. */
 export async function loadInvoiceDocuments(
@@ -97,7 +97,7 @@ export async function loadInvoiceDocuments(
               },
         lines,
         totalCents: invoiceTotal(lines),
-        session: { id: session.id, startsAt: session.starts_at, outcome: session.outcome, note: session.note },
+        session: { id: session.id, startsAt: session.starts_at, durationMinutes: session.duration_minutes, outcome: session.outcome, note: session.note },
         claim,
       },
     ];
