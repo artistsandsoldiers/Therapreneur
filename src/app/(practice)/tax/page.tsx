@@ -4,11 +4,12 @@ import { redirect } from "next/navigation";
 import { turnOffTaxEstimate } from "./actions";
 import { carryForward, estimateFor, loadTaxYear } from "./data";
 import { Payments } from "./payments";
+import { Timeline } from "./timeline";
 import { button } from "@/app/ui";
 import { formatDate, toLocalInput } from "@/lib/dates";
 import { formatRands } from "@/lib/money";
 import { requireSetUpPractice } from "@/lib/practice";
-import { dueDates, roughly, taxYearDates, taxYearName, taxYearOf, type PaymentKind, type TaxEstimate } from "@/lib/tax";
+import { dueDates, paymentTimeline, roughly, taxYearDates, taxYearName, taxYearOf, type PaymentKind, type TaxEstimate } from "@/lib/tax";
 
 export const metadata: Metadata = { title: "Tax · Therapreneur" };
 
@@ -87,6 +88,9 @@ export default async function TaxPage() {
 
   return (
     <Shell year={year}>
+      <div className="mt-6">
+        <Timeline {...paymentTimeline(year, today, estimate.next, current.payments)} next={estimate.next} />
+      </div>
       <div className="mt-6 grid gap-8 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
         <div className="flex flex-col gap-8">
           <Headline estimate={estimate} />
