@@ -341,3 +341,43 @@ function iso(date: Date): string {
 function sum(cents: number[]): number {
   return cents.reduce((total, c) => total + c, 0);
 }
+
+export type TimelineStop = {
+  kind: "start" | PaymentKind;
+  date: string;
+  /** Where it sits along the line, from 0 (1 March) to 1 (the top-up date). */
+  position: number;
+  state: "past" | "next" | "later";
+  /** What she's recorded paying for this payment. A payment counts towards the first due date on or after it. */
+  paidCents: number;
+};
+
+/** The tax year's dates on one line from 1 March to the top-up, and where today sits on it. */
+export function paymentTimeline(
+  year: number,
+  today: string,
+  next: TaxEstimate["next"],
+  payments: { paid_on: string; amount_cents: number }[],
+): { stops: TimelineStop[]; todayPosition: number } {
+  const start = taxYearDates(year).start;
+  const dates = dueDates(year);
+  const span = Date.parse(dates["top-up"]) - Date.parse(start);
+  const position = (date: string) => Math.min(1, Math.max(0, (Date.parse(date) - Date.parse(start)) / span));
+  const kinds: PaymentKind[] = ["first", "second", "top-up"];
+  const paidFor = (kind: PaymentKind) => {
+    const i = kinds.indexOf(kind);
+    const after = i === 0 ? "" : dates[kinds[i - 1]];
+    return payments
+      .filter((p) => p.paid_on > after && (i === kinds.length - 1 || p.paid_on <= dates[kind]))
+      .reduce((sum, p) => sum + p.amount_cents, 0);
+  };
+  const state = (kind: PaymentKind) => (next?.kind === kind ? "next" : today > dates[kind] ? "past" : "later");
+
+  return {
+    stops: [
+      { kind: "start", date: start, position: 0, state: "past", paidCents: 0 },
+      ...kinds.map((kind) => ({ kind, date: dates[kind], position: position(dates[kind]), state: state(kind), paidCents: paidFor(kind) }) as TimelineStop),
+    ],
+    todayPosition: position(today),
+  };
+}
