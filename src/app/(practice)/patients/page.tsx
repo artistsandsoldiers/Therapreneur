@@ -25,7 +25,7 @@ export default async function PatientsPage({ searchParams }: { searchParams: Pro
       id: patient.id,
       name: `${patient.first_name} ${patient.last_name}`,
       payer: patient.payer_type === "cash" ? "Cash" : (patient.medical_aids?.name ?? "Medical aid"),
-      lastSession: last ? `Last session ${formatDate(toLocalInput(new Date(last)))}` : "No sessions yet",
+      lastSession: last ? formatDate(toLocalInput(new Date(last))) : null,
     };
   });
 

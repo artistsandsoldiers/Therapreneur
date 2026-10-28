@@ -1,10 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { bottomLeft, list, listHead, listRow, topRight } from "@/app/ui";
 import { formatDate } from "@/lib/dates";
 import { formatRands } from "@/lib/money";
 import { requireSetUpPractice } from "@/lib/practice";
 import { invoiceTotal } from "@/lib/pricing";
 import { groupByMedicalAid, loadOutstandingClaims } from "@/lib/reconciliation";
+
+const WAITING_COLS = "md:grid-cols-[minmax(0,2fr)_repeat(3,minmax(0,1fr))]";
+const REMITTANCE_COLS = "md:grid-cols-[minmax(0,2fr)_repeat(4,minmax(0,1fr))]";
 
 export const metadata: Metadata = { title: "Reconcile · Therapreneur" };
 
@@ -32,53 +36,71 @@ export default async function ReconcilePage() {
       {groups.length === 0 ? (
         <p className="text-neutral-500">No claims waiting. Claims appear here once you&apos;ve sent them.</p>
       ) : (
-        <ul className="divide-y divide-neutral-100 border-y border-neutral-100">
-          {groups.map((group) => (
-            <li key={group.medicalAidId}>
-              <Link href={`/reconcile/${group.medicalAidId}`} className="flex items-center justify-between gap-4 py-3">
-                <div className="min-w-0">
+        <>
+          <div className={`${listHead} ${WAITING_COLS}`}>
+            <span>Medical aid</span>
+            <span>Claims</span>
+            <span>Oldest from</span>
+            <span className="text-right">Amount</span>
+          </div>
+          <ul className={list}>
+            {groups.map((group) => (
+              <li key={group.medicalAidId}>
+                <Link href={`/reconcile/${group.medicalAidId}`} className={`${listRow} ${WAITING_COLS}`}>
                   <p className="truncate font-medium">{group.name}</p>
-                  <p className="text-sm text-neutral-500">
-                    {group.claims.length === 1 ? "1 claim" : `${group.claims.length} claims`} · oldest from{" "}
-                    {formatDate(group.claims[0].issuedOn)}
+                  <p className={`${bottomLeft} text-sm text-neutral-500 md:contents`}>
+                    <span>{group.claims.length === 1 ? "1 claim" : `${group.claims.length} claims`}</span>
+                    <span className="md:hidden"> · oldest from </span>
+                    <span>{formatDate(group.claims[0].issuedOn)}</span>
                   </p>
-                </div>
-                <span className="shrink-0 font-medium">{formatRands(group.totalCents)}</span>
-              </Link>
-            </li>
-          ))}
-        </ul>
+                  <span className={`${topRight} font-medium tabular-nums`}>{formatRands(group.totalCents)}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </>
       )}
 
       <h2 className="mt-12 mb-3 text-lg font-semibold">Remittances</h2>
       {remittances.data.length === 0 ? (
         <p className="text-neutral-500">No remittances recorded yet.</p>
       ) : (
-        <ul className="divide-y divide-neutral-100 border-y border-neutral-100">
-          {remittances.data.map((remittance) => {
-            const total = remittance.invoices.reduce(
-              (sum, invoice) =>
-                sum +
-                invoiceTotal(invoice.invoice_lines.map((line) => ({ quantity: line.quantity, unitPriceCents: line.unit_price_cents }))),
-              0,
-            );
-            const count = remittance.invoices.length;
-            return (
-              <li key={remittance.id}>
-                <Link href={`/reconcile/remittances/${remittance.id}`} className="flex items-center justify-between gap-4 py-3">
-                  <div className="min-w-0">
+        <>
+          <div className={`${listHead} ${REMITTANCE_COLS}`}>
+            <span>Medical aid</span>
+            <span>Paid on</span>
+            <span>Claims</span>
+            <span>Reference</span>
+            <span className="text-right">Amount</span>
+          </div>
+          <ul className={list}>
+            {remittances.data.map((remittance) => {
+              const total = remittance.invoices.reduce(
+                (sum, invoice) =>
+                  sum +
+                  invoiceTotal(invoice.invoice_lines.map((line) => ({ quantity: line.quantity, unitPriceCents: line.unit_price_cents }))),
+                0,
+              );
+              const count = remittance.invoices.length;
+              return (
+                <li key={remittance.id}>
+                  <Link href={`/reconcile/remittances/${remittance.id}`} className={`${listRow} ${REMITTANCE_COLS}`}>
                     <p className="truncate font-medium">{remittance.medical_aids?.name}</p>
-                    <p className="text-sm text-neutral-500">
-                      Paid {formatDate(remittance.paid_on)} · {count === 1 ? "1 claim" : `${count} claims`}
-                      {remittance.reference && ` · ${remittance.reference}`}
+                    <p className={`${bottomLeft} text-sm text-neutral-500 md:contents`}>
+                      <span><span className="md:hidden">Paid </span>{formatDate(remittance.paid_on)}</span>
+                      <span className="md:hidden"> · </span>
+                      <span>{count === 1 ? "1 claim" : `${count} claims`}</span>
+                      <span className="truncate">
+                        {remittance.reference && <><span className="md:hidden"> · </span>{remittance.reference}</>}
+                      </span>
                     </p>
-                  </div>
-                  <span className="shrink-0 font-medium">{formatRands(total)}</span>
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
+                    <span className={`${topRight} font-medium tabular-nums`}>{formatRands(total)}</span>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </>
       )}
     </main>
   );

@@ -2,9 +2,11 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { field } from "@/app/ui";
+import { bottomLeft, field, list, listHead, listRow } from "@/app/ui";
 
-type Row = { id: string; name: string; payer: string; lastSession: string };
+type Row = { id: string; name: string; payer: string; lastSession: string | null };
+
+const cols = "md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)]";
 
 /** The patient list with a search box that filters as she types. */
 export function PatientList({ patients, empty }: { patients: Row[]; empty: string }) {
@@ -22,17 +24,31 @@ export function PatientList({ patients, empty }: { patients: Row[]; empty: strin
         onChange={(event) => setQuery(event.target.value)}
         placeholder="Search by name or medical aid"
         aria-label="Search patients"
-        className={`${field} mt-4`}
+        className={`${field} mt-4 md:max-w-sm`}
       />
-      <ul className="mt-4 divide-y divide-neutral-100 border-y border-neutral-100">
+      <div className={`${listHead} ${cols} mt-4`}>
+        <span>Name</span>
+        <span>Last session</span>
+        <span className="text-right">Pays</span>
+      </div>
+      <ul className={`${list} mt-4 md:mt-0`}>
         {matches.map((patient) => (
           <li key={patient.id}>
-            <Link href={`/patients/${patient.id}`} className="flex items-center justify-between gap-4 py-3">
-              <div className="min-w-0">
-                <p className="truncate font-medium">{patient.name}</p>
-                <p className="text-sm text-neutral-500">{patient.lastSession}</p>
-              </div>
-              <span className="shrink-0 text-sm text-neutral-500">{patient.payer}</span>
+            <Link href={`/patients/${patient.id}`} className={`${listRow} ${cols}`}>
+              <p className="truncate font-medium">{patient.name}</p>
+              <p className={`${bottomLeft} text-sm text-neutral-500`}>
+                {patient.lastSession ? (
+                  <>
+                    <span className="md:hidden">Last session </span>
+                    {patient.lastSession}
+                  </>
+                ) : (
+                  "No sessions yet"
+                )}
+              </p>
+              <span className="col-start-2 row-span-2 row-start-1 text-right text-sm text-neutral-500 md:col-start-auto md:row-span-1 md:row-start-auto">
+                {patient.payer}
+              </span>
             </Link>
           </li>
         ))}

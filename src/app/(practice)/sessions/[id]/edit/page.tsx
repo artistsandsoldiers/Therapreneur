@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { narrow } from "@/app/ui";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CaptureForm } from "../../capture-form";
@@ -25,7 +26,7 @@ export default async function EditSessionPage({ params }: { params: Promise<{ id
   // A claimed invoice is locked, so only its note can change.
   if (session.invoices.claim_batches?.sent_at) {
     return (
-      <main className="py-6">
+      <main className={`py-6 ${narrow}`}>
         <Link href={`/invoices/${session.invoices.id}`} className="text-sm text-neutral-500">← Invoice</Link>
         <h1 className="mt-3 mb-2 text-2xl font-semibold tracking-tight">Session note</h1>
         <p className="mb-6 text-sm text-neutral-500">This invoice has been claimed, so only the note can change.</p>
@@ -47,7 +48,7 @@ export default async function EditSessionPage({ params }: { params: Promise<{ id
           }));
 
   return (
-    <main className="py-6">
+    <main className={`py-6 ${narrow}`}>
       <Link href={`/invoices/${session.invoices.id}`} className="text-sm text-neutral-500">← Invoice</Link>
       <h1 className="mt-3 mb-6 text-2xl font-semibold tracking-tight">Fix invoice</h1>
       <CaptureForm

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { narrow } from "@/app/ui";
 import Link from "next/link";
 import { CaptureForm } from "../capture-form";
 import { loadCaptureData } from "@/lib/capture-data";
@@ -15,7 +16,7 @@ export default async function NewSessionPage({ searchParams }: { searchParams: P
   const patientId = data.patients.find((p) => p.id === patient && !p.past_since)?.id ?? "";
 
   return (
-    <main className="py-6">
+    <main className={`py-6 ${narrow}`}>
       <Link href={patientId ? `/patients/${patientId}` : "/invoices"} className="text-sm text-neutral-500">
         ← {patientId ? "Patient" : "Invoices"}
       </Link>

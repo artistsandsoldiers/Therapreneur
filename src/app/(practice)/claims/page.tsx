@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { BatchStatus } from "./batch-status";
-import { button } from "@/app/ui";
+import { bottomLeft, button, list, listHead, listRow, topRight } from "@/app/ui";
 import { missingPracticeDetails } from "@/lib/claims";
 import { formatDate } from "@/lib/dates";
 import { invoiceNumber } from "@/lib/invoices";
@@ -14,6 +14,9 @@ export const metadata: Metadata = { title: "Claims · Therapreneur" };
 
 // A batch still not marked sent after this long was interrupted mid-send, so its invoices are freed to claim again.
 const STUCK_AFTER_MS = 10 * 60 * 1000;
+
+const READY_COLS = "md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,2fr)_minmax(0,1fr)]";
+const SENT_COLS = "md:grid-cols-[minmax(0,2fr)_repeat(4,minmax(0,1fr))]";
 
 export default async function ClaimsPage({ searchParams }: { searchParams: Promise<{ sent?: string }> }) {
   const { sent } = await searchParams;
@@ -84,9 +87,19 @@ export default async function ClaimsPage({ searchParams }: { searchParams: Promi
       ) : (
         // A plain form that opens the preview with the ticked invoices, e.g. /claims/preview?invoice=a&invoice=b.
         <form action="/claims/preview" className="flex flex-col gap-6">
+          <div className="-mb-6 hidden gap-3 border-b border-neutral-200 py-2 text-xs font-medium tracking-wide text-neutral-400 uppercase md:flex">
+            <span className="size-5 shrink-0" />
+            <div className={`grid flex-1 gap-x-6 ${READY_COLS}`}>
+              <span>Patient</span>
+              <span>Invoice</span>
+              <span>Date</span>
+              <span>Status</span>
+              <span className="text-right">Amount</span>
+            </div>
+          </div>
           {sortedGroups.map((group) => (
             <section key={group.name}>
-              <p className="mb-1 text-sm font-medium text-neutral-500">{group.name}</p>
+              <p className="mb-1 text-sm font-medium text-neutral-500 md:mt-4">{group.name}</p>
               <ul className="divide-y divide-neutral-100 border-y border-neutral-100">
                 {group.invoices.map((invoice) => {
                   const patient = invoice.sessions?.patients;
@@ -97,7 +110,7 @@ export default async function ClaimsPage({ searchParams }: { searchParams: Promi
                     invoice.invoice_lines.map((line) => ({ quantity: line.quantity, unitPriceCents: line.unit_price_cents })),
                   );
                   return (
-                    <li key={invoice.id} className="flex items-center gap-3 py-3">
+                    <li key={invoice.id} className="flex items-center gap-3">
                       <input
                         type="checkbox"
                         name="invoice"
@@ -105,30 +118,36 @@ export default async function ClaimsPage({ searchParams }: { searchParams: Promi
                         defaultChecked={missing.length === 0}
                         disabled={missing.length > 0}
                         aria-label={`Claim ${invoiceNumber(invoice.number)}`}
-                        className="size-5 accent-accent"
+                        className="size-5 shrink-0 accent-accent"
                       />
-                      <div className="min-w-0 flex-1">
-                        <Link href={`/invoices/${invoice.id}`} className="block truncate font-medium">
+                      <div className={`${listRow} ${READY_COLS} flex-1`}>
+                        <Link href={`/invoices/${invoice.id}`} className="truncate font-medium">
                           {patient ? `${patient.first_name} ${patient.last_name}` : "Unknown patient"}
                         </Link>
-                        <p className="text-sm text-neutral-500">
-                          {invoiceNumber(invoice.number)} · {formatDate(invoice.issued_on)}
+                        <p className={`${bottomLeft} text-sm text-neutral-500 md:contents`}>
+                          <span>{invoiceNumber(invoice.number)}</span>
+                          <span className="md:hidden"> · </span>
+                          <span>{formatDate(invoice.issued_on)}</span>
                         </p>
-                        {missing.length > 0 && patient && (
-                          <p className="text-sm text-amber-700">
-                            Needs a {missing.join(" and ")}.{" "}
-                            <Link href={`/patients/${patient.id}/edit`} className="underline">Edit patient</Link>
-                          </p>
-                        )}
+                        <p className="col-span-2 text-sm md:col-span-1">
+                          {missing.length > 0 && patient ? (
+                            <span className="text-amber-700">
+                              Needs a {missing.join(" and ")}.{" "}
+                              <Link href={`/patients/${patient.id}/edit`} className="underline">Edit patient</Link>
+                            </span>
+                          ) : (
+                            <span className="hidden text-neutral-400 md:inline">Ready</span>
+                          )}
+                        </p>
+                        <span className={`${topRight} font-medium tabular-nums`}>{formatRands(total)}</span>
                       </div>
-                      <span className="shrink-0 font-medium">{formatRands(total)}</span>
                     </li>
                   );
                 })}
               </ul>
             </section>
           ))}
-          <button type="submit" disabled={!anyReady || missingPractice.length > 0} className={`${button} w-full py-3`}>
+          <button type="submit" disabled={!anyReady || missingPractice.length > 0} className={`${button} w-full py-3 md:w-auto md:self-start`}>
             Preview claims
           </button>
         </form>
@@ -138,30 +157,42 @@ export default async function ClaimsPage({ searchParams }: { searchParams: Promi
       {batches.data.length === 0 ? (
         <p className="text-neutral-500">No claims sent yet.</p>
       ) : (
-        <ul className="divide-y divide-neutral-100 border-y border-neutral-100">
-          {batches.data.map((batch) => {
-            const total = batch.invoices.reduce(
-              (sum, invoice) =>
-                sum +
-                invoiceTotal(invoice.invoice_lines.map((line) => ({ quantity: line.quantity, unitPriceCents: line.unit_price_cents }))),
-              0,
-            );
-            return (
-              <li key={batch.id}>
-                <Link href={`/claims/${batch.id}`} className="flex items-center justify-between gap-4 py-3">
-                  <div className="min-w-0">
+        <>
+          <div className={`${listHead} ${SENT_COLS}`}>
+            <span>Medical aid</span>
+            <span>Sent</span>
+            <span>Claims</span>
+            <span className="text-right">Amount</span>
+            <span className="text-right">Status</span>
+          </div>
+          <ul className={list}>
+            {batches.data.map((batch) => {
+              const total = batch.invoices.reduce(
+                (sum, invoice) =>
+                  sum +
+                  invoiceTotal(invoice.invoice_lines.map((line) => ({ quantity: line.quantity, unitPriceCents: line.unit_price_cents }))),
+                0,
+              );
+              return (
+                <li key={batch.id}>
+                  <Link href={`/claims/${batch.id}`} className={`${listRow} ${SENT_COLS}`}>
                     <p className="truncate font-medium">{batch.medical_aids?.name}</p>
-                    <p className="text-sm text-neutral-500">
-                      {formatDate(batch.sent_at!)} · {batch.invoices.length === 1 ? "1 claim" : `${batch.invoices.length} claims`} ·{" "}
-                      {formatRands(total)}
+                    <p className={`${bottomLeft} text-sm text-neutral-500 md:contents`}>
+                      <span>{formatDate(batch.sent_at!)}</span>
+                      <span className="md:hidden"> · </span>
+                      <span>{batch.invoices.length === 1 ? "1 claim" : `${batch.invoices.length} claims`}</span>
+                      <span className="md:hidden"> · </span>
+                      <span className="tabular-nums md:text-right md:font-medium md:text-neutral-900">{formatRands(total)}</span>
                     </p>
-                  </div>
-                  <BatchStatus referenceNumber={batch.reference_number} />
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
+                    <span className="col-start-2 row-span-2 row-start-1 text-right md:col-start-auto md:row-span-1 md:row-start-auto">
+                      <BatchStatus referenceNumber={batch.reference_number} />
+                    </span>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </>
       )}
     </main>
   );
