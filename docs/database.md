@@ -13,7 +13,7 @@ What we store in Supabase, in plain English. Money is whole cents.
 
 ## A practice's own data (only that practice can see it)
 
-- **practices**: one per practitioner. The invited email, then setup: name, practice and HPCSA numbers, address, contact and banking details, profession, price adjustment (+/- %), no-show price, usual session length and where its logo is kept. Also sole proprietor or Inc, and for the tax estimate, the practitioner's date of birth and whether it's on.
+- **practices**: one per practitioner. The invited email, then setup: the practitioner's first and last name, practice name, practice and HPCSA numbers, address, contact and banking details, profession, price adjustment (+/- %), no-show price, usual session length and where its logo is kept. Also sole proprietor or Inc, and for the tax estimate, the practitioner's date of birth and whether it's on.
 - **patients**: name, date of birth, and for patients with medical aid the medical aid, plan, member number, main member and dependant code. Their referrer, if any (a doctor's name and practice number are copied onto the patient for invoices). Who usually pays (medical aid or patient; only patient without medical aid). Also ICD-10 codes, and when they became a past patient.
 - **referrers**: who sends a practice patients: name, kind (doctor, website, social media…) and a doctor's practice number.
 - **sessions**: one appointment: when, how long (minutes), attended or no-show, and the note.

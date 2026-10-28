@@ -19,5 +19,5 @@ export async function saveSetup(_previous: SetupState, form: FormData): Promise<
     console.error("Saving setup failed", error);
     return { error: "Something went wrong. Please try again." };
   }
-  redirect("/invoices");
+  redirect("/home");
 }

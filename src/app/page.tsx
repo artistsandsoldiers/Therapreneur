@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import { createClient } from "@/lib/supabase/server";
 import { WaitlistForm } from "./waitlist-form";
 
 export default async function Home({
@@ -6,6 +8,13 @@ export default async function Home({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
+  // A practitioner who's already logged in goes straight to their Home.
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (user) redirect("/home");
+
   const params = await searchParams;
   const ref = params.ref ?? params.utm_source;
   const source = typeof ref === "string" ? ref : null;

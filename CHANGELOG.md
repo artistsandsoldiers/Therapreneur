@@ -4,6 +4,7 @@ Changes a practitioner would notice, newest first. Each entry is one line, and t
 
 ## Unreleased
 
+- Home: the first page after logging in greets you by name and shows live tiles for income, tax, what you're owed, claims, invoices, patients and expenses, each opening its screen. Setup and Settings now ask for your first and last name.
 - Referrers: record who referred each patient (a doctor, your website, social media and so on), add new ones from the patient form, and see and filter income by referrer on Performance.
 - Tax: a timeline at the top shows the year's payment dates, what you've paid and what's due, and where today is.
 - Tax: turn on a provisional tax estimate from your invoices and expenses, see what to put aside each month and pay by the next SARS date, and record payments. Settings now asks whether your practice is a sole proprietor or an Inc.

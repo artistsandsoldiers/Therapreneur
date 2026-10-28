@@ -21,7 +21,7 @@ export async function logIn(_previous: LoginState, form: FormData): Promise<Logi
   if (error) return { error: "That email and password don't match. First time here? Set your password instead." };
 
   await supabase.rpc("claim_practice");
-  redirect("/invoices");
+  redirect("/home");
 }
 
 /** First login: an invited practitioner chooses their password. */
@@ -51,7 +51,7 @@ export async function setPassword(_previous: LoginState, form: FormData): Promis
   }
 
   await supabase.rpc("claim_practice");
-  redirect("/invoices");
+  redirect("/home");
 }
 
 export async function logOut() {
