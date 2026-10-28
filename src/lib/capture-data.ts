@@ -72,3 +72,19 @@ export async function loadCaptureData(
 }
 
 export type CaptureData = Awaited<ReturnType<typeof loadCaptureData>>;
+
+/** A billing code with a fixed default medical aid rate, to show what a price adjustment does to a real price. */
+export type PriceExample = { code: string; description: string; rateCents: number };
+
+export async function loadPriceExample(supabase: SupabaseClient<Database>, practice: Practice): Promise<PriceExample | null> {
+  const { data, error } = await supabase
+    .from("medical_aid_rates")
+    .select("rate_cents, billing_codes!inner(code, description, profession), medical_aids!inner(name)")
+    .eq("billing_codes.profession", practice.profession ?? "occupational_therapy")
+    .eq("medical_aids.name", DEFAULT_MEDICAL_AID)
+    .gt("rate_cents", 0);
+  if (error) throw error;
+  // The lowest code number, so the example stays the same from visit to visit.
+  const [first] = [...data].sort((a, b) => a.billing_codes.code.localeCompare(b.billing_codes.code));
+  return first ? { code: first.billing_codes.code, description: first.billing_codes.description, rateCents: first.rate_cents! } : null;
+}

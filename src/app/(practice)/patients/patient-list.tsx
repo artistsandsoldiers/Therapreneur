@@ -1,31 +1,47 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
-import { bottomLeft, field, list, listHead, listRow } from "@/app/ui";
+import { FilterBar, FilterSummary, SearchFilter, SelectFilter, useFilters } from "../filters";
+import { bottomLeft, list, listHead, listRow } from "@/app/ui";
+import { matchesSearch } from "@/lib/filters";
 
-type Row = { id: string; name: string; payer: string; lastSession: string | null };
+type Row = {
+  id: string;
+  name: string;
+  payer: string;
+  kind: "none" | "patient_pays" | "medical_aid_pays";
+  lastSession: string | null;
+};
 
 const cols = "md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)]";
 
-/** The patient list with a search box that filters as she types. */
+/** The patient list with a search box and a medical aid filter, which filter as she types or picks. */
 export function PatientList({ patients, empty }: { patients: Row[]; empty: string }) {
-  const [query, setQuery] = useState("");
-  const words = query.toLowerCase().split(/\s+/).filter(Boolean);
-  const matches = patients.filter((p) => words.every((word) => `${p.name} ${p.payer}`.toLowerCase().includes(word)));
+  const filters = useFilters({ search: "", kind: "all" });
+  const { values } = filters;
+  const matches = patients.filter(
+    (p) => matchesSearch(`${p.name} ${p.payer}`, values.search) && (values.kind === "all" || values.kind === p.kind),
+  );
 
   if (patients.length === 0) return <p className="mt-6 text-neutral-500">{empty}</p>;
 
   return (
     <>
-      <input
-        type="search"
-        value={query}
-        onChange={(event) => setQuery(event.target.value)}
-        placeholder="Search by name or medical aid"
-        aria-label="Search patients"
-        className={`${field} mt-4 md:max-w-sm`}
-      />
+      <FilterBar>
+        <SearchFilter value={values.search} onChange={(value) => filters.set("search", value)} placeholder="Search by name or medical aid" />
+        <SelectFilter
+          label="Medical aid"
+          value={values.kind}
+          onChange={(value) => filters.set("kind", value)}
+          options={[
+            ["all", "All patients"],
+            ["medical_aid_pays", "Medical aid pays"],
+            ["patient_pays", "Has medical aid, pays you"],
+            ["none", "No medical aid"],
+          ]}
+        />
+      </FilterBar>
+      <FilterSummary active={filters.active} shown={matches.length} total={patients.length} noun="patients" onClear={filters.clear} />
       <div className={`${listHead} ${cols} mt-4`}>
         <span>Name</span>
         <span>Last session</span>

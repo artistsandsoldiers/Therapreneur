@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { checkReceipt, expensesByMonth, parseExpenseForm, profitByMonth, taxYearSoFar, taxYearStart } from "./expenses";
-import type { ReportInvoice } from "./performance";
+import { checkReceipt, expensesByMonth, parseExpenseForm, profitByMonth, taxYearStart } from "./expenses";
 
 const form = (fields: Record<string, string>) => {
   const data = new FormData();
@@ -68,17 +67,6 @@ describe("expensesByMonth", () => {
   });
 });
 
-const invoice = (issuedOn: string, totalCents: number): ReportInvoice => ({
-  id: issuedOn,
-  number: 1,
-  issuedOn,
-  paidOn: null,
-  totalCents,
-  patientId: "p1",
-  patientName: "Thandi Mokoena",
-  medicalAidName: null,
-});
-
 describe("profitByMonth", () => {
   it("takes each month's expenses off what was invoiced", () => {
     const rows = profitByMonth(
@@ -95,33 +83,5 @@ describe("profitByMonth", () => {
       { month: "2026-09", invoicedCents: 100000, paidCents: 50000, expensesCents: 30000, profitCents: 70000 },
       { month: "2026-10", invoicedCents: 20000, paidCents: 0, expensesCents: 25000, profitCents: -5000 },
     ]);
-  });
-});
-
-describe("taxYearSoFar", () => {
-  it("counts only this tax year, later dates in it included, with expenses per category biggest first", () => {
-    const year = taxYearSoFar(
-      [invoice("2026-02-28", 99999), invoice("2026-03-01", 100000), invoice("2026-10-28", 50000)],
-      [
-        { spentOn: "2026-02-10", amountCents: 7777, categoryName: "Software" }, // last tax year
-        { spentOn: "2026-04-01", amountCents: 20000, categoryName: "Software" },
-        { spentOn: "2026-05-01", amountCents: 30000, categoryName: "Rooms and rent" },
-        { spentOn: "2026-06-01", amountCents: 15000, categoryName: "Software" },
-        { spentOn: "2026-11-01", amountCents: 1000, categoryName: "Other" }, // after today, same tax year
-        { spentOn: "2027-03-01", amountCents: 5555, categoryName: "Other" }, // next tax year
-      ],
-      "2026-10-28",
-    );
-    expect(year).toEqual({
-      from: "2026-03-01",
-      incomeCents: 150000,
-      expensesCents: 66000,
-      profitCents: 84000,
-      byCategory: [
-        { name: "Software", cents: 35000 },
-        { name: "Rooms and rent", cents: 30000 },
-        { name: "Other", cents: 1000 },
-      ],
-    });
   });
 });

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useActionState } from "react";
 import { setPaidOn } from "./actions";
 import { button, field, label } from "@/app/ui";
-import { formatDate } from "@/lib/dates";
+import { friendlyDate } from "@/lib/dates";
 
 /** Marks the invoice paid on a date, or back to outstanding. */
 export function PaidForm({
@@ -25,7 +25,7 @@ export function PaidForm({
       {paidOn ? (
         <div className="flex items-center justify-between gap-3">
           <p>
-            <span className="font-medium text-accent">Paid</span> on {formatDate(paidOn)}
+            <span className="font-medium text-accent">Paid</span> on {friendlyDate(paidOn)}
             {remittanceId && (
               <>
                 {" "}in a <Link href={`/reconcile/remittances/${remittanceId}`} className="underline">remittance</Link>

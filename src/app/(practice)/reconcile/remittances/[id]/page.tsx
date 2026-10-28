@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { UndoButton } from "./undo-button";
 import { bottomLeft, list, listHead, listRow, topRight } from "@/app/ui";
-import { formatDate } from "@/lib/dates";
+import { friendlyDate } from "@/lib/dates";
 import { invoiceNumber } from "@/lib/invoices";
 import { formatRands } from "@/lib/money";
 import { requireSetUpPractice } from "@/lib/practice";
@@ -40,7 +40,7 @@ export default async function RemittancePage({ params }: { params: Promise<{ id:
         <span className="shrink-0 rounded-full bg-accent/10 px-2.5 py-0.5 text-sm text-accent">Paid</span>
       </div>
       <p className="mt-1 text-sm text-neutral-500">
-        Paid {formatDate(remittance.paid_on)}
+        Paid {friendlyDate(remittance.paid_on)}
         {remittance.reference && ` · Reference ${remittance.reference}`} · {claims.length === 1 ? "1 claim" : `${claims.length} claims`}
       </p>
       <p className="mt-4 text-3xl font-semibold tracking-tight">{formatRands(total)}</p>
@@ -61,7 +61,7 @@ export default async function RemittancePage({ params }: { params: Promise<{ id:
               <p className={`${bottomLeft} text-sm text-neutral-500 md:contents`}>
                 <span>{invoiceNumber(claim.number)}</span>
                 <span className="md:hidden"> · </span>
-                <span>{formatDate(claim.issued_on)}</span>
+                <span>{friendlyDate(claim.issued_on)}</span>
               </p>
               <span className={`${topRight} font-medium tabular-nums`}>{formatRands(claim.totalCents)}</span>
             </Link>

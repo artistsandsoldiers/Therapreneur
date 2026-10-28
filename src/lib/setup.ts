@@ -45,14 +45,9 @@ export function parseSetupForm(form: FormData): { ok: true; details: SetupDetail
   const profession = PROFESSIONS.find((p) => p.value === text("profession"))?.value;
   if (!profession) return { ok: false, error: "Please choose your profession." };
 
-  const direction = text("price_direction");
-  const percent = direction === "at" ? 0 : Number(text("price_percent"));
-  if (!["at", "above", "below"].includes(direction) || !Number.isInteger(percent) || percent < 0) {
-    return { ok: false, error: "Please choose how your prices compare to medical aid rates, as a whole percent." };
-  }
-  const adjustment = direction === "below" ? -percent : percent;
-  if (adjustment < -50 || adjustment > 100) {
-    return { ok: false, error: "Price adjustments go from 50% below to 100% above medical aid rates." };
+  const adjustment = Number(text("price_adjustment"));
+  if (!text("price_adjustment") || !Number.isInteger(adjustment) || adjustment < -50 || adjustment > 100) {
+    return { ok: false, error: "Please choose your prices as a whole percent, from 50% below to 100% above medical aid rates." };
   }
 
   const noShow = parseRands(text("no_show_price"));

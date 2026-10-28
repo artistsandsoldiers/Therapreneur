@@ -21,5 +21,5 @@ _Limit: 300 words._
 ## Tone of voice
 
 - Plain, warm and brief. Short labels, no jargon.
-- South African English: rands (R1,250.00), "medical aid", DD/MM/YYYY dates.
+- South African English: rands (R1,250.00), "medical aid", DD/MM/YYYY dates on invoices and PDFs. On screen, dates read "Today, Wed 28 Oct" or "3 days ago, Sun 25 Oct" within a week, else "Mon 12 Oct".
 - Use the words in [GLOSSARY.md](../GLOSSARY.md).
