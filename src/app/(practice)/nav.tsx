@@ -10,7 +10,7 @@ const LINKS = [
   { href: "/invoices", text: "Invoices" },
   { href: "/patients", text: "Patients" },
   { href: "/claims", text: "Claims" },
-  { href: "/reports", text: "Reports" },
+  { href: "/performance", text: "Performance" },
   { href: "/settings", text: "Settings" },
 ];
 

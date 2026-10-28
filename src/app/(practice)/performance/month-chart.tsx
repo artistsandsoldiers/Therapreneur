@@ -1,5 +1,5 @@
 import { formatRands } from "@/lib/money";
-import type { MonthIncome } from "@/lib/reports";
+import type { MonthIncome } from "@/lib/performance";
 
 const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 

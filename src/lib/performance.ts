@@ -1,5 +1,5 @@
 /**
- * Reports (docs/features/reports.md): income per month, income per patient, and what's outstanding by age.
+ * Performance (docs/features/performance.md): income per month, income per patient, and what's outstanding by age.
  * All amounts are whole cents. An invoice is paid in full on its paid date, or outstanding until then.
  */
 

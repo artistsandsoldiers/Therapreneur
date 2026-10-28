@@ -6,14 +6,14 @@ import { invoiceNumber } from "@/lib/invoices";
 import { formatRands } from "@/lib/money";
 import { requireSetUpPractice } from "@/lib/practice";
 import { invoiceTotal } from "@/lib/pricing";
-import { AGE_BUCKETS, incomeByMonth, incomeByPatient, outstanding, type ReportInvoice } from "@/lib/reports";
+import { AGE_BUCKETS, incomeByMonth, incomeByPatient, outstanding, type ReportInvoice } from "@/lib/performance";
 
-export const metadata: Metadata = { title: "Reports · Therapreneur" };
+export const metadata: Metadata = { title: "Performance · Therapreneur" };
 
 // Worked out afresh from the practice's invoices every time the page opens.
 export const dynamic = "force-dynamic";
 
-export default async function ReportsPage() {
+export default async function PerformancePage() {
   const { supabase } = await requireSetUpPractice();
   const { data, error } = await supabase
     .from("invoices")
@@ -57,13 +57,13 @@ export default async function ReportsPage() {
 
   return (
     <main className="py-6">
-      <h1 className="mb-2 text-2xl font-semibold tracking-tight">Reports</h1>
+      <h1 className="mb-2 text-2xl font-semibold tracking-tight">Performance</h1>
       <p className="text-sm text-neutral-500">
         Live from your invoices. An invoice counts as paid once you mark it paid on its page.
       </p>
 
       {invoices.length === 0 ? (
-        <p className="mt-8 text-neutral-500">No invoices yet. Your reports fill in as you capture sessions.</p>
+        <p className="mt-8 text-neutral-500">No invoices yet. This page fills in as you capture sessions.</p>
       ) : (
         <>
           <dl className="mt-6 grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-neutral-200 bg-neutral-200 sm:grid-cols-3">

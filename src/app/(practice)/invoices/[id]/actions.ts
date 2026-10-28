@@ -23,6 +23,6 @@ export async function setPaidOn(invoiceId: string, _previous: { error?: string }
   }
   revalidatePath(`/invoices/${invoiceId}`);
   revalidatePath("/invoices");
-  revalidatePath("/reports");
+  revalidatePath("/performance");
   return {};
 }

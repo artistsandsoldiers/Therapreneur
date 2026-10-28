@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { ageBucket, daysOld, incomeByMonth, incomeByPatient, lastMonths, outstanding, type ReportInvoice } from "./reports";
+import { ageBucket, daysOld, incomeByMonth, incomeByPatient, lastMonths, outstanding, type ReportInvoice } from "./performance";
 
 const invoice = (overrides: Partial<ReportInvoice>): ReportInvoice => ({
   id: "i",
