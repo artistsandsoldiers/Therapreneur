@@ -97,7 +97,7 @@ export async function loadInvoiceDocuments(
               },
         lines,
         totalCents: invoiceTotal(lines),
-        session: { id: session.id, startsAt: session.starts_at, durationMinutes: session.duration_minutes, outcome: session.outcome, note: session.note },
+        session: { id: session.id, startsAt: session.starts_at, durationMinutes: session.duration_minutes, outcome: session.outcome ?? "attended", note: session.note },
         claim,
       },
     ];

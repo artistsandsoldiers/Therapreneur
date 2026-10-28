@@ -16,7 +16,7 @@ What we store in Supabase, in plain English. Money is whole cents.
 - **practices**: one per practitioner. The invited email, then setup: the practitioner's first and last name, practice name, practice and HPCSA numbers, address, contact and banking details, profession, price adjustment (+/- %), no-show price, usual session length and where its logo is kept. Also sole proprietor or Inc, and for the tax estimate, the practitioner's date of birth and whether it's on.
 - **patients**: name, date of birth, and for patients with medical aid the medical aid, plan, member number, main member and dependant code. Their referrer, if any (a doctor's name and practice number are copied onto the patient for invoices). Who usually pays (medical aid or patient; only patient without medical aid). Also ICD-10 codes, and when they became a past patient.
 - **referrers**: who sends a practice patients: name, kind (doctor, website, social media…) and a doctor's practice number.
-- **sessions**: one appointment: when, how long (minutes), attended or no-show, and the note.
+- **sessions**: one appointment: when, how long (minutes), attended or no-show (empty while booked), the note, and a series id shared by repeats.
 - **invoices**: one per session: number (1, 2, 3… per practice), date, due date (30 days later), who pays (from the patient, changeable per session; no-shows always the patient), the date it was paid in full and its remittance. Once claimed, its claim batch and the patient details sent.
 - **claim_batches**: one email of claims to a medical aid: when and where sent, and its reference number.
 - **remittances**: one payment from a medical aid: date and reference.
@@ -32,12 +32,12 @@ What we store in Supabase, in plain English. Money is whole cents.
 
 ## How it fits together
 
-A practice has patients, patients have sessions, and each session has one invoice with lines. A claim batch holds invoices emailed together; a remittance holds those paid together.
+A practice has patients, patients have sessions, and each captured session has one invoice with lines. A claim batch holds invoices emailed together; a remittance holds those paid together.
 
 ## Behind the scenes
 
 - **Row level security** stops one practice seeing another's rows or files, even with an app bug.
-- **save_capture** saves a session, invoice and lines together and gives out invoice numbers one at a time.
+- **save_capture** saves a session, invoice and lines together, captures a booked session, and gives out invoice numbers one at a time.
 - **Claimed invoices are locked.** Once a batch is sent, the database refuses to change its invoices, lines, or session (except the note and payment). **start_claim_batch** checks and reserves invoices before the email goes. **record_remittance** pays only sent, unpaid claims.
 - **Invites:** an agent adds a **practices** row with the email; the first login links to it.
 - **Logos** and **receipts** live in private file storage buckets, one folder per practice.

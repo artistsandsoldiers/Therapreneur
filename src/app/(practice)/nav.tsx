@@ -9,6 +9,7 @@ import { logOut } from "@/app/login/actions";
 // practice's logo and name, so the app feels like their own.
 const LINKS = [
   { href: "/home", text: "Home" },
+  { href: "/calendar", text: "Calendar" },
   { href: "/invoices", text: "Invoices" },
   { href: "/patients", text: "Patients" },
   { href: "/claims", text: "Claims" },

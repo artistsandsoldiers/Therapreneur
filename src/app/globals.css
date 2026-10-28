@@ -10,3 +10,48 @@
 body {
   @apply bg-white text-neutral-900;
 }
+
+/* The calendar (FullCalendar), restyled to the app: light grid lines, sessions coloured by where they are in their life. */
+.session-calendar .fc {
+  --fc-border-color: #f5f5f5;
+  --fc-today-bg-color: color-mix(in srgb, #0e7c86 4%, transparent);
+  --fc-now-indicator-color: #0e7c86;
+  --fc-highlight-color: color-mix(in srgb, #0e7c86 12%, transparent);
+  font-size: 0.875rem;
+}
+.session-calendar .fc .fc-col-header-cell-cushion,
+.session-calendar .fc .fc-timegrid-slot-label-cushion {
+  color: #737373;
+  font-weight: 500;
+}
+.session-calendar .fc .fc-timegrid-slot {
+  height: 2rem;
+}
+.session-calendar .fc .fc-timegrid-slot-minor {
+  border-top-style: none;
+}
+.session-calendar .fc .fc-v-event {
+  border-radius: 0.375rem;
+  border-width: 1.5px;
+  cursor: pointer;
+}
+.session-calendar .fc .session-booked,
+.session-calendar .fc .session-to_capture {
+  --fc-event-bg-color: #ffffff;
+  --fc-event-border-color: #0e7c86;
+  --fc-event-text-color: #0e7c86;
+}
+.session-calendar .fc .session-to_capture {
+  border-style: dashed;
+}
+.session-calendar .fc .session-attended {
+  --fc-event-bg-color: #0e7c86;
+  --fc-event-border-color: #0e7c86;
+  --fc-event-text-color: #ffffff;
+}
+.session-calendar .fc .session-no_show {
+  --fc-event-bg-color: #f5f5f5;
+  --fc-event-border-color: #e5e5e5;
+  --fc-event-text-color: #a3a3a3;
+  text-decoration: line-through;
+}

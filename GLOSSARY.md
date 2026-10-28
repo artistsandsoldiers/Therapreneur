@@ -68,8 +68,16 @@ _Avoid_: rate card, fee schedule
 ## Treating and billing
 
 **Session**:
-One appointment with one patient, which arrives from the practitioner's calendar.
+One appointment with one patient, in the practice's calendar. It is **booked** until it's captured.
 _Avoid_: appointment, visit, booking
+
+**Booked**:
+A session in the calendar that hasn't been captured yet, so it has no invoice. Once it's over it waits **to capture**.
+_Avoid_: scheduled, planned, upcoming
+
+**Series**:
+Booked sessions made together by repeating a booking weekly or every 2 weeks. Each can still change on its own.
+_Avoid_: recurring appointment, block booking
 
 **Capture**:
 Recording a session's billing codes and note straight after it ends, which creates its invoice.

@@ -5,6 +5,7 @@ import { NewSession } from "../sessions/new-session";
 import { estimateFor, loadTaxYear } from "../tax/data";
 import { button } from "@/app/ui";
 import { friendlyDate, toLocalInput } from "@/lib/dates";
+import { sessionEnd } from "@/lib/calendar";
 import { greeting, homeSummary } from "@/lib/home";
 import { formatRands } from "@/lib/money";
 import { outstanding } from "@/lib/performance";
@@ -34,13 +35,15 @@ export default async function HomePage() {
   const now = new Date();
   const today = toLocalInput(now).slice(0, 10);
 
-  const [{ invoices, expenses }, toClaim, waiting, patients, tax] = await Promise.all([
+  const [{ invoices, expenses }, toClaim, waiting, patients, tax, booked] = await Promise.all([
     loadReportData(supabase),
     supabase.from("invoices").select("invoice_lines(quantity, unit_price_cents)").eq("bill_to", "medical_aid").is("claim_batch_id", null),
     loadOutstandingClaims(supabase),
     supabase.from("patients").select("created_at, past_since"),
     taxTile(supabase, practice, today),
+    supabase.from("sessions").select("starts_at, duration_minutes").is("outcome", null).lt("starts_at", now.toISOString()),
   ]);
+  if (booked.error) throw booked.error;
   if (toClaim.error) throw toClaim.error;
   if (patients.error) throw patients.error;
 
@@ -50,6 +53,7 @@ export default async function HomePage() {
   const waitingCents = sum(waiting.map((claim) => claim.totalCents));
   const currentPatients = patients.data.filter((p) => !p.past_since).length;
   const newPatients = patients.data.filter((p) => toLocalInput(new Date(p.created_at)).startsWith(today.slice(0, 7))).length;
+  const toCapture = booked.data.filter((s) => sessionEnd(s.starts_at, s.duration_minutes) <= now.getTime()).length;
   const change = summary.paidThisMonthCents - summary.paidLastMonthCents;
 
   return (
@@ -81,7 +85,12 @@ export default async function HomePage() {
           <Bars months={summary.paidByMonth} />
         </Tile>
 
-        <Tile href="/tax" title="Tax" flagged={tax.soon} className="order-2 md:order-none lg:col-span-2">
+        <Tile href="/calendar" title="Sessions to capture" flagged={toCapture > 0} className="order-1 md:order-none">
+          <Big>{toCapture === 0 ? "None" : plural(toCapture, "session")}</Big>
+          <Detail>{toCapture === 0 ? "Every booked session so far is captured." : "Booked sessions that are over. Capture them to invoice."}</Detail>
+        </Tile>
+
+        <Tile href="/tax" title="Tax" flagged={tax.soon} className="order-2 md:order-none">
           {tax.big && <Big>{tax.big}</Big>}
           <Detail>{tax.detail}</Detail>
         </Tile>

@@ -3,10 +3,10 @@
 import { useMemo, useState, useTransition } from "react";
 import { addPatient, saveCapture, type CaptureInput } from "./actions";
 import { PatientFields, Toggle } from "../patients/patient-fields";
+import { WhenFields } from "./when-fields";
 import { button, field, label, secondaryButton } from "@/app/ui";
 import type { CaptureData, Patient } from "@/lib/capture-data";
-import { isSessionLength, sessionBillTo, type CaptureLineInput } from "@/lib/capture";
-import { friendlySessionTime, fromLocalInput } from "@/lib/dates";
+import { sessionBillTo, type CaptureLineInput } from "@/lib/capture";
 import { formatRands, parseRands } from "@/lib/money";
 import { findRate, invoiceTotal, practicePrice } from "@/lib/pricing";
 import type { Enums } from "@/lib/supabase/database.types";
@@ -15,6 +15,8 @@ type Line = CaptureLineInput & { typedPrice: string };
 
 export type CaptureFormProps = CaptureData & {
   adjustmentPercent: number;
+  /** Capturing a booked session, which has no invoice yet. */
+  booked?: boolean;
   noShowPriceCents: number;
   initial: {
     sessionId: string | null;
@@ -58,8 +60,6 @@ export function CaptureForm(props: CaptureFormProps) {
   const patient = patients.find((p) => p.id === patientId);
   const history = patient ? props.codeHistories[patient.id] : undefined;
   const durationMinutes = Number(duration);
-  const startsAtIso = fromLocalInput(startsAt);
-  const sessionTime = startsAtIso && isSessionLength(durationMinutes) ? friendlySessionTime(startsAtIso, durationMinutes) : null;
   const medicalAidName = (id: string | null) => medicalAids.find((aid) => aid.id === id)?.name;
 
   // The same pricing the server uses, so what she sees is what gets saved.
@@ -173,46 +173,7 @@ export function CaptureForm(props: CaptureFormProps) {
         )}
       </section>
 
-      <section>
-        <label htmlFor="startsAt" className={label}>When</label>
-        <input
-          id="startsAt"
-          type="datetime-local"
-          value={startsAt}
-          onChange={(event) => setStartsAt(event.target.value)}
-          className={field}
-        />
-      </section>
-
-      <section>
-        <p className={label}>Length</p>
-        <div className="flex flex-wrap items-center gap-2">
-          {[30, 45, 60].map((minutes) => (
-            <button
-              key={minutes}
-              type="button"
-              onClick={() => setDuration(String(minutes))}
-              aria-pressed={durationMinutes === minutes}
-              className={`rounded-full border px-3 py-1.5 text-sm font-medium ${
-                durationMinutes === minutes ? "border-accent bg-accent/10 text-accent" : "border-neutral-200 text-neutral-600"
-              }`}
-            >
-              {minutes} min
-            </button>
-          ))}
-          <label className="flex items-center gap-2 text-sm text-neutral-500">
-            <input
-              inputMode="numeric"
-              value={duration}
-              onChange={(event) => setDuration(event.target.value.replace(/\D/g, ""))}
-              aria-label="Length in minutes"
-              className={`${field.replace("w-full", "w-20")} py-1.5`}
-            />
-            min
-          </label>
-        </div>
-        {sessionTime && <p className="mt-1 text-sm text-neutral-500">{sessionTime}</p>}
-      </section>
+      <WhenFields startsAt={startsAt} onStartsAt={setStartsAt} duration={duration} onDuration={setDuration} />
 
       <section className="grid grid-cols-2 gap-1 rounded-lg bg-neutral-100 p-1">
         {(
@@ -361,7 +322,7 @@ export function CaptureForm(props: CaptureFormProps) {
           <span className="text-lg font-semibold">{formatRands(total)}</span>
         </div>
         <button type="button" onClick={save} disabled={saving || addingPatient} className={button}>
-          {saving ? "Saving…" : initial.sessionId ? "Save changes" : "Save invoice"}
+          {saving ? "Saving…" : initial.sessionId && !props.booked ? "Save changes" : "Save invoice"}
         </button>
         {error && <p role="alert" className="text-sm text-red-600">{error}</p>}
       </section>
@@ -437,7 +398,7 @@ function CodePicker({ codes, onPick }: { codes: CaptureData["codes"]; onPick: (i
   );
 }
 
-function AddPatient({
+export function AddPatient({
   medicalAids,
   referrers,
   defaultMedicalAidId,

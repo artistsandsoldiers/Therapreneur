@@ -1,0 +1,3 @@
+# The app holds the calendar, and Google Calendar only shows it
+
+Replaces decision 0002. Practitioners book, move and delete sessions in Therapreneur's own calendar, which is the one source of truth. Google Calendar sync, when it comes, is one way: the app sends sessions there so they sit beside personal calendars, and changes made in Google are ignored, so there are no clashes to resolve. We chose this after Barry's feedback that changes should happen inside the system. The cost is a diary of our own to build and keep, and double entry for anyone still booking in Google until sync exists. Repeats are stored as separate sessions linked as a series, not as a rule, so each can change on its own and Google gets plain events.
