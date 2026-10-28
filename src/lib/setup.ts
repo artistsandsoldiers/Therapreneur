@@ -1,3 +1,4 @@
+import { isSessionLength, SESSION_MINUTES } from "./capture";
 import { parseRands } from "./money";
 import type { Enums, Profession } from "./supabase/database.types";
 
@@ -29,6 +30,7 @@ export type SetupDetails = {
   business_type: BusinessType;
   price_adjustment_percent: number;
   no_show_price_cents: number;
+  session_minutes: number;
 };
 
 /** Validates the setup form. Returns the practice details or the first problem, in plain words. */
@@ -55,18 +57,21 @@ export function parseSetupForm(form: FormData): { ok: true; details: SetupDetail
   const businessType = BUSINESS_TYPES.find((b) => b.value === (text("business_type") || "sole_proprietor"))?.value;
   if (!businessType) return { ok: false, error: "Please choose whether you're a sole proprietor or an Inc." };
 
-  const direction = text("price_direction");
-  const percent = direction === "at" ? 0 : Number(text("price_percent"));
-  if (!["at", "above", "below"].includes(direction) || !Number.isInteger(percent) || percent < 0) {
-    return { ok: false, error: "Please choose how your prices compare to medical aid rates, as a whole percent." };
-  }
-  const adjustment = direction === "below" ? -percent : percent;
-  if (adjustment < -50 || adjustment > 100) {
-    return { ok: false, error: "Price adjustments go from 50% below to 100% above medical aid rates." };
+  const adjustment = Number(text("price_adjustment"));
+  if (!text("price_adjustment") || !Number.isInteger(adjustment) || adjustment < -50 || adjustment > 100) {
+    return { ok: false, error: "Please choose your prices as a whole percent, from 50% below to 100% above medical aid rates." };
   }
 
   const noShow = parseRands(text("no_show_price"));
   if (noShow === null) return { ok: false, error: "Please enter your no-show price in rands, like 350.00." };
+
+  const sessionMinutes = Number(text("session_minutes"));
+  if (!text("session_minutes") || !isSessionLength(sessionMinutes)) {
+    return {
+      ok: false,
+      error: `Please enter your usual session length in minutes, from ${SESSION_MINUTES.min} to ${SESSION_MINUTES.max}.`,
+    };
+  }
 
   return {
     ok: true,
@@ -85,6 +90,7 @@ export function parseSetupForm(form: FormData): { ok: true; details: SetupDetail
       business_type: businessType,
       price_adjustment_percent: adjustment,
       no_show_price_cents: noShow,
+      session_minutes: sessionMinutes,
     },
   };
 }

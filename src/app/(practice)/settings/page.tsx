@@ -3,6 +3,7 @@ import { narrow } from "@/app/ui";
 import { CategoriesForm } from "./categories-form";
 import { LogoForm } from "./logo-form";
 import { SetupForm } from "@/app/setup/setup-form";
+import { loadPriceExample } from "@/lib/capture-data";
 import { logoUrl } from "@/lib/logo";
 import { requireSetUpPractice } from "@/lib/practice";
 
@@ -20,8 +21,8 @@ export default async function SettingsPage() {
   return (
     <main className={`py-6 ${narrow}`}>
       <h1 className="mb-8 text-2xl font-semibold tracking-tight">Practice settings</h1>
-      <LogoForm logoUrl={await logoUrl(supabase, practice)} />
-      <SetupForm practice={practice} />
+      <LogoForm logoUrl={await logoUrl(supabase, practice)} practiceName={practice.name ?? ""} />
+      <SetupForm practice={practice} priceExample={await loadPriceExample(supabase, practice)} />
       <CategoriesForm categories={ownCategories} />
     </main>
   );

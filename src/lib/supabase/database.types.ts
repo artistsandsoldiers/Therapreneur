@@ -442,6 +442,7 @@ export type Database = {
           practice_number: string | null
           practitioner_id: string | null
           price_adjustment_percent: number
+          session_minutes: number
           profession: Database["public"]["Enums"]["profession"] | null
           setup_completed_at: string | null
           tax_estimate_on: boolean
@@ -466,6 +467,7 @@ export type Database = {
           practice_number?: string | null
           practitioner_id?: string | null
           price_adjustment_percent?: number
+          session_minutes?: number
           profession?: Database["public"]["Enums"]["profession"] | null
           setup_completed_at?: string | null
           tax_estimate_on?: boolean
@@ -490,6 +492,7 @@ export type Database = {
           practice_number?: string | null
           practitioner_id?: string | null
           price_adjustment_percent?: number
+          session_minutes?: number
           profession?: Database["public"]["Enums"]["profession"] | null
           setup_completed_at?: string | null
           tax_estimate_on?: boolean
@@ -547,6 +550,7 @@ export type Database = {
           patient_id: string
           practice_id: string
           starts_at: string
+          duration_minutes: number
         }
         Insert: {
           created_at?: string
@@ -556,6 +560,7 @@ export type Database = {
           patient_id: string
           practice_id: string
           starts_at: string
+          duration_minutes?: number
         }
         Update: {
           created_at?: string
@@ -565,6 +570,7 @@ export type Database = {
           patient_id?: string
           practice_id?: string
           starts_at?: string
+          duration_minutes?: number
         }
         Relationships: [
           {
@@ -757,6 +763,7 @@ export type Database = {
       save_capture: {
         Args: {
           p_bill_to: Database["public"]["Enums"]["bill_to"]
+          p_duration_minutes: number
           p_lines: Json
           p_note: string
           p_outcome: Database["public"]["Enums"]["session_outcome"]

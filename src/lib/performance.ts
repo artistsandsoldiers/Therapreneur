@@ -1,5 +1,5 @@
 /**
- * Performance (docs/features/performance.md): income per month, income per patient, and what's outstanding by age.
+ * Performance (docs/features/performance.md): income per patient and what's outstanding by age. Periods are in periods.ts.
  * All amounts are whole cents. An invoice is paid in full on its paid date, or outstanding until then.
  */
 
@@ -16,27 +16,6 @@ export type ReportInvoice = {
 };
 
 export type MonthIncome = { month: string; invoicedCents: number; paidCents: number }; // month is YYYY-MM
-
-/** The last `count` months up to and including today's, oldest first, as YYYY-MM. */
-export function lastMonths(today: string, count: number): string[] {
-  const [year, month] = today.split("-").map(Number);
-  return Array.from({ length: count }, (_, i) => {
-    const date = new Date(Date.UTC(year, month - 1 - (count - 1 - i), 1));
-    return date.toISOString().slice(0, 7);
-  });
-}
-
-/** Invoiced counts in the month of the invoice date; paid counts in the month it was paid. */
-export function incomeByMonth(invoices: ReportInvoice[], today: string, count = 6): MonthIncome[] {
-  const months = new Map(lastMonths(today, count).map((month) => [month, { month, invoicedCents: 0, paidCents: 0 }]));
-  for (const invoice of invoices) {
-    const invoiced = months.get(invoice.issuedOn.slice(0, 7));
-    if (invoiced) invoiced.invoicedCents += invoice.totalCents;
-    const paid = invoice.paidOn ? months.get(invoice.paidOn.slice(0, 7)) : undefined;
-    if (paid) paid.paidCents += invoice.totalCents;
-  }
-  return [...months.values()];
-}
 
 export type PatientIncome = {
   patientId: string;

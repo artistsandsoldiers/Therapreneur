@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { priceCapture, sessionBillTo, type CaptureContext } from "./capture";
+import { codeHistories, priceCapture, sessionBillTo, type CaptureContext, type PastInvoice } from "./capture";
 
 const context: CaptureContext = {
   rates: [
@@ -51,5 +51,39 @@ describe("sessionBillTo", () => {
   it("bills the patient for a no-show, or when they have no medical aid", () => {
     expect(sessionBillTo("no_show", "medical_aid", withAid)).toBe("patient");
     expect(sessionBillTo("attended", "medical_aid", { medical_aid_id: null })).toBe("patient");
+  });
+});
+
+describe("codeHistories", () => {
+  const invoice = (sessionId: string, startsAt: string, codes: [string, number][], patientId = "p1"): PastInvoice => ({
+    sessionId,
+    patientId,
+    startsAt,
+    lines: codes.map(([billingCodeId, quantity], position) => ({ billingCodeId, quantity, position })),
+  });
+  const invoices = [
+    invoice("s1", "2026-10-01T08:00:00Z", [["a", 1], ["b", 2]]),
+    invoice("s2", "2026-10-08T08:00:00Z", [["a", 1], ["c", 1]]),
+    invoice("s3", "2026-10-15T08:00:00Z", [["d", 1], ["a", 3]]),
+    invoice("s4", "2026-10-15T08:00:00Z", [["x", 1]], "p2"),
+  ];
+
+  it("puts the most used codes first, then the most recently used", () => {
+    expect(codeHistories(invoices).p1.usual).toEqual(["a", "d", "c", "b"]);
+  });
+
+  it("copies the latest invoice's codes and quantities in order", () => {
+    expect(codeHistories(invoices).p1.last).toEqual([
+      { billingCodeId: "d", quantity: 1 },
+      { billingCodeId: "a", quantity: 3 },
+    ]);
+  });
+
+  it("leaves out the session being fixed", () => {
+    expect(codeHistories(invoices, "s3").p1.last.map((line) => line.billingCodeId)).toEqual(["a", "c"]);
+  });
+
+  it("keeps each patient's history separate", () => {
+    expect(codeHistories(invoices).p2.usual).toEqual(["x"]);
   });
 });

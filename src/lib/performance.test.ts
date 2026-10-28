@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { ageBucket, daysOld, incomeByMonth, incomeByPatient, lastMonths, outstanding, type ReportInvoice } from "./performance";
+import { ageBucket, daysOld, incomeByPatient, outstanding, type ReportInvoice } from "./performance";
 
 const invoice = (overrides: Partial<ReportInvoice>): ReportInvoice => ({
   id: "i",
@@ -11,28 +11,6 @@ const invoice = (overrides: Partial<ReportInvoice>): ReportInvoice => ({
   patientName: "Thandi Mokoena",
   medicalAidName: "Discovery",
   ...overrides,
-});
-
-describe("lastMonths", () => {
-  it("counts back across a year end", () => {
-    expect(lastMonths("2026-02-15", 4)).toEqual(["2025-11", "2025-12", "2026-01", "2026-02"]);
-  });
-});
-
-describe("incomeByMonth", () => {
-  it("counts invoiced by invoice date and paid by paid date", () => {
-    const months = incomeByMonth(
-      [
-        invoice({ number: 1, issuedOn: "2026-09-20", paidOn: "2026-10-05", totalCents: 45000 }),
-        invoice({ number: 2, issuedOn: "2026-10-02", totalCents: 31170 }),
-        invoice({ number: 3, issuedOn: "2026-01-10", paidOn: "2026-01-20" }), // older than 6 months
-      ],
-      "2026-10-28",
-    );
-    expect(months.map((m) => m.month)).toEqual(["2026-05", "2026-06", "2026-07", "2026-08", "2026-09", "2026-10"]);
-    expect(months[4]).toEqual({ month: "2026-09", invoicedCents: 45000, paidCents: 0 });
-    expect(months[5]).toEqual({ month: "2026-10", invoicedCents: 31170, paidCents: 45000 });
-  });
 });
 
 describe("incomeByPatient", () => {

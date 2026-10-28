@@ -14,10 +14,10 @@ export default async function EditSessionPage({ params }: { params: Promise<{ id
   const { id } = await params;
   const { supabase, practice } = await requireSetUpPractice();
   const [data, { data: session }] = await Promise.all([
-    loadCaptureData(supabase, practice),
+    loadCaptureData(supabase, practice, id),
     supabase
       .from("sessions")
-      .select("id, patient_id, starts_at, outcome, note, invoices(id, bill_to, claim_batches(sent_at), invoice_lines(billing_code_id, quantity, unit_price_cents, position))")
+      .select("id, patient_id, starts_at, duration_minutes, outcome, note, invoices(id, bill_to, claim_batches(sent_at), invoice_lines(billing_code_id, quantity, unit_price_cents, position))")
       .eq("id", id)
       .maybeSingle(),
   ]);
@@ -59,6 +59,7 @@ export default async function EditSessionPage({ params }: { params: Promise<{ id
           sessionId: session.id,
           patientId: session.patient_id,
           startsAt: toLocalInput(new Date(session.starts_at)),
+          durationMinutes: session.duration_minutes,
           outcome: session.outcome,
           billTo: session.invoices.bill_to,
           note: session.note ?? "",

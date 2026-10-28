@@ -3,7 +3,7 @@
  * that Performance shows. All amounts are whole cents.
  */
 import { parseRands } from "./money";
-import type { MonthIncome, ReportInvoice } from "./performance";
+import type { MonthIncome } from "./performance";
 
 // Receipts live in a private Supabase Storage bucket, one folder per practice (decision 0006). Uploaded from the
 // browser straight to storage, since a server action can't take a 10 MB phone photo.
@@ -111,46 +111,9 @@ export function profitByMonth(months: MonthIncome[], expenses: ReportExpense[]):
   });
 }
 
-export type TaxYearSoFar = {
-  from: string; // YYYY-MM-DD
-  incomeCents: number;
-  expensesCents: number;
-  profitCents: number;
-  /** Expenses per category, biggest first. */
-  byCategory: { name: string; cents: number }[];
-};
-
 /** The day after the tax year that today falls in ends: the next 1 March, as YYYY-MM-DD. */
 export function nextTaxYearStart(today: string): string {
   return `${Number(taxYearStart(today).slice(0, 4)) + 1}-03-01`;
-}
-
-/**
- * Income by invoice date, expenses and profit before tax for the tax year today falls in. Anything dated later in the
- * same tax year counts too, so an expense dated tomorrow doesn't vanish.
- */
-export function taxYearSoFar(invoices: ReportInvoice[], expenses: ReportExpense[], today: string): TaxYearSoFar {
-  const from = taxYearStart(today);
-  const to = nextTaxYearStart(today);
-  const inYear = (date: string) => date >= from && date < to;
-
-  const yearExpenses = expenses.filter((e) => inYear(e.spentOn));
-  const categories = new Map<string, number>();
-  for (const expense of yearExpenses) {
-    categories.set(expense.categoryName, (categories.get(expense.categoryName) ?? 0) + expense.amountCents);
-  }
-
-  const incomeCents = sum(invoices.filter((i) => inYear(i.issuedOn)).map((i) => i.totalCents));
-  const expensesCents = sum(yearExpenses.map((e) => e.amountCents));
-  return {
-    from,
-    incomeCents,
-    expensesCents,
-    profitCents: incomeCents - expensesCents,
-    byCategory: [...categories]
-      .map(([name, cents]) => ({ name, cents }))
-      .sort((a, b) => b.cents - a.cents || a.name.localeCompare(b.name)),
-  };
 }
 
 function sum(cents: number[]): number {

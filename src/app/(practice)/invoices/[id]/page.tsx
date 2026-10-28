@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { DeleteButton } from "./delete-button";
 import { PaidForm } from "./paid-form";
 import { secondaryButton } from "@/app/ui";
-import { formatDate, formatDateTime, toLocalInput } from "@/lib/dates";
+import { formatDate, friendlyDate, friendlySessionTime, toLocalInput } from "@/lib/dates";
 import { billToLines, loadInvoiceDocument } from "@/lib/invoice-document";
 import { logoUrl } from "@/lib/logo";
 import { invoiceNumber } from "@/lib/invoices";
@@ -45,7 +45,7 @@ export default async function InvoicePage({ params }: { params: Promise<{ id: st
 
           {claim && (
             <p className="mt-4 rounded-md bg-neutral-50 px-3 py-2 text-sm text-neutral-600">
-              Claimed on {formatDate(claim.sentAt)}
+              Claimed on {friendlyDate(claim.sentAt)}
               {claim.referenceNumber ? `, reference ${claim.referenceNumber}` : ", waiting for a reference number"}.{" "}
               <Link href={`/claims/${claim.batchId}`} className="underline">See the claim batch</Link>. A claimed invoice
               can&apos;t be fixed or deleted.
@@ -124,7 +124,7 @@ export default async function InvoicePage({ params }: { params: Promise<{ id: st
         <section className="mt-6 text-sm lg:col-start-2 lg:row-start-2">
           <p className="font-medium">Session</p>
           <p className="text-neutral-500">
-            {formatDateTime(session.startsAt)} · {session.outcome === "no_show" ? "No-show" : "Attended"}
+            {friendlySessionTime(session.startsAt, session.durationMinutes)} · {session.outcome === "no_show" ? "No-show" : "Attended"}
           </p>
           <div className="mt-3 flex items-baseline justify-between gap-2">
             <p className="font-medium">Note <span className="font-normal text-neutral-400">(only you see this)</span></p>

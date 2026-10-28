@@ -70,3 +70,54 @@ export function sessionBillTo(
   if (outcome === "no_show" || !patient.medical_aid_id) return "patient";
   return chosen;
 }
+
+/** The shortest and longest session we accept, in minutes. */
+export const SESSION_MINUTES = { min: 5, max: 480 } as const;
+
+export function isSessionLength(minutes: number): boolean {
+  return Number.isInteger(minutes) && minutes >= SESSION_MINUTES.min && minutes <= SESSION_MINUTES.max;
+}
+
+export type PastInvoice = {
+  sessionId: string;
+  patientId: string;
+  startsAt: string;
+  lines: { billingCodeId: string | null; quantity: number; position: number }[];
+};
+
+/** A patient's billing codes from past sessions: their most used (for chips) and their latest invoice's lines. */
+export type CodeHistory = { usual: string[]; last: { billingCodeId: string; quantity: number }[] };
+
+/**
+ * Each patient's code history, from their attended sessions' invoices. Usual codes are the six used on the most
+ * invoices, the more recent first on a tie. A session being fixed is left out, so "same as last time" means the one before.
+ */
+export function codeHistories(invoices: PastInvoice[], excludeSessionId: string | null = null): Record<string, CodeHistory> {
+  const byPatient = new Map<string, PastInvoice[]>();
+  for (const invoice of invoices) {
+    if (invoice.sessionId === excludeSessionId) continue;
+    byPatient.set(invoice.patientId, [...(byPatient.get(invoice.patientId) ?? []), invoice]);
+  }
+
+  const histories: Record<string, CodeHistory> = {};
+  for (const [patientId, patientInvoices] of byPatient) {
+    const newestFirst = [...patientInvoices].sort((a, b) => b.startsAt.localeCompare(a.startsAt));
+    const uses = new Map<string, { count: number; lastUsed: number }>();
+    newestFirst.forEach((invoice, index) => {
+      for (const id of new Set(invoice.lines.map((line) => line.billingCodeId))) {
+        if (!id) continue;
+        const use = uses.get(id) ?? { count: 0, lastUsed: index };
+        uses.set(id, { count: use.count + 1, lastUsed: use.lastUsed });
+      }
+    });
+    const usual = [...uses.entries()]
+      .sort(([, a], [, b]) => b.count - a.count || a.lastUsed - b.lastUsed)
+      .slice(0, 6)
+      .map(([id]) => id);
+    const last = [...(newestFirst[0]?.lines ?? [])]
+      .sort((a, b) => a.position - b.position)
+      .flatMap((line) => (line.billingCodeId ? [{ billingCodeId: line.billingCodeId, quantity: line.quantity }] : []));
+    histories[patientId] = { usual, last };
+  }
+  return histories;
+}
