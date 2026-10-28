@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { narrow } from "@/app/ui";
 import Link from "next/link";
 import { ExpenseForm } from "../expense-form";
 import { toLocalInput } from "@/lib/dates";
@@ -13,7 +14,7 @@ export default async function NewExpensePage() {
   if (error) throw error;
 
   return (
-    <main className="py-6">
+    <main className={`py-6 ${narrow}`}>
       <Link href="/expenses" className="text-sm text-neutral-500">← Expenses</Link>
       <h1 className="mt-3 mb-6 text-2xl font-semibold tracking-tight">Add expense</h1>
       <ExpenseForm practiceId={practice.id} categories={sortCategories(categories)} today={toLocalInput(new Date()).slice(0, 10)} />

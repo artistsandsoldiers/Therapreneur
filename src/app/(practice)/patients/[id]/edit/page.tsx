@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { narrow } from "@/app/ui";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PatientForm } from "../../patient-form";
@@ -17,7 +18,7 @@ export default async function EditPatientPage({ params }: { params: Promise<{ id
   if (!patient) notFound();
 
   return (
-    <main className="py-6">
+    <main className={`py-6 ${narrow}`}>
       <Link href={`/patients/${patient.id}`} className="text-sm text-neutral-500">← {patient.first_name} {patient.last_name}</Link>
       <h1 className="mt-3 mb-2 text-2xl font-semibold tracking-tight">Edit patient</h1>
       <p className="mb-6 text-sm text-neutral-500">Changes also show on this patient&apos;s existing invoices.</p>

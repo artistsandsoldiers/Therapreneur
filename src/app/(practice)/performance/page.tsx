@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { MonthChart } from "./month-chart";
+import { bottomLeft, list, listHead, listRow, topRight } from "@/app/ui";
 import { formatDate, toLocalInput } from "@/lib/dates";
 import { profitByMonth, taxYearSoFar, type ReportExpense } from "@/lib/expenses";
 import { invoiceNumber } from "@/lib/invoices";
@@ -8,6 +9,8 @@ import { formatRands } from "@/lib/money";
 import { requireSetUpPractice } from "@/lib/practice";
 import { invoiceTotal } from "@/lib/pricing";
 import { AGE_BUCKETS, incomeByMonth, incomeByPatient, outstanding, type ReportInvoice } from "@/lib/performance";
+
+const OWED_COLS = "md:grid-cols-[minmax(0,2fr)_repeat(4,minmax(0,1fr))]";
 
 export const metadata: Metadata = { title: "Performance · Therapreneur" };
 
@@ -88,42 +91,45 @@ export default async function PerformancePage() {
             />
           </dl>
 
-          <section className="mt-10">
-            <h2 className="mb-1 text-lg font-semibold">Tax year so far</h2>
-            <p className="mb-4 text-sm text-neutral-500">
-              From {formatDate(year.from)}. Profit before tax is invoiced income less expenses. Tax hasn&apos;t been taken off.
-            </p>
-            <dl className="grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-neutral-200 bg-neutral-200 sm:grid-cols-3">
-              <Tile label="Income" value={formatRands(year.incomeCents)} />
-              <Tile label="Expenses" value={formatRands(year.expensesCents)} />
-              <Tile label="Profit before tax" value={formatRands(year.profitCents)} wide />
-            </dl>
-            {year.byCategory.length > 0 ? (
-              <>
-                <p className="mt-6 mb-1 text-sm font-medium text-neutral-500">Expenses by category</p>
-                <ul className="divide-y divide-neutral-100 border-y border-neutral-100 text-sm">
-                  {year.byCategory.map((category) => (
-                    <li key={category.name} className="flex justify-between gap-4 py-2">
-                      <span>{category.name}</span>
-                      <span className="tabular-nums">{formatRands(category.cents)}</span>
-                    </li>
-                  ))}
-                </ul>
-              </>
-            ) : (
-              <p className="mt-4 text-sm text-neutral-500">
-                No expenses this tax year yet. <Link href="/expenses/new" className="font-medium text-accent">Add one</Link> to see your profit.
+          {/* Side by side on a wide screen, stacked on a phone. */}
+          <div className="lg:grid lg:grid-cols-2 lg:gap-10">
+            <section className="mt-10">
+              <h2 className="mb-1 text-lg font-semibold">Tax year so far</h2>
+              <p className="mb-4 text-sm text-neutral-500">
+                From {formatDate(year.from)}. Profit before tax is invoiced income less expenses. Tax hasn&apos;t been taken off.
               </p>
-            )}
-          </section>
+              <dl className="grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-neutral-200 bg-neutral-200 sm:grid-cols-3">
+                <Tile label="Income" value={formatRands(year.incomeCents)} />
+                <Tile label="Expenses" value={formatRands(year.expensesCents)} />
+                <Tile label="Profit before tax" value={formatRands(year.profitCents)} wide />
+              </dl>
+              {year.byCategory.length > 0 ? (
+                <>
+                  <p className="mt-6 mb-1 text-sm font-medium text-neutral-500">Expenses by category</p>
+                  <ul className="divide-y divide-neutral-100 border-y border-neutral-100 text-sm">
+                    {year.byCategory.map((category) => (
+                      <li key={category.name} className="flex justify-between gap-4 py-2">
+                        <span>{category.name}</span>
+                        <span className="tabular-nums">{formatRands(category.cents)}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              ) : (
+                <p className="mt-4 text-sm text-neutral-500">
+                  No expenses this tax year yet. <Link href="/expenses/new" className="font-medium text-accent">Add one</Link> to see your profit.
+                </p>
+              )}
+            </section>
 
-          <section className="mt-10">
-            <h2 className="mb-1 text-lg font-semibold">Income per month</h2>
-            <p className="mb-4 text-sm text-neutral-500">
-              Invoiced by invoice date, paid by the date it was paid, expenses by the date you paid them. Last 6 months.
-            </p>
-            <MonthChart months={months} />
-          </section>
+            <section className="mt-10">
+              <h2 className="mb-1 text-lg font-semibold">Income per month</h2>
+              <p className="mb-4 text-sm text-neutral-500">
+                Invoiced by invoice date, paid by the date it was paid, expenses by the date you paid them. Last 6 months.
+              </p>
+              <MonthChart months={months} />
+            </section>
+          </div>
 
           <section className="mt-10">
             <h2 className="mb-1 text-lg font-semibold">Outstanding</h2>
@@ -165,18 +171,26 @@ export default async function PerformancePage() {
             {owed.invoices.length > 0 && (
               <>
                 <p className="mt-6 mb-1 text-sm font-medium text-neutral-500">Oldest first</p>
-                <ul className="divide-y divide-neutral-100 border-y border-neutral-100">
+                <div className={`${listHead} ${OWED_COLS}`}>
+                  <span>Patient</span>
+                  <span>Invoice</span>
+                  <span>Payer</span>
+                  <span>Age</span>
+                  <span className="text-right">Amount</span>
+                </div>
+                <ul className={list}>
                   {owed.invoices.map((invoice) => (
                     <li key={invoice.id}>
-                      <Link href={`/invoices/${invoice.id}`} className="flex items-center justify-between gap-4 py-3">
-                        <div className="min-w-0">
-                          <p className="truncate font-medium">{invoice.patientName}</p>
-                          <p className="text-sm text-neutral-500">
-                            {invoiceNumber(invoice.number)} · {invoice.medicalAidName ?? "Cash"} ·{" "}
-                            {invoice.days === 1 ? "1 day" : `${invoice.days} days`} old
-                          </p>
-                        </div>
-                        <span className="shrink-0 font-medium tabular-nums">{formatRands(invoice.totalCents)}</span>
+                      <Link href={`/invoices/${invoice.id}`} className={`${listRow} ${OWED_COLS}`}>
+                        <p className="truncate font-medium">{invoice.patientName}</p>
+                        <p className={`${bottomLeft} text-sm text-neutral-500 md:contents`}>
+                          <span>{invoiceNumber(invoice.number)}</span>
+                          <span className="md:hidden"> · </span>
+                          <span className="truncate">{invoice.medicalAidName ?? "Cash"}</span>
+                          <span className="md:hidden"> · </span>
+                          <span>{invoice.days === 1 ? "1 day" : `${invoice.days} days`} old</span>
+                        </p>
+                        <span className={`${topRight} font-medium tabular-nums`}>{formatRands(invoice.totalCents)}</span>
                       </Link>
                     </li>
                   ))}

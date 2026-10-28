@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { button } from "@/app/ui";
+import { bottomLeft, button, list, listHead, listRow, topRight } from "@/app/ui";
 import { formatDate, toLocalInput } from "@/lib/dates";
 import { expensesByMonth, nextTaxYearStart, taxYearStart } from "@/lib/expenses";
 import { formatRands } from "@/lib/money";
 import { requireSetUpPractice } from "@/lib/practice";
 
 export const metadata: Metadata = { title: "Expenses · Therapreneur" };
+
+const COLS = "md:grid-cols-[minmax(0,2fr)_repeat(4,minmax(0,1fr))]";
 
 const MONTH_NAMES = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
@@ -46,7 +48,7 @@ export default async function ExpensesPage() {
         </p>
       ) : (
         <>
-          <div className="mt-6 rounded-lg border border-neutral-200 p-4">
+          <div className="mt-6 rounded-lg border border-neutral-200 p-4 md:max-w-sm">
             <p className="text-sm text-neutral-500">This tax year so far, from {formatDate(from)}</p>
             <p className="mt-1 text-xl font-semibold tracking-tight tabular-nums">{formatRands(yearTotal)}</p>
             {missingReceipts > 0 && (
@@ -62,18 +64,31 @@ export default async function ExpensesPage() {
                 <h2>{MONTH_NAMES[Number(month.month.slice(5, 7)) - 1]} {month.month.slice(0, 4)}</h2>
                 <span className="tabular-nums">{formatRands(month.totalCents)}</span>
               </div>
-              <ul className="divide-y divide-neutral-100 border-y border-neutral-100">
+              <div className={`${listHead} ${COLS}`}>
+                <span>Supplier</span>
+                <span>Category</span>
+                <span>Date</span>
+                <span>Receipt</span>
+                <span className="text-right">Amount</span>
+              </div>
+              <ul className={list}>
                 {month.expenses.map((expense) => (
                   <li key={expense.id}>
-                    <Link href={`/expenses/${expense.id}`} className="flex items-center justify-between gap-4 py-3">
-                      <div className="min-w-0">
-                        <p className="truncate font-medium">{expense.supplier}</p>
-                        <p className="text-sm text-neutral-500">
-                          {expense.category} · {formatDate(expense.spentOn)}
-                          {!expense.hasReceipt && <span className="text-amber-700"> · No receipt</span>}
-                        </p>
-                      </div>
-                      <span className="shrink-0 font-medium tabular-nums">{formatRands(expense.amountCents)}</span>
+                    <Link href={`/expenses/${expense.id}`} className={`${listRow} ${COLS}`}>
+                      <p className="truncate font-medium">{expense.supplier}</p>
+                      <p className={`${bottomLeft} text-sm text-neutral-500 md:contents`}>
+                        <span className="truncate">{expense.category}</span>
+                        <span className="md:hidden"> · </span>
+                        <span>{formatDate(expense.spentOn)}</span>
+                        <span className="text-amber-700">
+                          {!expense.hasReceipt && (
+                            <>
+                              <span className="md:hidden"> · </span>No receipt
+                            </>
+                          )}
+                        </span>
+                      </p>
+                      <span className={`${topRight} font-medium tabular-nums`}>{formatRands(expense.amountCents)}</span>
                     </Link>
                   </li>
                 ))}

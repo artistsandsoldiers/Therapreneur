@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { button } from "@/app/ui";
+import { bottomLeft, bottomRight, button, list, listHead, listRow, topRight } from "@/app/ui";
 import { formatDate } from "@/lib/dates";
 import { invoiceNumber } from "@/lib/invoices";
 import { formatRands } from "@/lib/money";
@@ -19,47 +19,62 @@ export default async function InvoicesPage() {
     .order("number", { ascending: false });
   if (error) throw error;
 
+  const cols = "md:grid-cols-[minmax(0,2fr)_repeat(4,minmax(0,1fr))]";
+
   return (
     <main className="py-6">
-      <Link href="/sessions/new" className={`${button} block w-full py-4 text-center text-lg`}>
+      {/* Phone: a big button, used straight after a session. Desktop: a normal button beside the heading. */}
+      <Link href="/sessions/new" className={`${button} block w-full py-4 text-center text-lg md:hidden`}>
         New session
       </Link>
 
-      <h1 className="mt-10 mb-3 text-lg font-semibold">Invoices</h1>
+      <div className="mt-10 mb-3 flex items-center justify-between gap-4 md:mt-0">
+        <h1 className="text-lg font-semibold md:text-2xl md:tracking-tight">Invoices</h1>
+        <Link href="/sessions/new" className={`${button} hidden md:block`}>New session</Link>
+      </div>
       {invoices.length === 0 ? (
         <p className="text-neutral-500">
           No invoices yet. Tap New session after your next appointment, and its invoice appears here.
         </p>
       ) : (
-        <ul className="divide-y divide-neutral-100 border-y border-neutral-100">
-          {invoices.map((invoice) => {
-            const patient = invoice.sessions?.patients;
-            const total = invoiceTotal(
-              invoice.invoice_lines.map((line) => ({ quantity: line.quantity, unitPriceCents: line.unit_price_cents })),
-            );
-            return (
-              <li key={invoice.id}>
-                <Link href={`/invoices/${invoice.id}`} className="flex items-center justify-between gap-4 py-3">
-                  <div className="min-w-0">
+        <>
+          <div className={`${listHead} ${cols}`}>
+            <span>Patient</span>
+            <span>Invoice</span>
+            <span>Date</span>
+            <span className="text-right">Amount</span>
+            <span className="text-right">Status</span>
+          </div>
+          <ul className={list}>
+            {invoices.map((invoice) => {
+              const patient = invoice.sessions?.patients;
+              const total = invoiceTotal(
+                invoice.invoice_lines.map((line) => ({ quantity: line.quantity, unitPriceCents: line.unit_price_cents })),
+              );
+              return (
+                <li key={invoice.id}>
+                  <Link href={`/invoices/${invoice.id}`} className={`${listRow} ${cols}`}>
                     <p className="truncate font-medium">
                       {patient ? `${patient.first_name} ${patient.last_name}` : "Unknown patient"}
                     </p>
-                    <p className="text-sm text-neutral-500">
-                      {invoiceNumber(invoice.number)} · {formatDate(invoice.issued_on)}
-                      {invoice.sessions?.outcome === "no_show" && " · No-show"}
+                    <p className={`${bottomLeft} text-sm text-neutral-500 md:contents`}>
+                      <span>{invoiceNumber(invoice.number)}</span>
+                      <span className="md:hidden"> · </span>
+                      <span>
+                        {formatDate(invoice.issued_on)}
+                        {invoice.sessions?.outcome === "no_show" && " · No-show"}
+                      </span>
                     </p>
-                  </div>
-                  <div className="shrink-0 text-right">
-                    <p className="font-medium">{formatRands(total)}</p>
-                    <p className={`text-sm ${invoice.paid_on ? "text-accent" : "text-neutral-400"}`}>
+                    <p className={`${topRight} font-medium tabular-nums`}>{formatRands(total)}</p>
+                    <p className={`${bottomRight} text-sm ${invoice.paid_on ? "text-accent" : "text-neutral-400"}`}>
                       {invoice.paid_on ? "Paid" : "Outstanding"}
                     </p>
-                  </div>
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </>
       )}
     </main>
   );

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { narrow } from "@/app/ui";
 import Link from "next/link";
 import { SendButton } from "./send-button";
 import { claimEmail, claimSending, groupByMedicalAid } from "@/lib/claims";
@@ -28,7 +29,7 @@ export default async function PreviewClaimsPage({ searchParams }: { searchParams
   const to = config.ok ? config.sending.to : "the test inbox (not set up yet)";
 
   return (
-    <main className="py-6">
+    <main className={`py-6 ${narrow}`}>
       <Link href="/claims" className="text-sm text-neutral-500">← Claims</Link>
       <h1 className="mt-3 mb-2 text-2xl font-semibold tracking-tight">Preview claims</h1>
 

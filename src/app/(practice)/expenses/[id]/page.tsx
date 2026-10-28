@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { narrow } from "@/app/ui";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { DeleteExpense } from "./delete-expense";
@@ -24,7 +25,7 @@ export default async function ExpensePage({ params }: { params: Promise<{ id: st
     : null;
 
   return (
-    <main className="py-6">
+    <main className={`py-6 ${narrow}`}>
       <Link href="/expenses" className="text-sm text-neutral-500">← Expenses</Link>
       <h1 className="mt-3 mb-6 text-2xl font-semibold tracking-tight">{expense.supplier}</h1>
       <ExpenseForm
