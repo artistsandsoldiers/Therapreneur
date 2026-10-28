@@ -9,7 +9,7 @@ _Limit: 300 words._
 - White background, greys for structure, and one accent colour: teal `#0E7C86`. No purple. The accent marks the primary action and little else.
 - One sans-serif typeface (Inter). Hierarchy comes from size and weight, not colour.
 - Hairline borders over shadows and boxes. Generous spacing.
-- The app looks neutral (Therapreneur). The practice's logo and colour appear only on patient-facing output: invoices, claims and emails.
+- The app wears the practice's logo and name in its menu, so it feels like their own. Therapreneur stays in the background. The logo also goes on invoices and claims.
 
 ## Screens
 

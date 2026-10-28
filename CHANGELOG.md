@@ -4,6 +4,7 @@ Changes a practitioner would notice, newest first. Each entry is one line, and t
 
 ## Unreleased
 
+- Practice logo: upload it in Settings and it shows in the menu, on invoices and on claim PDFs.
 - Performance: a live dashboard of income per month, income per patient, and what's outstanding by age and payer. Mark any invoice paid, with a date.
 - Claims: email medical aid invoices to each medical aid in one batch with PDFs attached, record the reference number, and download any invoice as a PDF. Patients get date of birth, dependant code and referring doctor; Settings gets the HPCSA number.
 - A Patients page: search the list, edit details, see each patient's sessions and notes, move them to past patients, and a new menu (sidebar on desktop, pop-up on a phone).

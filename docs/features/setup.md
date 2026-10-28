@@ -18,7 +18,7 @@ Robynne Stock (solo adult OT), October 2026: loading billing codes by hand is a 
 ## Out of scope
 - Public sign-up. The landing page waitlist collects interest.
 - Sign in with Google. Revisit with calendar sync.
-- Logo upload, so invoices show the practice name only.
+- Logo upload. It's optional, so it lives in Settings.
 - Barry's admin screen.
 - Password reset by email. Barry resets passwords for now.
 - Emailed login codes: Supabase only allows editing its emails with our own email service.

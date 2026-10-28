@@ -5,7 +5,8 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { logOut } from "@/app/login/actions";
 
-// The main nav (docs/design.md): a left sidebar on desktop, a menu sliding in from the right on a phone.
+// The main nav (docs/design.md): a left sidebar on desktop, a menu sliding in from the right on a phone. It carries the
+// practice's logo and name, so the app feels like their own.
 const LINKS = [
   { href: "/invoices", text: "Invoices" },
   { href: "/patients", text: "Patients" },
@@ -14,7 +15,7 @@ const LINKS = [
   { href: "/settings", text: "Settings" },
 ];
 
-export function Nav({ practiceName }: { practiceName: string }) {
+export function Nav({ practiceName, logoUrl }: { practiceName: string; logoUrl: string | null }) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
 
@@ -53,7 +54,10 @@ export function Nav({ practiceName }: { practiceName: string }) {
   return (
     <>
       <header className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-neutral-100 bg-white px-4 py-3 md:hidden">
-        <Link href="/invoices" className="truncate font-semibold tracking-tight">{practiceName}</Link>
+        <Link href="/invoices" className="flex min-w-0 items-center gap-2.5">
+          {logoUrl && <Logo url={logoUrl} className="max-h-8 max-w-20" />}
+          <span className="truncate font-semibold tracking-tight">{practiceName}</span>
+        </Link>
         <button
           type="button"
           onClick={() => setOpen(true)}
@@ -83,9 +87,17 @@ export function Nav({ practiceName }: { practiceName: string }) {
       )}
 
       <aside className="sticky top-0 hidden h-dvh w-60 shrink-0 flex-col gap-6 border-r border-neutral-100 px-3 py-5 md:flex">
-        <Link href="/invoices" className="truncate px-3 font-semibold tracking-tight">{practiceName}</Link>
+        <Link href="/invoices" className="flex flex-col gap-3 px-3">
+          {logoUrl && <Logo url={logoUrl} className="max-h-14 max-w-40" />}
+          <span className="truncate font-semibold tracking-tight">{practiceName}</span>
+        </Link>
         {links}
       </aside>
     </>
   );
+}
+
+function Logo({ url, className }: { url: string; className: string }) {
+  // eslint-disable-next-line @next/next/no-img-element -- a short-lived private link, which Next's image optimiser can't cache
+  return <img src={url} alt="" className={`${className} self-start object-contain`} />;
 }

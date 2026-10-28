@@ -21,6 +21,17 @@ describe("renderInvoicePdf", () => {
     expect(pdf.subarray(0, 5).toString()).toBe("%PDF-");
   });
 
+  it("makes a PDF with the practice's logo", async () => {
+    // A 1×1 teal PNG.
+    const png = Buffer.from(
+      "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAADElEQVR4nGPgq2kDAAGsARHP+R6eAAAAAElFTkSuQmCC",
+      "base64",
+    );
+    const pdf = await renderInvoicePdf(invoice, { data: png, format: "png" });
+    expect(pdf.subarray(0, 5).toString()).toBe("%PDF-");
+    expect(pdf.includes("/Subtype /Image")).toBe(true);
+  });
+
   it("names the file with the invoice number and patient, in plain characters", () => {
     expect(invoicePdfName(invoice)).toBe("INV-0007 Zo Mokoena.pdf");
   });

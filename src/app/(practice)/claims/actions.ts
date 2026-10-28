@@ -6,6 +6,7 @@ import { claimEmail, claimSending, groupByMedicalAid, missingPracticeDetails } f
 import { sendEmail } from "@/lib/email";
 import { loadInvoiceDocuments } from "@/lib/invoice-document";
 import { invoicePdfName, renderInvoicePdf } from "@/lib/invoice-pdf";
+import { logoImage } from "@/lib/logo";
 import { missingClaimDetails } from "@/lib/patients";
 import { requireSetUpPractice } from "@/lib/practice";
 
@@ -32,6 +33,7 @@ export async function sendClaims(invoiceIds: string[]): Promise<{ error?: string
   if (aidsError) throw aidsError;
 
   const { sending } = config;
+  const logo = await logoImage(supabase, practice);
   let sent = 0;
   for (const [medicalAidId, batch] of groupByMedicalAid(ready)) {
     const medicalAidName = medicalAids.find((aid) => aid.id === medicalAidId)?.name ?? "the medical aid";
@@ -47,7 +49,7 @@ export async function sendClaims(invoiceIds: string[]): Promise<{ error?: string
     try {
       const email = claimEmail(practice, medicalAidName, batch, sending.to);
       const attachments = await Promise.all(
-        batch.map(async (invoice) => ({ filename: invoicePdfName(invoice), content: await renderInvoicePdf(invoice) })),
+        batch.map(async (invoice) => ({ filename: invoicePdfName(invoice), content: await renderInvoicePdf(invoice, logo) })),
       );
       await sendEmail({ ...sending, ...email, replyTo: practice.email ?? practice.invite_email, attachments });
     } catch (sendError) {
