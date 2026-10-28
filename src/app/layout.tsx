@@ -8,6 +8,7 @@ export const metadata: Metadata = {
   title: "Therapreneur: run your practice, not your paperwork",
   description:
     "Software, support and business coaching for OTs, physios and speech therapists in private practice in South Africa.",
+  appleWebApp: { capable: true, title: "Therapreneur", statusBarStyle: "default" },
 };
 
 export const viewport: Viewport = {

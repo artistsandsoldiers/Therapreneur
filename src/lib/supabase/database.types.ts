@@ -1,0 +1,417 @@
+// Generated from the Supabase schema with the Supabase connector (generate_typescript_types).
+// Regenerate after each migration. One hand edit: save_capture's p_session_id may be null.
+
+export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json | undefined }
+  | Json[]
+
+export type Database = {
+  __InternalSupabase: {
+    PostgrestVersion: "14.18"
+  }
+  public: {
+    Tables: {
+      billing_codes: {
+        Row: {
+          code: string
+          description: string
+          id: string
+          is_no_show: boolean
+          profession: Database["public"]["Enums"]["profession"]
+        }
+        Insert: {
+          code: string
+          description: string
+          id?: string
+          is_no_show?: boolean
+          profession: Database["public"]["Enums"]["profession"]
+        }
+        Update: {
+          code?: string
+          description?: string
+          id?: string
+          is_no_show?: boolean
+          profession?: Database["public"]["Enums"]["profession"]
+        }
+        Relationships: []
+      }
+      invoice_lines: {
+        Row: {
+          billing_code_id: string | null
+          code: string
+          description: string
+          icd10_codes: string[]
+          id: string
+          invoice_id: string
+          position: number
+          quantity: number
+          unit_price_cents: number
+        }
+        Insert: {
+          billing_code_id?: string | null
+          code: string
+          description: string
+          icd10_codes?: string[]
+          id?: string
+          invoice_id: string
+          position: number
+          quantity: number
+          unit_price_cents: number
+        }
+        Update: {
+          billing_code_id?: string | null
+          code?: string
+          description?: string
+          icd10_codes?: string[]
+          id?: string
+          invoice_id?: string
+          position?: number
+          quantity?: number
+          unit_price_cents?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoice_lines_billing_code_id_fkey"
+            columns: ["billing_code_id"]
+            isOneToOne: false
+            referencedRelation: "billing_codes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoice_lines_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      invoices: {
+        Row: {
+          bill_to: Database["public"]["Enums"]["bill_to"]
+          created_at: string
+          due_on: string
+          id: string
+          issued_on: string
+          number: number
+          practice_id: string
+          session_id: string
+        }
+        Insert: {
+          bill_to: Database["public"]["Enums"]["bill_to"]
+          created_at?: string
+          due_on: string
+          id?: string
+          issued_on: string
+          number: number
+          practice_id: string
+          session_id: string
+        }
+        Update: {
+          bill_to?: Database["public"]["Enums"]["bill_to"]
+          created_at?: string
+          due_on?: string
+          id?: string
+          issued_on?: string
+          number?: number
+          practice_id?: string
+          session_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoices_practice_id_fkey"
+            columns: ["practice_id"]
+            isOneToOne: false
+            referencedRelation: "practices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invoices_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: true
+            referencedRelation: "sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      medical_aid_rates: {
+        Row: {
+          billing_code_id: string
+          effective_from: string
+          medical_aid_id: string
+          rate_cents: number | null
+        }
+        Insert: {
+          billing_code_id: string
+          effective_from: string
+          medical_aid_id: string
+          rate_cents?: number | null
+        }
+        Update: {
+          billing_code_id?: string
+          effective_from?: string
+          medical_aid_id?: string
+          rate_cents?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "medical_aid_rates_billing_code_id_fkey"
+            columns: ["billing_code_id"]
+            isOneToOne: false
+            referencedRelation: "billing_codes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "medical_aid_rates_medical_aid_id_fkey"
+            columns: ["medical_aid_id"]
+            isOneToOne: false
+            referencedRelation: "medical_aids"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      medical_aids: {
+        Row: {
+          id: string
+          name: string
+        }
+        Insert: {
+          id?: string
+          name: string
+        }
+        Update: {
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      patients: {
+        Row: {
+          created_at: string
+          first_name: string
+          icd10_codes: string[]
+          id: string
+          last_name: string
+          main_member_name: string | null
+          medical_aid_id: string | null
+          member_number: string | null
+          payer_type: Database["public"]["Enums"]["payer_type"]
+          plan: string | null
+          practice_id: string
+        }
+        Insert: {
+          created_at?: string
+          first_name: string
+          icd10_codes?: string[]
+          id?: string
+          last_name: string
+          main_member_name?: string | null
+          medical_aid_id?: string | null
+          member_number?: string | null
+          payer_type: Database["public"]["Enums"]["payer_type"]
+          plan?: string | null
+          practice_id: string
+        }
+        Update: {
+          created_at?: string
+          first_name?: string
+          icd10_codes?: string[]
+          id?: string
+          last_name?: string
+          main_member_name?: string | null
+          medical_aid_id?: string | null
+          member_number?: string | null
+          payer_type?: Database["public"]["Enums"]["payer_type"]
+          plan?: string | null
+          practice_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "patients_medical_aid_id_fkey"
+            columns: ["medical_aid_id"]
+            isOneToOne: false
+            referencedRelation: "medical_aids"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "patients_practice_id_fkey"
+            columns: ["practice_id"]
+            isOneToOne: false
+            referencedRelation: "practices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      practices: {
+        Row: {
+          address: string | null
+          bank_account_holder: string | null
+          bank_account_number: string | null
+          bank_branch_code: string | null
+          bank_name: string | null
+          created_at: string
+          email: string | null
+          id: string
+          invite_email: string
+          name: string | null
+          no_show_price_cents: number | null
+          phone: string | null
+          practice_number: string | null
+          practitioner_id: string | null
+          price_adjustment_percent: number
+          profession: Database["public"]["Enums"]["profession"] | null
+          setup_completed_at: string | null
+        }
+        Insert: {
+          address?: string | null
+          bank_account_holder?: string | null
+          bank_account_number?: string | null
+          bank_branch_code?: string | null
+          bank_name?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          invite_email: string
+          name?: string | null
+          no_show_price_cents?: number | null
+          phone?: string | null
+          practice_number?: string | null
+          practitioner_id?: string | null
+          price_adjustment_percent?: number
+          profession?: Database["public"]["Enums"]["profession"] | null
+          setup_completed_at?: string | null
+        }
+        Update: {
+          address?: string | null
+          bank_account_holder?: string | null
+          bank_account_number?: string | null
+          bank_branch_code?: string | null
+          bank_name?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          invite_email?: string
+          name?: string | null
+          no_show_price_cents?: number | null
+          phone?: string | null
+          practice_number?: string | null
+          practitioner_id?: string | null
+          price_adjustment_percent?: number
+          profession?: Database["public"]["Enums"]["profession"] | null
+          setup_completed_at?: string | null
+        }
+        Relationships: []
+      }
+      sessions: {
+        Row: {
+          created_at: string
+          id: string
+          note: string | null
+          outcome: Database["public"]["Enums"]["session_outcome"]
+          patient_id: string
+          practice_id: string
+          starts_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          note?: string | null
+          outcome: Database["public"]["Enums"]["session_outcome"]
+          patient_id: string
+          practice_id: string
+          starts_at: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          note?: string | null
+          outcome?: Database["public"]["Enums"]["session_outcome"]
+          patient_id?: string
+          practice_id?: string
+          starts_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sessions_patient_id_fkey"
+            columns: ["patient_id"]
+            isOneToOne: false
+            referencedRelation: "patients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sessions_practice_id_fkey"
+            columns: ["practice_id"]
+            isOneToOne: false
+            referencedRelation: "practices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      waitlist: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          name: string
+          occupation: string
+          source: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          name: string
+          occupation: string
+          source?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string
+          occupation?: string
+          source?: string | null
+        }
+        Relationships: []
+      }
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      claim_practice: { Args: never; Returns: string }
+      current_practice_id: { Args: never; Returns: string }
+      is_invited: { Args: { email: string }; Returns: boolean }
+      save_capture: {
+        Args: {
+          p_lines: Json
+          p_note: string
+          p_outcome: Database["public"]["Enums"]["session_outcome"]
+          p_patient_id: string
+          p_session_id: string | null
+          p_starts_at: string
+        }
+        Returns: string
+      }
+    }
+    Enums: {
+      bill_to: "medical_aid" | "patient"
+      payer_type: "medical_aid" | "cash"
+      profession: "occupational_therapy" | "physiotherapy" | "speech_therapy"
+      session_outcome: "attended" | "no_show"
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
+}
+
+type PublicSchema = Database["public"]
+
+export type Tables<T extends keyof PublicSchema["Tables"]> = PublicSchema["Tables"][T]["Row"]
+export type Enums<T extends keyof PublicSchema["Enums"]> = PublicSchema["Enums"][T]
+export type Profession = Enums<"profession">

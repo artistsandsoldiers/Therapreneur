@@ -1,6 +1,6 @@
 # Capture
 
-**Status:** grilled
+**Status:** building
 
 ## Problem
 Practitioners bill from memory at the end of the day or week, which is slow and leaks revenue.
