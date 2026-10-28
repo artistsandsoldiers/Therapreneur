@@ -3,52 +3,53 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
-export type LoginState = {
-  step: "email" | "code";
-  email?: string;
-  error?: string;
-};
+export type LoginState = { error?: string };
 
-export async function sendCode(_previous: LoginState, form: FormData): Promise<LoginState> {
-  const email = String(form.get("email") ?? "").trim().toLowerCase();
-  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
-    return { step: "email", error: "Please enter a valid email address." };
+const MIN_PASSWORD_LENGTH = 8;
+
+function readForm(form: FormData) {
+  return {
+    email: String(form.get("email") ?? "").trim().toLowerCase(),
+    password: String(form.get("password") ?? ""),
+  };
+}
+
+export async function logIn(_previous: LoginState, form: FormData): Promise<LoginState> {
+  const { email, password } = readForm(form);
+  const supabase = await createClient();
+  const { error } = await supabase.auth.signInWithPassword({ email, password });
+  if (error) return { error: "That email and password don't match. First time here? Set your password instead." };
+
+  await supabase.rpc("claim_practice");
+  redirect("/invoices");
+}
+
+/** First login: an invited practitioner chooses their password. */
+export async function setPassword(_previous: LoginState, form: FormData): Promise<LoginState> {
+  const { email, password } = readForm(form);
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return { error: "Please enter a valid email address." };
+  if (password.length < MIN_PASSWORD_LENGTH) {
+    return { error: `Please choose a password of at least ${MIN_PASSWORD_LENGTH} characters.` };
   }
 
   const supabase = await createClient();
   const { data: invited } = await supabase.rpc("is_invited", { email });
   if (!invited) {
-    return {
-      step: "email",
-      email,
-      error: "We don't have an invite for that email yet. Join the waiting list on our home page.",
-    };
+    return { error: "We don't have an invite for that email yet. Join the waiting list on our home page." };
   }
 
-  const { error } = await supabase.auth.signInWithOtp({ email, options: { shouldCreateUser: true } });
+  const { data, error } = await supabase.auth.signUp({ email, password });
+  if (error?.code === "user_already_exists") return { error: "You've already set a password. Log in instead." };
   if (error) {
-    console.error("Sending login code failed", error);
-    return {
-      step: "email",
-      email,
-      error:
-        error.status === 429
-          ? "Too many codes sent. Please wait a few minutes and try again."
-          : "We couldn't send a code. Please try again.",
-    };
+    console.error("Setting password failed", error);
+    return { error: error.code === "weak_password" ? error.message : "Something went wrong. Please try again." };
   }
-  return { step: "code", email };
-}
-
-export async function verifyCode(_previous: LoginState, form: FormData): Promise<LoginState> {
-  const email = String(form.get("email") ?? "");
-  const token = String(form.get("code") ?? "").replace(/\s/g, "");
-
-  const supabase = await createClient();
-  const { error } = await supabase.auth.verifyOtp({ email, token, type: "email" });
-  if (error) {
-    return { step: "code", email, error: "That code didn't work. Check it, or send a new one." };
+  // Supabase only returns a session straight away when "Confirm email" is switched off in its settings.
+  if (!data.session) {
+    console.error("Sign-up returned no session; is email confirmation switched on in Supabase?");
+    return { error: "Something went wrong on our side. Please let Barry know." };
   }
+
   await supabase.rpc("claim_practice");
   redirect("/invoices");
 }

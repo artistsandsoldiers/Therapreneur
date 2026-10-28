@@ -4,6 +4,6 @@ Changes a practitioner would notice, newest first. Each entry is one line, and t
 
 ## Unreleased
 
-- Practitioners log in with an emailed code, set up their practice and prices, and capture a session on their phone to create its invoice.
+- Practitioners log in with their email and a password, set up their practice and prices, and capture a session on their phone to create its invoice.
 - Landing page with a waiting list signup (name, email, occupation).
 - Project context docs for coding agents: vision, features, glossary, design and decisions.

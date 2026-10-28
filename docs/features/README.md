@@ -6,7 +6,7 @@ One doc per feature. A feature doc is written after a grill and before any code,
 
 | Feature | Status | In one line |
 | --- | --- | --- |
-| [Setup](setup.md) | building | Invite-only login with an emailed code, then practice details and prices |
+| [Setup](setup.md) | building | Invite-only login with email and password, then practice details and prices |
 | [Capture](capture.md) | building | Codes and note on the phone after a session, which creates the invoice |
 | [Invoicing](invoicing.md) | grilled | One invoice per session, to the medical aid or the patient |
 | [Claims](claims.md) | grilled | Email claim batches to each medical aid and record reference numbers |
