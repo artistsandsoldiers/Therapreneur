@@ -16,6 +16,8 @@ export const BUSINESS_TYPES: { value: BusinessType; label: string; hint: string 
 ];
 
 export type SetupDetails = {
+  first_name: string;
+  last_name: string;
   name: string;
   practice_number: string | null;
   hpcsa_number: string | null;
@@ -39,6 +41,8 @@ export function parseSetupForm(form: FormData): { ok: true; details: SetupDetail
   const optional = (name: string) => text(name) || null;
 
   const required: [string, string][] = [
+    ["first_name", "your first name"],
+    ["last_name", "your last name"],
     ["name", "your practice name"],
     ["address", "your practice address"],
     ["bank_name", "your bank"],
@@ -76,6 +80,8 @@ export function parseSetupForm(form: FormData): { ok: true; details: SetupDetail
   return {
     ok: true,
     details: {
+      first_name: text("first_name"),
+      last_name: text("last_name"),
       name: text("name"),
       practice_number: optional("practice_number"),
       hpcsa_number: optional("hpcsa_number"),

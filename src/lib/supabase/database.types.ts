@@ -433,8 +433,10 @@ export type Database = {
           created_at: string
           date_of_birth: string | null
           email: string | null
+          first_name: string | null
           id: string
           invite_email: string
+          last_name: string | null
           logo_path: string | null
           name: string | null
           no_show_price_cents: number | null
@@ -458,8 +460,10 @@ export type Database = {
           created_at?: string
           date_of_birth?: string | null
           email?: string | null
+          first_name?: string | null
           id?: string
           invite_email: string
+          last_name?: string | null
           logo_path?: string | null
           name?: string | null
           no_show_price_cents?: number | null
@@ -483,8 +487,10 @@ export type Database = {
           created_at?: string
           date_of_birth?: string | null
           email?: string | null
+          first_name?: string | null
           id?: string
           invite_email?: string
+          last_name?: string | null
           logo_path?: string | null
           name?: string | null
           no_show_price_cents?: number | null

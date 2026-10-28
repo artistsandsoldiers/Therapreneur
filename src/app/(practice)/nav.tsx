@@ -8,6 +8,7 @@ import { logOut } from "@/app/login/actions";
 // The main nav (docs/design.md): a left sidebar on desktop, a menu sliding in from the right on a phone. It carries the
 // practice's logo and name, so the app feels like their own.
 const LINKS = [
+  { href: "/home", text: "Home" },
   { href: "/invoices", text: "Invoices" },
   { href: "/patients", text: "Patients" },
   { href: "/claims", text: "Claims" },
@@ -57,7 +58,7 @@ export function Nav({ practiceName, logoUrl }: { practiceName: string; logoUrl: 
   return (
     <>
       <header className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-neutral-100 bg-white px-4 py-3 md:hidden">
-        <Link href="/invoices" className="flex min-w-0 items-center gap-2.5">
+        <Link href="/home" className="flex min-w-0 items-center gap-2.5">
           {logoUrl && <Logo url={logoUrl} className="max-h-8 max-w-20" />}
           <span className="truncate font-semibold tracking-tight">{practiceName}</span>
         </Link>
@@ -90,7 +91,7 @@ export function Nav({ practiceName, logoUrl }: { practiceName: string; logoUrl: 
       )}
 
       <aside className="sticky top-0 hidden h-dvh w-60 shrink-0 flex-col gap-6 border-r border-neutral-100 px-3 py-5 md:flex">
-        <Link href="/invoices" className="flex flex-col gap-3 px-3">
+        <Link href="/home" className="flex flex-col gap-3 px-3">
           {logoUrl && <Logo url={logoUrl} className="max-h-14 max-w-40" />}
           <span className="truncate font-semibold tracking-tight">{practiceName}</span>
         </Link>

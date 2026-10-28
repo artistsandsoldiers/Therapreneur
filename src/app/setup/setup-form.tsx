@@ -16,6 +16,10 @@ export function SetupForm({ practice, priceExample }: { practice: Practice; pric
     <form action={action} className="flex flex-col gap-8">
       <fieldset className="flex flex-col gap-4">
         <legend className="mb-3 text-lg font-semibold">Your practice</legend>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field name="first_name" label="Your first name" initial={practice.first_name} required autoComplete="given-name" />
+          <Field name="last_name" label="Your last name" initial={practice.last_name} required autoComplete="family-name" />
+        </div>
         <Field name="name" label="Practice name" initial={practice.name} required autoComplete="organization" />
         <Field name="practice_number" label="Practice number (optional, needed for claims)" initial={practice.practice_number} />
         <Field name="hpcsa_number" label="HPCSA registration number (optional, needed for claims)" initial={practice.hpcsa_number} />
