@@ -12,7 +12,7 @@ What we store in Supabase, in plain English. Money is whole cents.
 
 ## A practice's own data (only that practice can see it)
 
-- **practices**: one per practitioner. The invited email, then setup: name, practice and HPCSA numbers, address, contact and banking details, profession, price adjustment (+/- %) and no-show price.
+- **practices**: one per practitioner. The invited email, then setup: name, practice and HPCSA numbers, address, contact and banking details, profession, price adjustment (+/- %), no-show price and where its logo is kept.
 - **patients**: name, payer type (medical aid or cash), date of birth, and for medical aid patients the medical aid, plan, member number, main member, dependant code and referring doctor. Also ICD-10 codes, and when they became a past patient.
 - **sessions**: one appointment: when, attended or no-show, and the note.
 - **invoices**: one per session: number (1, 2, 3… per practice), date, due date (30 days later), who pays, and the date it was paid in full. Once claimed, its claim batch and a copy of the patient details sent.
@@ -25,11 +25,12 @@ What we store in Supabase, in plain English. Money is whole cents.
 
 ## How it fits together
 
-A practice has many patients, each with many sessions. Each session has one invoice, and each invoice has one or more lines. Lines point at billing codes. A claim batch holds one medical aid's invoices.
+A practice has patients, patients have sessions, and each session has one invoice with lines that point at billing codes. A claim batch holds one medical aid's invoices.
 
 ## Behind the scenes
 
-- **Row level security** stops one practice seeing another's rows, even if the app has a bug.
-- **save_capture** saves a session, invoice and lines together and gives out invoice numbers one at a time. Fixing an invoice clears its old lines first.
+- **Row level security** stops one practice seeing another's rows or files, even with an app bug.
+- **save_capture** saves a session, invoice and lines together and gives out invoice numbers one at a time.
 - **Claimed invoices are locked.** Once a batch is sent, the database refuses to change its invoices, lines, or session (except the note and paid date). **start_claim_batch** checks and reserves invoices before the email goes.
 - **Invites:** an agent adds a **practices** row with the practitioner's email. Their first login links them to it.
+- **Logos** live in a private file storage bucket, one folder per practice.

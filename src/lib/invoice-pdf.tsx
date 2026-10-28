@@ -1,7 +1,8 @@
-import { Document, Page, StyleSheet, Text, View, renderToBuffer } from "@react-pdf/renderer";
+import { Document, Image, Page, StyleSheet, Text, View, renderToBuffer } from "@react-pdf/renderer";
 import { formatDate } from "./dates";
 import type { InvoiceDocument } from "./invoice-document";
 import { invoiceNumber } from "./invoices";
+import type { LogoImage } from "./logo";
 import { formatRands } from "./money";
 import { lineTotal } from "./pricing";
 
@@ -10,6 +11,7 @@ const grey = "#737373";
 const styles = StyleSheet.create({
   page: { padding: 40, fontSize: 9, fontFamily: "Helvetica", color: "#171717" },
   header: { flexDirection: "row", justifyContent: "space-between" },
+  logo: { maxWidth: 160, maxHeight: 56, objectFit: "contain", marginBottom: 8 },
   title: { fontSize: 14, fontFamily: "Helvetica-Bold", marginBottom: 2 },
   muted: { color: grey },
   label: { fontSize: 7, color: "#a3a3a3", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 2 },
@@ -21,13 +23,15 @@ const styles = StyleSheet.create({
   total: { flexDirection: "row", paddingTop: 6, fontFamily: "Helvetica-Bold" },
 });
 
-export function invoicePdf(invoice: InvoiceDocument) {
+export function invoicePdf(invoice: InvoiceDocument, logo: LogoImage | null = null) {
   const { practice, patient } = invoice;
   return (
     <Document title={`${invoiceNumber(invoice.number)} ${patient.patient_name}`} author={practice.name ?? undefined}>
       <Page size="A4" style={styles.page}>
         <View style={styles.header}>
           <View>
+            {/* eslint-disable-next-line jsx-a11y/alt-text -- react-pdf images have no alt text */}
+            {logo && <Image src={logo} style={styles.logo} />}
             <Text style={styles.title}>{practice.name}</Text>
             <Text style={styles.muted}>{practice.address}</Text>
             {practice.phone && <Text style={styles.muted}>{practice.phone}</Text>}
@@ -107,9 +111,9 @@ export function invoicePdf(invoice: InvoiceDocument) {
   );
 }
 
-/** The invoice's PDF file, e.g. for a download or an email attachment. */
-export function renderInvoicePdf(invoice: InvoiceDocument): Promise<Buffer> {
-  return renderToBuffer(invoicePdf(invoice));
+/** The invoice's PDF file, e.g. for a download or an email attachment, with the practice's logo if it has one. */
+export function renderInvoicePdf(invoice: InvoiceDocument, logo: LogoImage | null = null): Promise<Buffer> {
+  return renderToBuffer(invoicePdf(invoice, logo));
 }
 
 /** "INV-0007 Thandi Mokoena.pdf" */

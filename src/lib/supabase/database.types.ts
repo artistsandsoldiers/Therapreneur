@@ -337,6 +337,7 @@ export type Database = {
           email: string | null
           id: string
           invite_email: string
+          logo_path: string | null
           name: string | null
           no_show_price_cents: number | null
           phone: string | null
@@ -357,6 +358,7 @@ export type Database = {
           email?: string | null
           id?: string
           invite_email: string
+          logo_path?: string | null
           name?: string | null
           no_show_price_cents?: number | null
           phone?: string | null
@@ -377,6 +379,7 @@ export type Database = {
           email?: string | null
           id?: string
           invite_email?: string
+          logo_path?: string | null
           name?: string | null
           no_show_price_cents?: number | null
           phone?: string | null

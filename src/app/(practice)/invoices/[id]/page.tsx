@@ -6,6 +6,7 @@ import { PaidForm } from "./paid-form";
 import { secondaryButton } from "@/app/ui";
 import { formatDate, formatDateTime, toLocalInput } from "@/lib/dates";
 import { loadInvoiceDocument } from "@/lib/invoice-document";
+import { logoUrl } from "@/lib/logo";
 import { invoiceNumber } from "@/lib/invoices";
 import { formatRands } from "@/lib/money";
 import { requireSetUpPractice } from "@/lib/practice";
@@ -20,6 +21,7 @@ export default async function InvoicePage({ params }: { params: Promise<{ id: st
   if (!invoice) notFound();
 
   const { patient, session, claim } = invoice;
+  const logo = await logoUrl(supabase, practice);
 
   return (
     <main className="py-6">
@@ -51,6 +53,8 @@ export default async function InvoicePage({ params }: { params: Promise<{ id: st
       <article className="mt-6 rounded-lg border border-neutral-200 p-5 text-sm md:p-8">
         <header className="flex flex-col justify-between gap-4 sm:flex-row">
           <div>
+            {/* eslint-disable-next-line @next/next/no-img-element -- a short-lived private link, which Next's image optimiser can't cache */}
+            {logo && <img src={logo} alt="" className="mb-3 max-h-14 max-w-40 object-contain" />}
             <p className="text-lg font-semibold">{practice.name}</p>
             <p className="whitespace-pre-line text-neutral-500">{practice.address}</p>
             {practice.phone && <p className="text-neutral-500">{practice.phone}</p>}
