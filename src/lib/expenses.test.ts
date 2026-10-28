@@ -99,7 +99,7 @@ describe("profitByMonth", () => {
 });
 
 describe("taxYearSoFar", () => {
-  it("counts only 1 March to today, with expenses per category biggest first", () => {
+  it("counts only this tax year, later dates in it included, with expenses per category biggest first", () => {
     const year = taxYearSoFar(
       [invoice("2026-02-28", 99999), invoice("2026-03-01", 100000), invoice("2026-10-28", 50000)],
       [
@@ -107,18 +107,20 @@ describe("taxYearSoFar", () => {
         { spentOn: "2026-04-01", amountCents: 20000, categoryName: "Software" },
         { spentOn: "2026-05-01", amountCents: 30000, categoryName: "Rooms and rent" },
         { spentOn: "2026-06-01", amountCents: 15000, categoryName: "Software" },
-        { spentOn: "2026-11-01", amountCents: 1000, categoryName: "Other" }, // after today
+        { spentOn: "2026-11-01", amountCents: 1000, categoryName: "Other" }, // after today, same tax year
+        { spentOn: "2027-03-01", amountCents: 5555, categoryName: "Other" }, // next tax year
       ],
       "2026-10-28",
     );
     expect(year).toEqual({
       from: "2026-03-01",
       incomeCents: 150000,
-      expensesCents: 65000,
-      profitCents: 85000,
+      expensesCents: 66000,
+      profitCents: 84000,
       byCategory: [
         { name: "Software", cents: 35000 },
         { name: "Rooms and rent", cents: 30000 },
+        { name: "Other", cents: 1000 },
       ],
     });
   });

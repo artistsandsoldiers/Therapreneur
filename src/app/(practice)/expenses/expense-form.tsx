@@ -70,7 +70,7 @@ export function ExpenseForm({
         </div>
         <div>
           <label htmlFor="spent_on" className={label}>Date paid</label>
-          <input id="spent_on" name="spent_on" type="date" defaultValue={expense?.spentOn ?? today} className={field} />
+          <input id="spent_on" name="spent_on" type="date" defaultValue={expense?.spentOn ?? today} max={today} className={field} />
         </div>
       </div>
 
