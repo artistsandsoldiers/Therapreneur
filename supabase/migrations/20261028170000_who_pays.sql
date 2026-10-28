@@ -3,21 +3,26 @@
 
 alter table public.patients add column bill_to public.bill_to;
 update public.patients set bill_to = case when payer_type = 'cash' then 'patient' else 'medical_aid' end::public.bill_to;
-
+alter table public.patients alter column bill_to set not null;
 alter table public.patients
-  alter column bill_to set not null,
-  drop constraint patients_medical_aid_details,
-  drop column payer_type,
-  add constraint patients_medical_aid_details check (
-    medical_aid_id is null or (member_number is not null and main_member_name is not null)
-  ),
   add constraint patients_bill_to_medical_aid check (bill_to = 'patient' or medical_aid_id is not null);
 
-drop type public.payer_type;
+-- The old payer_type column is no longer used by the app. Until a later clean-up removes it, it follows whether
+-- the patient has medical aid, which keeps its old check (medical aid details are complete) meaning the same thing.
+create function public.sync_payer_type() returns trigger
+language plpgsql set search_path = ''
+as $$
+begin
+  new.payer_type := case when new.medical_aid_id is null then 'cash' else 'medical_aid' end;
+  return new;
+end;
+$$;
 
--- save_capture now takes who pays for this session. A no-show is always billed to the patient.
-drop function public.save_capture(uuid, uuid, timestamptz, public.session_outcome, text, jsonb);
+create trigger sync_payer_type before insert or update on public.patients
+  for each row execute function public.sync_payer_type();
 
+-- save_capture now also takes who pays for this session. A no-show is always billed to the patient.
+-- The old six-argument version stays until the clean-up, unused.
 create function public.save_capture(
   p_session_id uuid,
   p_patient_id uuid,
