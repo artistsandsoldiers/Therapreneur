@@ -122,6 +122,57 @@ export type Database = {
           },
         ]
       }
+      events: {
+        Row: {
+          address: string | null
+          created_at: string
+          duration_minutes: number
+          id: string
+          kind: Database["public"]["Enums"]["event_kind"]
+          place_id: string | null
+          practice_id: string
+          starts_at: string
+          title: string | null
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          duration_minutes: number
+          id?: string
+          kind: Database["public"]["Enums"]["event_kind"]
+          place_id?: string | null
+          practice_id: string
+          starts_at: string
+          title?: string | null
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          duration_minutes?: number
+          id?: string
+          kind?: Database["public"]["Enums"]["event_kind"]
+          place_id?: string | null
+          practice_id?: string
+          starts_at?: string
+          title?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "events_place_id_fkey"
+            columns: ["place_id"]
+            isOneToOne: false
+            referencedRelation: "places"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "events_practice_id_fkey"
+            columns: ["practice_id"]
+            isOneToOne: false
+            referencedRelation: "practices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       expense_categories: {
         Row: {
           created_at: string
@@ -728,39 +779,52 @@ export type Database = {
       }
       sessions: {
         Row: {
+          at_patient_home: boolean
           created_at: string
           id: string
           note: string | null
           outcome: Database["public"]["Enums"]["session_outcome"] | null
           patient_id: string
+          place_id: string | null
           practice_id: string
           series_id: string | null
           starts_at: string
           duration_minutes: number
         }
         Insert: {
+          at_patient_home?: boolean
           created_at?: string
           id?: string
           note?: string | null
           outcome?: Database["public"]["Enums"]["session_outcome"] | null
           patient_id: string
+          place_id?: string | null
           practice_id: string
           series_id?: string | null
           starts_at: string
           duration_minutes?: number
         }
         Update: {
+          at_patient_home?: boolean
           created_at?: string
           id?: string
           note?: string | null
           outcome?: Database["public"]["Enums"]["session_outcome"] | null
           patient_id?: string
+          place_id?: string | null
           practice_id?: string
           series_id?: string | null
           starts_at?: string
           duration_minutes?: number
         }
         Relationships: [
+          {
+            foreignKeyName: "sessions_place_id_fkey"
+            columns: ["place_id"]
+            isOneToOne: false
+            referencedRelation: "places"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "sessions_patient_id_fkey"
             columns: ["patient_id"]
@@ -979,6 +1043,7 @@ export type Database = {
     Enums: {
       bill_to: "medical_aid" | "patient"
       business_type: "sole_proprietor" | "inc"
+      event_kind: "meeting" | "training" | "errand" | "other"
       other_income_kind: "salary" | "interest" | "rent" | "other"
       profession: "occupational_therapy" | "physiotherapy" | "speech_therapy"
       referrer_kind:

@@ -5,13 +5,15 @@ import interactionPlugin from "@fullcalendar/interaction";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import type { EventChangeArg, EventInput, EventSourceFuncArg } from "@fullcalendar/core";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { loadCalendar, moveSession, type CalendarSession, type Scope } from "./actions";
+import { loadCalendar, loadEvents, moveEvent, moveSession, type CalendarEvent, type CalendarSession, type Scope } from "./actions";
 import { BookForm, type BookFormProps } from "./book-form";
+import { EventForm } from "./event-form";
 import { SessionSheet } from "./session-sheet";
 import { Modal } from "../modal";
-import { button, secondaryButton } from "@/app/ui";
+import { button, field, label, secondaryButton } from "@/app/ui";
 import { addDaysLocal, sessionState } from "@/lib/calendar";
 import { friendlyDate, toLocalInput } from "@/lib/dates";
+import { EVENT_KINDS, eventTitle, type EventKind } from "@/lib/events";
 
 // The calendar shows South African wall-clock times whatever the device's time zone: times go in as
 // "YYYY-MM-DDTHH:mm" and the calendar treats them as UTC, so nothing is shifted on the way in or out.
@@ -22,13 +24,20 @@ const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "
 
 type Props = Omit<BookFormProps, "startsAt" | "durationMinutes" | "onBooked"> & { sessionMinutes: number };
 
+/** What "New" adds: a patient session, or an event that isn't one. */
+type NewKind = "session" | EventKind;
+
+const NEW_KINDS: [NewKind, string][] = [["session", "Patient session"], ...EVENT_KINDS];
+
 /** Desktop: a week to drag sessions around in. Phone: one day at a time, with the week's days above it. */
 export function CalendarView({ sessionMinutes, ...formProps }: Props) {
   const calendar = useRef<FullCalendar>(null);
   const [wide, setWide] = useState<boolean | null>(null);
   const [shown, setShown] = useState<{ start: string; end: string }>({ start: "", end: "" });
-  const [booking, setBooking] = useState<{ startsAt: string; durationMinutes: number } | null>(null);
+  const [booking, setBooking] = useState<{ kind: NewKind; startsAt: string; durationMinutes: number } | null>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [open, setOpen] = useState<CalendarSession | null>(null);
+  const [openEvent, setOpenEvent] = useState<CalendarEvent | null>(null);
   // A dragged repeat waits here while she picks whether the later sessions move too.
   const [dragged, setDragged] = useState<{ change: EventChangeArg; startsAt: string; durationMinutes: number } | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -46,8 +55,20 @@ export function CalendarView({ sessionMinutes, ...formProps }: Props) {
 
   // Kept the same between renders, or the calendar would load the sessions again each time.
   const events = useCallback(async (info: EventSourceFuncArg): Promise<EventInput[]> => {
-    const sessions = await loadCalendar(wall(info.start), wall(info.end));
-    return sessions.map((session) => {
+    const [sessions, events] = await Promise.all([loadCalendar(wall(info.start), wall(info.end)), loadEvents(wall(info.start), wall(info.end))]);
+    const eventInputs = events.map((event) => {
+      const start = toLocalInput(new Date(event.startsAt));
+      return {
+        id: `event-${event.id}`,
+        start,
+        end: addMinutes(start, event.durationMinutes),
+        title: eventTitle(event),
+        classNames: ["calendar-event"],
+        editable: Boolean(wide),
+        extendedProps: { event },
+      };
+    });
+    return [...eventInputs, ...sessions.map((session) => {
       const start = toLocalInput(new Date(session.startsAt));
       return {
         id: session.id,
@@ -58,12 +79,13 @@ export function CalendarView({ sessionMinutes, ...formProps }: Props) {
         editable: Boolean(wide) && !session.claimed,
         extendedProps: { session },
       };
-    });
+    })];
   }, [wide]);
 
-  function book(startsAt: string, durationMinutes = sessionMinutes) {
+  function book(startsAt: string, durationMinutes = sessionMinutes, kind: NewKind = "session") {
     setError(null);
-    setBooking({ startsAt, durationMinutes });
+    setMenuOpen(false);
+    setBooking({ kind, startsAt, durationMinutes });
   }
 
   async function move(startsAt: string, durationMinutes: number, change: EventChangeArg, scope: Scope) {
@@ -77,9 +99,20 @@ export function CalendarView({ sessionMinutes, ...formProps }: Props) {
 
   function changed(change: EventChangeArg) {
     setError(null);
-    const session = change.event.extendedProps.session as CalendarSession;
     const startsAt = wall(change.event.start!);
     const durationMinutes = Math.round((change.event.end!.getTime() - change.event.start!.getTime()) / 60000);
+    const event = change.event.extendedProps.event as CalendarEvent | undefined;
+    if (event) {
+      moveEvent({ id: event.id, startsAt, durationMinutes }).then((result) => {
+        if (result.error) {
+          change.revert();
+          setError(result.error);
+        }
+        refresh();
+      });
+      return;
+    }
+    const session = change.event.extendedProps.session as CalendarSession;
     if (session.seriesId && !session.outcome) setDragged({ change, startsAt, durationMinutes });
     else move(startsAt, durationMinutes, change, "one");
   }
@@ -101,7 +134,24 @@ export function CalendarView({ sessionMinutes, ...formProps }: Props) {
         </div>
         <div className="flex items-center gap-3">
           <span className="text-sm text-neutral-500">{shown.start && (wide ? weekTitle(shown.start, shown.end) : friendlyDate(day))}</span>
-          <button type="button" onClick={() => book(nextHour())} className={button}>Book session</button>
+          <div className="relative">
+            <button type="button" onClick={() => setMenuOpen(!menuOpen)} aria-expanded={menuOpen} className={button}>New</button>
+            {menuOpen && (
+              <ul className="absolute right-0 z-20 mt-1 w-48 overflow-hidden rounded-md border border-neutral-200 bg-white py-1 shadow-lg">
+                {NEW_KINDS.map(([kind, text]) => (
+                  <li key={kind}>
+                    <button
+                      type="button"
+                      onClick={() => book(nextHour(), kind === "session" ? sessionMinutes : 60, kind)}
+                      className="block w-full px-3 py-2 text-left hover:bg-neutral-50"
+                    >
+                      {text}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
         </div>
       </div>
 
@@ -157,12 +207,24 @@ export function CalendarView({ sessionMinutes, ...formProps }: Props) {
               api()?.unselect();
             }}
             dateClick={(info) => !wide && book(wall(info.date))}
-            eventClick={(info) => setOpen(info.event.extendedProps.session as CalendarSession)}
+            eventClick={(info) =>
+              info.event.extendedProps.event
+                ? setOpenEvent(info.event.extendedProps.event as CalendarEvent)
+                : setOpen(info.event.extendedProps.session as CalendarSession)
+            }
             eventDrop={changed}
             eventResize={changed}
             events={events}
             datesSet={(info) => setShown({ start: wall(info.start), end: wall(info.end) })}
             eventContent={(arg) => {
+              if (arg.event.extendedProps.event) {
+                return (
+                  <div className="overflow-hidden px-1 py-0.5 text-xs leading-tight">
+                    <div className="truncate font-medium">{arg.event.title}</div>
+                    <div className="opacity-80">{arg.timeText}</div>
+                  </div>
+                );
+              }
               const session = arg.event.extendedProps.session as CalendarSession;
               return (
                 <div className="overflow-hidden px-1 py-0.5 text-xs leading-tight">
@@ -178,14 +240,57 @@ export function CalendarView({ sessionMinutes, ...formProps }: Props) {
         </div>
       )}
 
-      <Modal open={booking !== null} onClose={() => setBooking(null)} title="Book session">
+      <Modal open={booking !== null} onClose={() => setBooking(null)} title="New">
         {booking && (
-          <BookForm
-            {...formProps}
-            startsAt={booking.startsAt}
-            durationMinutes={booking.durationMinutes}
-            onBooked={() => {
-              setBooking(null);
+          <div className="flex flex-col gap-6">
+            <section>
+              <label htmlFor="new-kind" className={label}>What</label>
+              <select
+                id="new-kind"
+                value={booking.kind}
+                onChange={(event) => setBooking({ ...booking, kind: event.target.value as NewKind })}
+                className={field}
+              >
+                {NEW_KINDS.map(([kind, text]) => <option key={kind} value={kind}>{text}</option>)}
+              </select>
+            </section>
+            {booking.kind === "session" ? (
+              <BookForm
+                {...formProps}
+                startsAt={booking.startsAt}
+                durationMinutes={booking.durationMinutes}
+                onBooked={() => {
+                  setBooking(null);
+                  refresh();
+                }}
+              />
+            ) : (
+              <EventForm
+                key={booking.kind}
+                kind={booking.kind}
+                places={formProps.places}
+                startsAt={booking.startsAt}
+                durationMinutes={booking.durationMinutes}
+                onDone={() => {
+                  setBooking(null);
+                  refresh();
+                }}
+              />
+            )}
+          </div>
+        )}
+      </Modal>
+
+      <Modal open={openEvent !== null} onClose={() => setOpenEvent(null)} title={openEvent ? eventTitle(openEvent) : "Event"}>
+        {openEvent && (
+          <EventForm
+            kind={openEvent.kind}
+            places={formProps.places}
+            event={openEvent}
+            startsAt={openEvent.startsAt}
+            durationMinutes={openEvent.durationMinutes}
+            onDone={() => {
+              setOpenEvent(null);
               refresh();
             }}
           />
@@ -196,6 +301,7 @@ export function CalendarView({ sessionMinutes, ...formProps }: Props) {
         {open && (
           <SessionSheet
             session={open}
+            places={formProps.places}
             onChanged={() => {
               setOpen(null);
               refresh();

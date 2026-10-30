@@ -4,9 +4,11 @@ import { useState, useTransition } from "react";
 import { bookSessions } from "./actions";
 import { AddPatient } from "../sessions/capture-form";
 import { WhenFields } from "../sessions/when-fields";
+import { WhereField } from "./where-field";
 import { button, field, label, secondaryButton } from "@/app/ui";
 import { repeatStarts, type Repeat } from "@/lib/calendar";
 import type { CaptureData, Patient } from "@/lib/capture-data";
+import { whereValue } from "@/lib/events";
 
 export type BookFormProps = Pick<CaptureData, "medicalAids" | "referrers" | "places" | "defaultMedicalAidId"> & {
   patients: Patient[];
@@ -21,6 +23,8 @@ type Ends = "after" | "on";
 export function BookForm({ medicalAids, referrers, places, defaultMedicalAidId, onBooked, ...props }: BookFormProps) {
   const [patients, setPatients] = useState(props.patients);
   const [patientId, setPatientId] = useState("");
+  const [where, setWhere] = useState("");
+  const [homeAddress, setHomeAddress] = useState("");
   const [addingPatient, setAddingPatient] = useState(patients.length === 0);
   const [startsAt, setStartsAt] = useState(props.startsAt);
   const [duration, setDuration] = useState(String(props.durationMinutes));
@@ -35,6 +39,14 @@ export function BookForm({ medicalAids, referrers, places, defaultMedicalAidId, 
   const repeat: Repeat | null = everyWeeks
     ? { everyWeeks, ends: ends === "after" ? { after: Number(count) } : { on: endsOn } }
     : null;
+  const patient = patients.find((p) => p.id === patientId);
+
+  // A session starts where its patient is usually seen.
+  function pickPatient(picked: Patient) {
+    changed(setPatientId)(picked.id);
+    setWhere(whereValue({ place_id: picked.usual_place_id, at_patient_home: picked.seen_at_home }));
+  }
+
   const sessions = repeat && /^\d{4}-\d{2}-\d{2}T/.test(startsAt) ? repeatStarts(startsAt, repeat).length : 1;
 
   // Any change means the overlaps shown no longer apply.
@@ -53,6 +65,8 @@ export function BookForm({ medicalAids, referrers, places, defaultMedicalAidId, 
         startsAt,
         durationMinutes: Number(duration),
         repeat,
+        where,
+        homeAddress,
         allowClashes: clashes.length > 0,
       });
       if (result.error) setError(result.error);
@@ -67,7 +81,12 @@ export function BookForm({ medicalAids, referrers, places, defaultMedicalAidId, 
         <div className="flex items-end gap-2">
           <div className="flex-1">
             <label htmlFor="patient" className={label}>Patient</label>
-            <select id="patient" value={patientId} onChange={(event) => changed(setPatientId)(event.target.value)} className={field}>
+            <select
+              id="patient"
+              value={patientId}
+              onChange={(event) => pickPatient(patients.find((p) => p.id === event.target.value)!)}
+              className={field}
+            >
               <option value="" disabled>{patients.length ? "Choose a patient…" : "No patients yet"}</option>
               {patients.map((p) => (
                 <option key={p.id} value={p.id}>{p.first_name} {p.last_name}</option>
@@ -91,7 +110,7 @@ export function BookForm({ medicalAids, referrers, places, defaultMedicalAidId, 
               setPatients((current) =>
                 [...current, added].sort((a, b) => `${a.first_name} ${a.last_name}`.localeCompare(`${b.first_name} ${b.last_name}`)),
               );
-              setPatientId(added.id);
+              pickPatient(added);
               setAddingPatient(false);
             }}
           />
@@ -99,6 +118,15 @@ export function BookForm({ medicalAids, referrers, places, defaultMedicalAidId, 
       </section>
 
       <WhenFields startsAt={startsAt} onStartsAt={changed(setStartsAt)} duration={duration} onDuration={changed(setDuration)} />
+
+      <WhereField
+        places={places}
+        value={where}
+        onChange={setWhere}
+        needsAddress={!patient?.home_address}
+        address={homeAddress}
+        onAddress={setHomeAddress}
+      />
 
       <section className="flex flex-col gap-3">
         <label htmlFor="repeat" className={label}>Repeat</label>

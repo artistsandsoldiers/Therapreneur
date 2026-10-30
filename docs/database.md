@@ -19,7 +19,8 @@ What we store in Supabase, in plain English. Money is whole cents.
 - **cars**: the car used for work: name, registration, and the days it started and stopped. One at a time.
 - **odometer_readings**: a car's km on a day.
 - **referrers**: who sends a practice patients: name, kind (doctor, website, social media…) and a doctor's practice number.
-- **sessions**: one appointment: when, how long (minutes), attended or no-show (empty while booked), the note, and a series id shared by repeats.
+- **sessions**: one appointment: when, how long (minutes), where (a place or the patient's home, starting where the patient is usually seen), attended or no-show (empty while booked), the note, and a series id shared by repeats.
+- **events**: a meeting, training, errand or other work in the calendar: when, how long, an optional title, and a place or an address.
 - **invoices**: one per session: number (1, 2, 3… per practice), date, due date (30 days later), who pays (from the patient, changeable per session; no-shows always the patient), the date it was paid in full and its remittance. Once claimed, its claim batch and the patient details sent.
 - **claim_batches**: one email of claims to a medical aid: when and where sent, and its reference number.
 - **remittances**: one payment from a medical aid: date and reference.
@@ -42,6 +43,7 @@ A practice has patients, patients have sessions, and each captured session has o
 - **Row level security** stops one practice seeing another's rows or files, even with an app bug.
 - **save_capture** saves a session, invoice and lines together, captures a booked session, and gives out invoice numbers one at a time.
 - **Claimed invoices are locked.** Once a batch is sent, the database refuses to change its invoices, lines, or session (except the note and payment). **start_claim_batch** checks and reserves invoices before the email goes. **record_remittance** pays only sent, unpaid claims.
+- Places used by sessions or events can't be deleted.
 - **start_car** starts a new car and ends the current one on the same day with its last reading.
 - **Invites:** an agent adds a **practices** row with the email; the first login links to it.
 - **Logos** and **receipts** live in private file storage buckets, one folder per practice.
