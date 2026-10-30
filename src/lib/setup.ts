@@ -22,6 +22,7 @@ export type SetupDetails = {
   practice_number: string | null;
   hpcsa_number: string | null;
   address: string;
+  home_address: string | null;
   phone: string | null;
   email: string | null;
   bank_name: string;
@@ -86,6 +87,7 @@ export function parseSetupForm(form: FormData): { ok: true; details: SetupDetail
       practice_number: optional("practice_number"),
       hpcsa_number: optional("hpcsa_number"),
       address: text("address"),
+      home_address: optional("home_address"),
       phone: optional("phone"),
       email: optional("email"),
       bank_name: text("bank_name"),

@@ -156,6 +156,29 @@ _Avoid_: company, Pty
 Invoiced income less expenses, for a month or the tax year so far.
 _Avoid_: net income, earnings
 
+**Place**:
+Somewhere the practitioner sees patients, like her rooms or a hospital, with its address. A session happens at a place or at the patient's home.
+_Avoid_: location, venue, practice address
+
+**Regular place**:
+A place the practitioner works at regularly. SARS counts driving there from home as private. Every place is regular unless a tax practitioner says otherwise.
+_Avoid_: workplace, base
+
+**Trip**:
+One drive between two stops in a day, worked out from the calendar. **Business** or **private**, as SARS counts it.
+_Avoid_: journey, mileage
+
+**Logbook**:
+The SARS record of every business trip in a car, per tax year, with odometer readings at the start and end.
+_Avoid_: travel log, mileage log
+
+**Odometer reading**:
+What the car's odometer showed on a day, in km. Readings give the total km driven, and so the business share.
+
+**Business share**:
+Business km as a percentage of all km driven in the car. Vehicle costs count only this share.
+_Avoid_: business use percentage, business portion
+
 ## Relationships
 
 - A **Practice** has one **Practitioner** and many **Patients**.
@@ -164,6 +187,7 @@ _Avoid_: net income, earnings
 - A medical aid **Invoice** becomes a **Claim**, sent in a **Claim batch** that gets one **Reference number**.
 - A **Remittance** is reconciled against **Claims** to record **Payments**.
 - An **Expense** has one **Expense category** and may have a **Receipt**.
+- A **Patient** is usually seen at one **Place** or at home. A day's sessions make **Trips**, and a car's business trips and **Odometer readings** make its **Logbook**.
 
 ## Flagged ambiguities
 

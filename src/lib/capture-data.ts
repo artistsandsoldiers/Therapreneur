@@ -4,22 +4,25 @@ import type { Practice } from "./practice";
 import { DEFAULT_MEDICAL_AID, type Rate } from "./pricing";
 import { loadReferrers } from "./referrers";
 import type { Database, Tables } from "./supabase/database.types";
+import { loadPlaces } from "./travel";
 
 export type BillingCode = Pick<Tables<"billing_codes">, "id" | "code" | "description" | "is_no_show">;
 export type Patient = Tables<"patients">;
 export type MedicalAid = Tables<"medical_aids">;
 
-/** What the patient form picks from: the medical aids, the one a new patient starts on, and the practice's referrers. */
+/** What the patient form picks from: the medical aids, the one a new patient starts on, and the practice's referrers and places. */
 export async function loadPatientFormData(supabase: SupabaseClient<Database>) {
-  const [{ data, error }, referrers] = await Promise.all([
+  const [{ data, error }, referrers, places] = await Promise.all([
     supabase.from("medical_aids").select("*").order("name"),
     loadReferrers(supabase),
+    loadPlaces(supabase),
   ]);
   if (error) throw error;
   return {
     medicalAids: data,
     defaultMedicalAidId: data.find((aid) => aid.name === DEFAULT_MEDICAL_AID)?.id ?? "",
     referrers,
+    places,
   };
 }
 
@@ -30,7 +33,7 @@ export async function loadCaptureData(
   fixingSessionId: string | null = null,
 ) {
   const profession = practice.profession ?? "occupational_therapy";
-  const [patients, medicalAids, codes, rates, pastInvoices, referrers] = await Promise.all([
+  const [patients, medicalAids, codes, rates, pastInvoices, referrers, places] = await Promise.all([
     supabase.from("patients").select("*").order("first_name").order("last_name"),
     supabase.from("medical_aids").select("*").order("name"),
     supabase.from("billing_codes").select("id, code, description, is_no_show").eq("profession", profession).order("code"),
@@ -43,6 +46,7 @@ export async function loadCaptureData(
       .select("invoice_lines(billing_code_id, quantity, position), sessions!inner(id, patient_id, starts_at, outcome)")
       .eq("sessions.outcome", "attended"),
     loadReferrers(supabase),
+    loadPlaces(supabase),
   ]);
   const error = patients.error ?? medicalAids.error ?? codes.error ?? rates.error ?? pastInvoices.error;
   if (error) throw error;
@@ -53,6 +57,7 @@ export async function loadCaptureData(
     patients: patients.data ?? [],
     medicalAids: medicalAids.data ?? [],
     referrers,
+    places,
     codes: allCodes.filter((code) => !code.is_no_show),
     noShowCode: allCodes.find((code) => code.is_no_show) ?? null,
     rates: (rates.data ?? []).map<Rate>((rate) => ({

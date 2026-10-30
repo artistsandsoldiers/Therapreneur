@@ -11,7 +11,7 @@ export const metadata: Metadata = { title: "Edit patient · Therapreneur" };
 export default async function EditPatientPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const { supabase } = await requireSetUpPractice();
-  const [{ medicalAids, defaultMedicalAidId, referrers }, { data: patient }] = await Promise.all([
+  const [{ medicalAids, defaultMedicalAidId, referrers, places }, { data: patient }] = await Promise.all([
     loadPatientFormData(supabase),
     supabase.from("patients").select("*").eq("id", id).maybeSingle(),
   ]);
@@ -22,7 +22,7 @@ export default async function EditPatientPage({ params }: { params: Promise<{ id
       <Link href={`/patients/${patient.id}`} className="text-sm text-neutral-500">← {patient.first_name} {patient.last_name}</Link>
       <h1 className="mt-3 mb-2 text-2xl font-semibold tracking-tight">Edit patient</h1>
       <p className="mb-6 text-sm text-neutral-500">Changes also show on this patient&apos;s existing invoices.</p>
-      <PatientForm medicalAids={medicalAids} defaultMedicalAidId={defaultMedicalAidId} referrers={referrers} patient={patient} />
+      <PatientForm medicalAids={medicalAids} defaultMedicalAidId={defaultMedicalAidId} referrers={referrers} places={places} patient={patient} />
     </main>
   );
 }

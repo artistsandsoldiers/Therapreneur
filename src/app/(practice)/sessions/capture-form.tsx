@@ -32,7 +32,7 @@ export type CaptureFormProps = CaptureData & {
 };
 
 export function CaptureForm(props: CaptureFormProps) {
-  const { codes, rates, medicalAids, referrers, defaultMedicalAidId, adjustmentPercent, noShowPriceCents, initial } = props;
+  const { codes, rates, medicalAids, referrers, places, defaultMedicalAidId, adjustmentPercent, noShowPriceCents, initial } = props;
   // Past patients stay out of the picker, unless this session is already theirs.
   const [patients, setPatients] = useState(() =>
     props.patients.filter((p) => !p.past_since || p.id === initial.patientId),
@@ -158,6 +158,7 @@ export function CaptureForm(props: CaptureFormProps) {
           <AddPatient
             medicalAids={medicalAids}
             referrers={referrers}
+            places={places}
             defaultMedicalAidId={defaultMedicalAidId}
             onCancel={patients.length ? () => setAddingPatient(false) : undefined}
             onAdded={(added) => {
@@ -401,12 +402,14 @@ function CodePicker({ codes, onPick }: { codes: CaptureData["codes"]; onPick: (i
 export function AddPatient({
   medicalAids,
   referrers,
+  places,
   defaultMedicalAidId,
   onAdded,
   onCancel,
 }: {
   medicalAids: CaptureData["medicalAids"];
   referrers: CaptureData["referrers"];
+  places: CaptureData["places"];
   defaultMedicalAidId: string;
   onAdded: (patient: Patient) => void;
   onCancel?: () => void;
@@ -432,7 +435,7 @@ export function AddPatient({
   return (
     <div className="mt-3 flex flex-col gap-3 rounded-lg border border-neutral-200 p-4" id="add-patient">
       <h2 className="font-semibold">New patient</h2>
-      <PatientFields medicalAids={medicalAids} referrers={referrers} defaultMedicalAidId={defaultMedicalAidId} />
+      <PatientFields medicalAids={medicalAids} referrers={referrers} places={places} defaultMedicalAidId={defaultMedicalAidId} />
       <div className="flex gap-2">
         <button
           type="button"

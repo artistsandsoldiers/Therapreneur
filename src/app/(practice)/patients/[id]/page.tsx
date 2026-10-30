@@ -20,7 +20,7 @@ export default async function PatientPage({ params }: { params: Promise<{ id: st
   const { data: patient } = await supabase
     .from("patients")
     .select(
-      "*, medical_aids(name), referrers(name, kind, practice_number), sessions(id, starts_at, duration_minutes, outcome, note, invoices(id, number, invoice_lines(code, quantity, unit_price_cents, position)))",
+      "*, medical_aids(name), referrers(name, kind, practice_number), places(name), sessions(id, starts_at, duration_minutes, outcome, note, invoices(id, number, invoice_lines(code, quantity, unit_price_cents, position)))",
     )
     .eq("id", id)
     .maybeSingle();
@@ -89,6 +89,12 @@ export default async function PatientPage({ params }: { params: Promise<{ id: st
               </dd>
             </>
           )}
+          <dt className="text-neutral-500">Usually seen</dt>
+          <dd>
+            {patient.seen_at_home
+              ? <>At their home<span className="block text-neutral-500 whitespace-pre-line">{patient.home_address}</span></>
+              : patient.places ? `At ${patient.places.name}` : "Not set"}
+          </dd>
           <dt className="text-neutral-500">Date of birth</dt>
           <dd>{patient.date_of_birth ? formatDate(patient.date_of_birth) : "Not added yet"}</dd>
           <dt className="text-neutral-500">ICD-10</dt>

@@ -4,6 +4,7 @@ Changes a practitioner would notice, newest first. Each entry is one line, and t
 
 ## Unreleased
 
+- Travel (first step of the logbook): Settings now takes your home address, the places you see patients, and your car with odometer readings, including changing car. Each patient can be usually seen at one of your places or at their home, with their address.
 - Calendar: book sessions ahead on a week view (one day at a time on a phone), repeat them weekly or every 2 weeks, drag to move or change length on desktop, and delete them. Once a booked session is over, capture it or mark a no-show in one tap. Home shows how many are waiting to be captured.
 - Home: the first page after logging in greets you by name and shows live tiles for income, tax, what you're owed, claims, invoices, patients and expenses, each opening its screen. Setup and Settings now ask for your first and last name.
 - Referrers: record who referred each patient (a doctor, your website, social media and so on), add new ones from the patient form, and see and filter income by referrer on Performance.

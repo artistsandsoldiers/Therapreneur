@@ -105,6 +105,17 @@ export function SetupForm({ practice, priceExample }: { practice: Practice; pric
         </div>
       </fieldset>
 
+      <fieldset className="flex flex-col gap-4">
+        <legend className="mb-1 text-lg font-semibold">Travel</legend>
+        <div>
+          <label htmlFor="home_address" className={label}>Home address (optional)</label>
+          <textarea id="home_address" name="home_address" rows={2} defaultValue={practice.home_address ?? ""} className={field} />
+          <p className="mt-1 text-sm text-neutral-500">
+            Your work days start and end here, so your travel logbook can work out your trips. Never shown to patients.
+          </p>
+        </div>
+      </fieldset>
+
       <div className="flex flex-col gap-3">
         <button type="submit" disabled={pending} className={button}>
           {pending ? "Saving…" : isFirstTime ? "Finish setup" : "Save"}
