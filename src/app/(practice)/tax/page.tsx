@@ -70,13 +70,13 @@ export default async function TaxPage() {
     if (!(await carryForward(supabase, practice.id, year))) redirect("/tax/setup");
     current = await loadTaxYear(supabase, year);
   }
-  const estimate = await estimateFor(supabase, year, { ...current, row: current.row! }, practice.date_of_birth, today);
+  const estimate = await estimateFor(supabase, year, { ...current, row: current.row! }, practice, today);
 
   // Between March and September, last year may still need a top-up.
   const lastYearOpen = today <= dueDates(year - 1)["top-up"];
   const last = lastYearOpen ? await loadTaxYear(supabase, year - 1) : null;
   const lastEstimate = last?.row
-    ? await estimateFor(supabase, year - 1, { ...last, row: last.row }, practice.date_of_birth, today)
+    ? await estimateFor(supabase, year - 1, { ...last, row: last.row }, practice, today)
     : null;
 
   const payments = [

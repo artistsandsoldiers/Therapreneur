@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { businessPart, businessShare, carOn, isBusinessTrip, missingDistances, pairKey, workOutTrips, type Stop, type Visit } from "./trips";
+import { businessPart, businessShare, carOn, claimableCents, combinedShare, isBusinessTrip, taxYearOfDate, missingDistances, pairKey, workOutTrips, type Stop, type Visit } from "./trips";
 
 const HOME = "1 Home St";
 const rooms: Stop = { kind: "place", id: "r", name: "My rooms", address: "2 Rooms Rd", regular: true };
@@ -129,5 +129,39 @@ describe("businessPart", () => {
   it("rounds to whole cents", () => {
     expect(businessPart(100001, 0.25)).toBe(25000);
     expect(businessPart(99999, 1 / 3)).toBe(33333);
+  });
+});
+
+describe("combinedShare", () => {
+  it("adds up every car's km in the year", () => {
+    const share = (businessKm: number, totalKm: number | null) => ({ share: totalKm ? businessKm / totalKm : null, businessKm, totalKm, from: null, to: null });
+    expect(combinedShare([share(100, 400), share(300, 400)])).toBe(0.5);
+    expect(combinedShare([share(100, 400), share(0, null)])).toBe(0.25);
+    expect(combinedShare([])).toBeNull();
+  });
+});
+
+describe("claimableCents", () => {
+  const shares = new Map([[2026, 0.4], [2025, null]]);
+
+  it("counts other expenses in full", () => {
+    expect(claimableCents({ spentOn: "2026-10-01", amountCents: 50000, businessShare: false }, shares)).toBe(50000);
+  });
+
+  it("counts vehicle costs at the business share of the tax year they were paid in", () => {
+    expect(claimableCents({ spentOn: "2026-10-01", amountCents: 50000, businessShare: true }, shares)).toBe(20000);
+    expect(claimableCents({ spentOn: "2027-02-28", amountCents: 1001, businessShare: true }, shares)).toBe(400);
+  });
+
+  it("counts nothing for vehicle costs until the logbook has a business share", () => {
+    expect(claimableCents({ spentOn: "2026-02-10", amountCents: 50000, businessShare: true }, shares)).toBe(0);
+    expect(claimableCents({ spentOn: "2028-04-01", amountCents: 50000, businessShare: true }, shares)).toBe(0);
+  });
+});
+
+describe("taxYearOfDate", () => {
+  it("names the tax year by the year it starts on 1 March", () => {
+    expect(taxYearOfDate("2026-03-01")).toBe(2026);
+    expect(taxYearOfDate("2026-02-28")).toBe(2025);
   });
 });

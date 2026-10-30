@@ -1,6 +1,9 @@
 import type { createClient } from "@/lib/supabase/server";
+import { loadBusinessShares } from "@/lib/logbook-data";
+import type { Practice } from "@/lib/practice";
 import { invoiceTotal } from "@/lib/pricing";
 import { estimateTax, taxYearDates, type OtherIncome, type TaxEstimate } from "@/lib/tax";
+import { claimableCents } from "@/lib/trips";
 
 type Client = Awaited<ReturnType<typeof createClient>>;
 
@@ -31,11 +34,12 @@ export async function firstRecordDate(supabase: Client, year: number): Promise<s
   return dates.sort()[0] ?? null;
 }
 
-/** Invoiced (by invoice date) and spent in the app from a date to the end of its tax year. */
-async function appTotals(supabase: Client, from: string, to: string) {
-  const [invoices, expenses] = await Promise.all([
+/** Invoiced (by invoice date) and spent in the app from a date to the end of its tax year. Vehicle costs count their business share. */
+async function appTotals(supabase: Client, practice: Practice, year: number, from: string, to: string) {
+  const [invoices, expenses, shares] = await Promise.all([
     supabase.from("invoices").select("invoice_lines(quantity, unit_price_cents)").gte("issued_on", from).lte("issued_on", to),
-    supabase.from("expenses").select("amount_cents").gte("spent_on", from).lte("spent_on", to),
+    supabase.from("expenses").select("spent_on, amount_cents, expense_categories(business_share)").gte("spent_on", from).lte("spent_on", to),
+    loadBusinessShares(supabase, practice, [year]),
   ]);
   if (invoices.error) throw invoices.error;
   if (expenses.error) throw expenses.error;
@@ -45,7 +49,15 @@ async function appTotals(supabase: Client, from: string, to: string) {
         sum + invoiceTotal(invoice.invoice_lines.map((line) => ({ quantity: line.quantity, unitPriceCents: line.unit_price_cents }))),
       0,
     ),
-    expensesCents: expenses.data.reduce((sum, e) => sum + e.amount_cents, 0),
+    expensesCents: expenses.data.reduce(
+      (sum, e) =>
+        sum +
+        claimableCents(
+          { spentOn: e.spent_on, amountCents: e.amount_cents, businessShare: Boolean(e.expense_categories?.business_share) },
+          shares,
+        ),
+      0,
+    ),
   };
 }
 
@@ -54,11 +66,11 @@ export async function estimateFor(
   supabase: Client,
   year: number,
   taxYear: TaxYear & { row: NonNullable<TaxYear["row"]> },
-  dateOfBirth: string | null,
+  practice: Practice,
   today: string,
 ): Promise<TaxEstimate> {
   const { row } = taxYear;
-  const totals = await appTotals(supabase, row.records_from, taxYearDates(year).end);
+  const totals = await appTotals(supabase, practice, year, row.records_from, taxYearDates(year).end);
   return estimateTax({
     year,
     today,
@@ -67,7 +79,7 @@ export async function estimateFor(
     expensesBeforeCents: row.expenses_before_cents,
     ...totals,
     profitOverrideCents: row.profit_override_cents,
-    dateOfBirth,
+    dateOfBirth: practice.date_of_birth,
     medicalAidMembers: row.medical_aid_members,
     retirementAnnuityMonthlyCents: row.retirement_annuity_monthly_cents,
     otherIncome: taxYear.otherIncome,

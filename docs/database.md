@@ -8,7 +8,7 @@ What we store in Supabase, in plain English. Money is whole cents.
 
 - **medical_aids**: name and claims email (unused while testing).
 - **billing_codes**: every billing code, by profession, with its description. One is the no-show code.
-- **expense_categories**: plain categories like Rooms and rent, each with a hint. Practices add their own too.
+- **expense_categories**: plain categories like Rooms and rent, each with a hint. Practices add their own too. Vehicle costs count only the logbook's business share.
 - **medical_aid_rates**: what each medical aid pays for each billing code, from a date. Empty means no fixed amount. For now only Discovery's 2026 OT rates.
 
 ## A practice's own data (only that practice can see it)

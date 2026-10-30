@@ -1,27 +1,42 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { ReportExpense } from "./expenses";
+import { loadBusinessShares } from "./logbook-data";
 import type { ReportInvoice } from "./performance";
+import type { Practice } from "./practice";
 import { invoiceTotal } from "./pricing";
 import type { Database } from "./supabase/database.types";
+import { claimableCents, taxYearOfDate } from "./trips";
 
-/** Every invoice and expense, ready for the money sums on Performance and Home. */
-export async function loadReportData(supabase: SupabaseClient<Database>): Promise<{ invoices: ReportInvoice[]; expenses: ReportExpense[] }> {
+/**
+ * Every invoice and expense, ready for the money sums on Performance and Home. Vehicle costs count only their
+ * business share from the logbook.
+ */
+export async function loadReportData(
+  supabase: SupabaseClient<Database>,
+  practice: Practice,
+): Promise<{ invoices: ReportInvoice[]; expenses: ReportExpense[] }> {
   const [invoiceRows, expenseRows] = await Promise.all([
     supabase
       .from("invoices")
       .select(
         "id, number, issued_on, paid_on, bill_to, claimed_details, invoice_lines(quantity, unit_price_cents), sessions(patients(id, first_name, last_name, medical_aids(name), referrers(id, name)))",
       ),
-    supabase.from("expenses").select("spent_on, amount_cents, expense_categories(name)"),
+    supabase.from("expenses").select("spent_on, amount_cents, expense_categories(name, business_share)"),
   ]);
   if (invoiceRows.error) throw invoiceRows.error;
   if (expenseRows.error) throw expenseRows.error;
 
-  const expenses: ReportExpense[] = expenseRows.data.map((e) => ({
-    spentOn: e.spent_on,
-    amountCents: e.amount_cents,
-    categoryName: e.expense_categories?.name ?? "Other",
-  }));
+  const split = expenseRows.data.filter((e) => e.expense_categories?.business_share);
+  const shares = split.length ? await loadBusinessShares(supabase, practice, split.map((e) => taxYearOfDate(e.spent_on))) : new Map();
+  const expenses: ReportExpense[] = expenseRows.data.map((e) => {
+    const businessShare = Boolean(e.expense_categories?.business_share);
+    const name = e.expense_categories?.name ?? "Other";
+    return {
+      spentOn: e.spent_on,
+      amountCents: claimableCents({ spentOn: e.spent_on, amountCents: e.amount_cents, businessShare }, shares),
+      categoryName: businessShare ? `${name} (business share)` : name,
+    };
+  });
 
   const invoices: ReportInvoice[] = invoiceRows.data.flatMap((invoice) => {
     const patient = invoice.sessions?.patients;

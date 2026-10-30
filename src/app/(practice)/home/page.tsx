@@ -36,7 +36,7 @@ export default async function HomePage() {
   const today = toLocalInput(now).slice(0, 10);
 
   const [{ invoices, expenses }, toClaim, waiting, patients, tax, booked] = await Promise.all([
-    loadReportData(supabase),
+    loadReportData(supabase, practice),
     supabase.from("invoices").select("invoice_lines(quantity, unit_price_cents)").eq("bill_to", "medical_aid").is("claim_batch_id", null),
     loadOutstandingClaims(supabase),
     supabase.from("patients").select("created_at, past_since"),
@@ -153,7 +153,7 @@ async function taxTile(
   const taxYear = await loadTaxYear(supabase, year);
   if (!taxYear.row) return { big: "New tax year", detail: "Open Tax to start this year's estimate.", soon: false };
 
-  const { next } = await estimateFor(supabase, year, { ...taxYear, row: taxYear.row }, practice.date_of_birth, today);
+  const { next } = await estimateFor(supabase, year, { ...taxYear, row: taxYear.row }, practice, today);
   if (!next || next.amountCents === 0) {
     return { big: "Nothing to pay for now", detail: next ? `Next payment due ${friendlyDate(next.due)}.` : "This tax year's payments are done.", soon: false };
   }

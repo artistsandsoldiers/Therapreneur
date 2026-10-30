@@ -18,7 +18,7 @@ Robynne Stock (solo adult OT) tracks expenses in Excel, October 2026; Barry says
 
 ## Out of scope
 - Bank statement import, recurring expenses, VAT.
-- Mapping categories to SARS, the vehicle logbook and the tax year summary. They are the next pieces of the tax pack.
+- Mapping categories to SARS and the tax year summary. They are the next pieces of the tax pack. Vehicle costs count their logbook business share (travel.md).
 - A screen for us to manage the central category list. An agent changes it for now.
 
 ## Open questions
