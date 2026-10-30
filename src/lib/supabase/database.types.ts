@@ -122,6 +122,41 @@ export type Database = {
           },
         ]
       }
+      distances: {
+        Row: {
+          address_a: string
+          address_b: string
+          created_at: string
+          id: string
+          km: number
+          practice_id: string
+        }
+        Insert: {
+          address_a: string
+          address_b: string
+          created_at?: string
+          id?: string
+          km: number
+          practice_id: string
+        }
+        Update: {
+          address_a?: string
+          address_b?: string
+          created_at?: string
+          id?: string
+          km?: number
+          practice_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "distances_practice_id_fkey"
+            columns: ["practice_id"]
+            isOneToOne: false
+            referencedRelation: "practices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       events: {
         Row: {
           address: string | null
@@ -616,6 +651,7 @@ export type Database = {
       practices: {
         Row: {
           home_address: string | null
+          home_to_patient_business: boolean
           hpcsa_number: string | null
           address: string | null
           bank_account_holder: string | null
@@ -644,6 +680,7 @@ export type Database = {
         }
         Insert: {
           home_address?: string | null
+          home_to_patient_business?: boolean
           hpcsa_number?: string | null
           address?: string | null
           bank_account_holder?: string | null
@@ -672,6 +709,7 @@ export type Database = {
         }
         Update: {
           home_address?: string | null
+          home_to_patient_business?: boolean
           hpcsa_number?: string | null
           address?: string | null
           bank_account_holder?: string | null

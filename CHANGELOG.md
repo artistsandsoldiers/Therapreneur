@@ -4,6 +4,7 @@ Changes a practitioner would notice, newest first. Each entry is one line, and t
 
 ## Unreleased
 
+- Logbook: your business trips for SARS, worked out from your calendar with no admin. Type each distance once, add an odometer reading now and then, and see your business km and business share per car and tax year. Download it as a spreadsheet, with or without patient names.
 - Calendar: "New" now adds a patient session, meeting, training, errand or other work. Sessions say where they are (one of your places or the patient's home), starting where the patient is usually seen, and you can change it. Meetings and errands take a place or an address, for your travel logbook.
 - Travel (first step of the logbook): Settings now takes your home address, the places you see patients, and your car with odometer readings, including changing car. Each patient can be usually seen at one of your places or at their home, with their address.
 - Calendar: book sessions ahead on a week view (one day at a time on a phone), repeat them weekly or every 2 weeks, drag to move or change length on desktop, and delete them. Once a booked session is over, capture it or mark a no-show in one tap. Home shows how many are waiting to be captured.

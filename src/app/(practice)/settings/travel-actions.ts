@@ -9,6 +9,12 @@ export type TravelFormState = { error?: string; saved?: boolean };
 
 const today = () => toLocalInput(new Date()).slice(0, 10);
 
+// Places, cars and readings all feed the logbook.
+function refresh() {
+  revalidatePath("/settings");
+  revalidatePath("/logbook");
+}
+
 /** Adds a place, or saves changes to one when there's an id. */
 export async function savePlace(placeId: string | null, _previous: TravelFormState, form: FormData): Promise<TravelFormState> {
   const parsed = parsePlaceForm(form);
@@ -23,7 +29,7 @@ export async function savePlace(placeId: string | null, _previous: TravelFormSta
     console.error("Saving place failed", error);
     return { error: "Something went wrong. Please try again." };
   }
-  revalidatePath("/settings");
+  refresh();
   return { saved: true };
 }
 
@@ -37,7 +43,7 @@ export async function deletePlace(placeId: string): Promise<TravelFormState> {
     console.error("Deleting place failed", error);
     return { error: "Something went wrong. Please try again." };
   }
-  revalidatePath("/settings");
+  refresh();
   return {};
 }
 
@@ -74,7 +80,7 @@ export async function startCar(_previous: TravelFormState, form: FormData): Prom
     console.error("Starting car failed", error);
     return { error: "Something went wrong. Please try again." };
   }
-  revalidatePath("/settings");
+  refresh();
   return { saved: true };
 }
 
@@ -91,7 +97,7 @@ export async function saveCarDetails(carId: string, _previous: TravelFormState, 
     console.error("Saving car failed", error);
     return { error: "Something went wrong. Please try again." };
   }
-  revalidatePath("/settings");
+  refresh();
   return { saved: true };
 }
 
@@ -120,7 +126,7 @@ export async function addReading(carId: string, _previous: TravelFormState, form
     console.error("Saving odometer reading failed", error);
     return { error: "Something went wrong. Please try again." };
   }
-  revalidatePath("/settings");
+  refresh();
   return { saved: true };
 }
 
@@ -142,6 +148,6 @@ export async function deleteReading(readingId: string): Promise<TravelFormState>
     console.error("Deleting odometer reading failed", error);
     return { error: "Something went wrong. Please try again." };
   }
-  revalidatePath("/settings");
+  refresh();
   return {};
 }

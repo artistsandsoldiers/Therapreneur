@@ -72,7 +72,7 @@ function CarDetails({ car }: { car: CarWithReadings }) {
   );
 }
 
-function Readings({ car, today }: { car: CarWithReadings; today: string }) {
+export function Readings({ car, today }: { car: CarWithReadings; today: string }) {
   const [state, action, saving] = useActionState<TravelFormState, FormData>(addReading.bind(null, car.id), {});
   const [deleting, startDeleting] = useTransition();
   const [deleteError, setDeleteError] = useState<string | null>(null);

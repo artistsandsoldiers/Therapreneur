@@ -15,6 +15,7 @@ const LINKS = [
   { href: "/claims", text: "Claims" },
   { href: "/reconcile", text: "Reconcile" },
   { href: "/expenses", text: "Expenses" },
+  { href: "/logbook", text: "Logbook" },
   { href: "/tax", text: "Tax" },
   { href: "/performance", text: "Performance" },
   { href: "/settings", text: "Settings" },
