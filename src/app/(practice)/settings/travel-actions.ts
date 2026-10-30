@@ -32,6 +32,8 @@ export async function deletePlace(placeId: string): Promise<TravelFormState> {
   const { supabase } = await requireSetUpPractice();
   const { error } = await supabase.from("places").delete().eq("id", placeId);
   if (error) {
+    // Sessions and events keep their place, so the logbook never loses where a trip went.
+    if (error.code === "23503") return { error: "This place has sessions or events in your calendar, so it can't be deleted." };
     console.error("Deleting place failed", error);
     return { error: "Something went wrong. Please try again." };
   }

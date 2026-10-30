@@ -2,18 +2,21 @@
 
 import Link from "next/link";
 import { useState, useTransition } from "react";
-import { deleteSession, moveSession, type CalendarSession, type Scope } from "./actions";
+import { deleteSession, moveSession, setSessionPlace, type CalendarSession, type Scope } from "./actions";
+import { WhereField } from "./where-field";
 import { saveCapture } from "../sessions/actions";
 import { WhenFields } from "../sessions/when-fields";
 import { button, secondaryButton } from "@/app/ui";
 import { sessionState } from "@/lib/calendar";
 import { friendlySessionTime, toLocalInput } from "@/lib/dates";
+import { whereValue } from "@/lib/events";
 import { invoiceNumber } from "@/lib/invoices";
+import type { Place } from "@/lib/travel";
 
 const STATE_TEXT = { booked: "Booked", to_capture: "To capture", attended: "Attended", no_show: "No-show" };
 
 /** What a tap on a session in the calendar opens: capture it, change its time, or delete it. */
-export function SessionSheet({ session, onChanged }: { session: CalendarSession; onChanged: () => void }) {
+export function SessionSheet({ session, places, onChanged }: { session: CalendarSession; places: Place[]; onChanged: () => void }) {
   const state = sessionState(session);
   const started = new Date(session.startsAt).getTime() <= Date.now();
   // Only booked sessions change with their series; a captured one stands alone.
@@ -21,6 +24,9 @@ export function SessionSheet({ session, onChanged }: { session: CalendarSession;
 
   const [moving, setMoving] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [placing, setPlacing] = useState(false);
+  const [where, setWhere] = useState(whereValue({ place_id: session.placeId, at_patient_home: session.atPatientHome }));
+  const [homeAddress, setHomeAddress] = useState("");
   const [startsAt, setStartsAt] = useState(toLocalInput(new Date(session.startsAt)));
   const [duration, setDuration] = useState(String(session.durationMinutes));
   const [error, setError] = useState<string | null>(null);
@@ -37,6 +43,12 @@ export function SessionSheet({ session, onChanged }: { session: CalendarSession;
 
   const move = (scope: Scope) =>
     run(() => moveSession({ id: session.id, startsAt, durationMinutes: Number(duration), scope }));
+  const place = () => run(() => setSessionPlace({ id: session.id, where, homeAddress }));
+  const placeName = session.atPatientHome
+    ? "At the patient's home"
+    : session.placeId
+      ? `At ${places.find((p) => p.id === session.placeId)?.name ?? "a place"}`
+      : "Where not set";
   const remove = (scope: Scope) => run(() => deleteSession({ id: session.id, scope }));
   // One tap: billed to the patient at the no-show price, then shows the invoice.
   const noShow = () =>
@@ -61,6 +73,7 @@ export function SessionSheet({ session, onChanged }: { session: CalendarSession;
           {STATE_TEXT[state]}
           {session.claimed && " · Claimed"}
           {inSeries && " · Repeats"}
+          {` · ${placeName}`}
           {session.invoiceId && session.invoiceNumber !== null && (
             <>
               {" · "}
@@ -82,6 +95,21 @@ export function SessionSheet({ session, onChanged }: { session: CalendarSession;
           This session has been claimed, so it can&apos;t be moved or deleted.{" "}
           <Link href={`/sessions/${session.id}/edit`} className="text-accent">Edit its note</Link>
         </p>
+      ) : placing ? (
+        <section className="flex flex-col gap-4 rounded-lg border border-neutral-200 p-4">
+          <WhereField
+            places={places}
+            value={where}
+            onChange={setWhere}
+            needsAddress={!session.patientHomeAddress}
+            address={homeAddress}
+            onAddress={setHomeAddress}
+          />
+          <div className="flex gap-2">
+            <button type="button" onClick={place} disabled={saving} className={button}>Save</button>
+            <button type="button" onClick={() => setPlacing(false)} className="px-2 text-neutral-500">Cancel</button>
+          </div>
+        </section>
       ) : moving ? (
         <section className="flex flex-col gap-4 rounded-lg border border-neutral-200 p-4">
           <WhenFields startsAt={startsAt} onStartsAt={setStartsAt} duration={duration} onDuration={setDuration} />
@@ -122,6 +150,7 @@ export function SessionSheet({ session, onChanged }: { session: CalendarSession;
       ) : (
         <div className="flex flex-wrap gap-2">
           <button type="button" onClick={() => setMoving(true)} className={secondaryButton}>Change time</button>
+          <button type="button" onClick={() => setPlacing(true)} className={secondaryButton}>Change where</button>
           <button type="button" onClick={() => setDeleting(true)} className={`${secondaryButton} text-red-600`}>Delete</button>
         </div>
       )}

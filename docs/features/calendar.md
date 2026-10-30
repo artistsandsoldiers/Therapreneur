@@ -10,7 +10,7 @@ Barry's conversations with Robynne Stock, October 2026. She books in Google Cale
 
 ## Scope
 - Calendar in the main nav, after Home. Desktop: Monday to Sunday, 06:00 to 20:00. Phone: one day at a time with the week's days above it.
-- Book a session from the button, a click on an empty slot, or a drag to pick the length. Patient, time and length, in the same pop-up style as New session.
+- "New" adds a patient session, meeting, training, errand or other work. A click on an empty slot or a drag to pick the length starts a patient session. A session has a patient, time, length and where (one of her places or the patient's home); an event has a place or an address (docs/features/travel.md).
 - Repeat weekly or every 2 weeks, for a number of sessions or until a date, up to a year. Each repeat is its own booked session in a series.
 - A booking that overlaps another session warns, and can be booked anyway.
 - Desktop: drag to move, drag the edge to change the length. Phone: tap a session to change its time.

@@ -73,7 +73,7 @@ function PlaceRow({ place, onSaved, onCancel }: { place?: Place; onSaved?: () =>
             type="button"
             disabled={deleting}
             onClick={() => {
-              if (!confirm(`Delete ${place.name}? Patients usually seen there will need a new place.`)) return;
+              if (!confirm(`Delete ${place.name}? Patients usually seen there will need a new one.`)) return;
               startDeleting(async () => setDeleteError((await deletePlace(place.id)).error ?? null));
             }}
             className="ml-auto text-sm text-neutral-500 hover:text-red-600"

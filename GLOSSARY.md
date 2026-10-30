@@ -79,6 +79,10 @@ _Avoid_: scheduled, planned, upcoming
 Booked sessions made together by repeating a booking weekly or every 2 weeks. Each can still change on its own.
 _Avoid_: recurring appointment, block booking
 
+**Event**:
+Something in the calendar that isn't a session: a meeting, training, errand or other work. It happens at a place or an address and makes trips, never an invoice.
+_Avoid_: appointment, task, booking
+
 **Capture**:
 Recording a session's billing codes and note straight after it ends, which creates its invoice.
 
