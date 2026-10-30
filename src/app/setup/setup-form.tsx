@@ -114,6 +114,22 @@ export function SetupForm({ practice, priceExample }: { practice: Practice; pric
             Your work days start and end here, so your travel logbook can work out your trips. Never shown to patients.
           </p>
         </div>
+        <label className="flex items-start gap-3 text-sm">
+          <input
+            type="checkbox"
+            name="home_to_patient_business"
+            value="yes"
+            defaultChecked={practice.home_to_patient_business}
+            className="mt-1 accent-accent"
+          />
+          <span>
+            Count driving from home straight to a patient&apos;s home as business
+            <span className="block text-neutral-500">
+              SARS treats travel from home to work as private, and this case isn&apos;t clear-cut. Leave it off unless your tax
+              practitioner says yes.
+            </span>
+          </span>
+        </label>
       </fieldset>
 
       <div className="flex flex-col gap-3">

@@ -23,6 +23,7 @@ export type SetupDetails = {
   hpcsa_number: string | null;
   address: string;
   home_address: string | null;
+  home_to_patient_business: boolean;
   phone: string | null;
   email: string | null;
   bank_name: string;
@@ -88,6 +89,7 @@ export function parseSetupForm(form: FormData): { ok: true; details: SetupDetail
       hpcsa_number: optional("hpcsa_number"),
       address: text("address"),
       home_address: optional("home_address"),
+      home_to_patient_business: form.get("home_to_patient_business") === "yes",
       phone: optional("phone"),
       email: optional("email"),
       bank_name: text("bank_name"),

@@ -13,11 +13,12 @@ What we store in Supabase, in plain English. Money is whole cents.
 
 ## A practice's own data (only that practice can see it)
 
-- **practices**: one per practitioner. The invited email, then setup: the practitioner's first and last name, practice name, practice and HPCSA numbers, address, home address (for trips), contact and banking details, profession, price adjustment (+/- %), no-show price, usual session length and where its logo is kept. Also sole proprietor or Inc, and for the tax estimate, the practitioner's date of birth and whether it's on.
+- **practices**: one per practitioner. The invited email, then setup: the practitioner's first and last name, practice name, practice and HPCSA numbers, address, home address and whether home to a patient's home counts as business (for trips), contact and banking details, profession, price adjustment (+/- %), no-show price, usual session length and where its logo is kept. Also sole proprietor or Inc, and for the tax estimate, the practitioner's date of birth and whether it's on.
 - **patients**: name, date of birth, and for patients with medical aid the medical aid, plan, member number, main member and dependant code. Their referrer, if any (a doctor's name and practice number are copied onto the patient for invoices). Who usually pays (medical aid or patient; only patient without medical aid). Also ICD-10 codes, when they became a past patient, and where they're usually seen (a place, or at home with their address).
 - **places**: where a practice sees patients: name, address, and whether it's a regular place of work (driving there from home is private).
 - **cars**: the car used for work: name, registration, and the days it started and stopped. One at a time.
 - **odometer_readings**: a car's km on a day.
+- **distances**: driving km between two addresses, the same both ways. Trips are worked out from the calendar, not stored.
 - **referrers**: who sends a practice patients: name, kind (doctor, website, social media…) and a doctor's practice number.
 - **sessions**: one appointment: when, how long (minutes), where (a place or the patient's home, starting where the patient is usually seen), attended or no-show (empty while booked), the note, and a series id shared by repeats.
 - **events**: a meeting, training, errand or other work in the calendar: when, how long, an optional title, and a place or an address.
