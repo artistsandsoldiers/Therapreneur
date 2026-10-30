@@ -4,17 +4,20 @@ import { useState } from "react";
 import { field } from "@/app/ui";
 import type { MedicalAid, Patient } from "@/lib/capture-data";
 import { NEW_REFERRER, REFERRER_KINDS, type Referrer } from "@/lib/referrers";
+import { AT_HOME, type Place } from "@/lib/travel";
 
 /** The patient form's fields, shared by capture's Add patient and the Patients pages. */
 export function PatientFields({
   medicalAids,
   defaultMedicalAidId,
   referrers,
+  places,
   patient,
 }: {
   medicalAids: MedicalAid[];
   defaultMedicalAidId: string;
   referrers: Referrer[];
+  places: Place[];
   patient?: Patient;
 }) {
   const [hasMedicalAid, setHasMedicalAid] = useState(patient ? patient.medical_aid_id !== null : true);
@@ -105,6 +108,7 @@ export function PatientFields({
           )}
         </>
       )}
+      <UsualPlaceField places={places} patient={patient} />
       <ReferrerField referrers={referrers} defaultReferrerId={patient?.referrer_id ?? ""} />
       <div>
         <input
@@ -118,6 +122,37 @@ export function PatientFields({
         <p className="mt-1 text-sm text-neutral-500">From the referring doctor.</p>
       </div>
     </>
+  );
+}
+
+/** Where the patient is usually seen, which new sessions start with. A home visit asks for their address. */
+function UsualPlaceField({ places, patient }: { places: Place[]; patient?: Patient }) {
+  const [picked, setPicked] = useState(
+    patient ? (patient.seen_at_home ? AT_HOME : (patient.usual_place_id ?? "")) : places.length === 1 ? places[0].id : "",
+  );
+
+  return (
+    <div>
+      <label htmlFor="usual_place" className="mb-1 block text-sm text-neutral-500">Usually seen</label>
+      <select id="usual_place" name="usual_place" value={picked} onChange={(e) => setPicked(e.target.value)} className={field}>
+        <option value="">Not set</option>
+        {places.map((place) => <option key={place.id} value={place.id}>At {place.name}</option>)}
+        <option value={AT_HOME}>At their home</option>
+      </select>
+      {places.length === 0 && picked !== AT_HOME && (
+        <p className="mt-1 text-sm text-neutral-500">Add your rooms under Settings to choose them here.</p>
+      )}
+      {picked === AT_HOME && (
+        <textarea
+          name="home_address"
+          defaultValue={patient?.home_address ?? ""}
+          placeholder="Their home address"
+          aria-label="Home address"
+          rows={2}
+          className={`${field} mt-2`}
+        />
+      )}
+    </div>
   );
 }
 

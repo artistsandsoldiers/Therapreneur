@@ -14,7 +14,7 @@ export const metadata: Metadata = { title: "Patients · Therapreneur" };
 export default async function PatientsPage({ searchParams }: { searchParams: Promise<{ show?: string }> }) {
   const showPast = (await searchParams).show === "past";
   const { supabase } = await requireSetUpPractice();
-  const { medicalAids, defaultMedicalAidId, referrers } = await loadPatientFormData(supabase);
+  const { medicalAids, defaultMedicalAidId, referrers, places } = await loadPatientFormData(supabase);
   let query = supabase
     .from("patients")
     .select("id, first_name, last_name, bill_to, medical_aids(name), sessions(starts_at, outcome)")
@@ -43,7 +43,7 @@ export default async function PatientsPage({ searchParams }: { searchParams: Pro
       <div className="flex items-center justify-between gap-4">
         <h1 className="text-2xl font-semibold tracking-tight">Patients</h1>
         <ModalButton label="Add patient" title="Add patient" className={button}>
-          <PatientForm medicalAids={medicalAids} defaultMedicalAidId={defaultMedicalAidId} referrers={referrers} />
+          <PatientForm medicalAids={medicalAids} defaultMedicalAidId={defaultMedicalAidId} referrers={referrers} places={places} />
         </ModalButton>
       </div>
       <div className="mt-6 inline-flex gap-1 rounded-lg bg-neutral-100 p-1">

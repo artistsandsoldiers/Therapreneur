@@ -1,5 +1,6 @@
 import { parseReferrerChoice, type ReferrerChoice } from "./referrers";
 import type { Enums } from "./supabase/database.types";
+import { parseUsualPlace } from "./travel";
 
 // An ICD-10 code is a letter, two digits, and optionally a point and up to four more characters, e.g. M54.5.
 const ICD10 = /^[A-Z]\d{2}(\.[0-9A-Z]{1,4})?$/;
@@ -27,6 +28,10 @@ export type NewPatient = {
   date_of_birth: string | null;
   dependant_code: string | null;
   icd10_codes: string[];
+  /** Where they're usually seen. Left out when the form doesn't ask, so nothing changes. */
+  seen_at_home?: boolean;
+  usual_place_id?: string | null;
+  home_address?: string;
 };
 
 /** Validates the add patient form. The referrer is saved separately, since a new one may need adding first. */
@@ -47,6 +52,9 @@ export function parsePatientForm(
   const referrer = parseReferrerChoice(form);
   if (!referrer.ok) return referrer;
 
+  const place = parseUsualPlace(form);
+  if (!place.ok) return place;
+
   if (text("has_medical_aid") === "no") {
     return {
       ok: true,
@@ -61,6 +69,7 @@ export function parsePatientForm(
         date_of_birth,
         dependant_code: null,
         icd10_codes: icd10.codes,
+        ...place.columns,
       },
       referrer: referrer.choice,
     };
@@ -94,6 +103,7 @@ export function parsePatientForm(
       date_of_birth,
       dependant_code,
       icd10_codes: icd10.codes,
+      ...place.columns,
     },
     referrer: referrer.choice,
   };

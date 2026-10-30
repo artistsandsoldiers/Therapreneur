@@ -39,6 +39,44 @@ export type Database = {
         }
         Relationships: []
       }
+      cars: {
+        Row: {
+          created_at: string
+          ended_on: string | null
+          id: string
+          name: string
+          practice_id: string
+          registration: string | null
+          started_on: string
+        }
+        Insert: {
+          created_at?: string
+          ended_on?: string | null
+          id?: string
+          name: string
+          practice_id: string
+          registration?: string | null
+          started_on: string
+        }
+        Update: {
+          created_at?: string
+          ended_on?: string | null
+          id?: string
+          name?: string
+          practice_id?: string
+          registration?: string | null
+          started_on?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cars_practice_id_fkey"
+            columns: ["practice_id"]
+            isOneToOne: false
+            referencedRelation: "practices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       claim_batches: {
         Row: {
           created_at: string
@@ -349,6 +387,48 @@ export type Database = {
         }
         Relationships: []
       }
+      odometer_readings: {
+        Row: {
+          car_id: string
+          created_at: string
+          id: string
+          km: number
+          practice_id: string
+          read_on: string
+        }
+        Insert: {
+          car_id: string
+          created_at?: string
+          id?: string
+          km: number
+          practice_id: string
+          read_on: string
+        }
+        Update: {
+          car_id?: string
+          created_at?: string
+          id?: string
+          km?: number
+          practice_id?: string
+          read_on?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "odometer_readings_car_id_fkey"
+            columns: ["car_id"]
+            isOneToOne: false
+            referencedRelation: "cars"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "odometer_readings_practice_id_fkey"
+            columns: ["practice_id"]
+            isOneToOne: false
+            referencedRelation: "practices"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       patients: {
         Row: {
           bill_to: Database["public"]["Enums"]["bill_to"]
@@ -360,6 +440,9 @@ export type Database = {
           created_at: string
           first_name: string
           icd10_codes: string[]
+          home_address: string | null
+          seen_at_home: boolean
+          usual_place_id: string | null
           id: string
           last_name: string
           main_member_name: string | null
@@ -379,6 +462,9 @@ export type Database = {
           created_at?: string
           first_name: string
           icd10_codes?: string[]
+          home_address?: string | null
+          seen_at_home?: boolean
+          usual_place_id?: string | null
           id?: string
           last_name: string
           main_member_name?: string | null
@@ -398,6 +484,9 @@ export type Database = {
           created_at?: string
           first_name?: string
           icd10_codes?: string[]
+          home_address?: string | null
+          seen_at_home?: boolean
+          usual_place_id?: string | null
           id?: string
           last_name?: string
           main_member_name?: string | null
@@ -429,10 +518,53 @@ export type Database = {
             referencedRelation: "referrers"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "patients_usual_place_id_fkey"
+            columns: ["usual_place_id"]
+            isOneToOne: false
+            referencedRelation: "places"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      places: {
+        Row: {
+          address: string
+          created_at: string
+          id: string
+          name: string
+          practice_id: string
+          regular: boolean
+        }
+        Insert: {
+          address: string
+          created_at?: string
+          id?: string
+          name: string
+          practice_id: string
+          regular?: boolean
+        }
+        Update: {
+          address?: string
+          created_at?: string
+          id?: string
+          name?: string
+          practice_id?: string
+          regular?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "places_practice_id_fkey"
+            columns: ["practice_id"]
+            isOneToOne: false
+            referencedRelation: "practices"
+            referencedColumns: ["id"]
+          },
         ]
       }
       practices: {
         Row: {
+          home_address: string | null
           hpcsa_number: string | null
           address: string | null
           bank_account_holder: string | null
@@ -460,6 +592,7 @@ export type Database = {
           tax_estimate_on: boolean
         }
         Insert: {
+          home_address?: string | null
           hpcsa_number?: string | null
           address?: string | null
           bank_account_holder?: string | null
@@ -487,6 +620,7 @@ export type Database = {
           tax_estimate_on?: boolean
         }
         Update: {
+          home_address?: string | null
           hpcsa_number?: string | null
           address?: string | null
           bank_account_holder?: string | null
@@ -824,6 +958,16 @@ export type Database = {
           p_patient_id: string
           p_session_id: string | null
           p_starts_at: string
+        }
+        Returns: string
+      }
+      start_car: {
+        Args: {
+          p_km: number
+          p_name: string
+          p_old_car_km: number
+          p_registration: string
+          p_started_on: string
         }
         Returns: string
       }

@@ -8,7 +8,7 @@ import { button, field, label, secondaryButton } from "@/app/ui";
 import { repeatStarts, type Repeat } from "@/lib/calendar";
 import type { CaptureData, Patient } from "@/lib/capture-data";
 
-export type BookFormProps = Pick<CaptureData, "medicalAids" | "referrers" | "defaultMedicalAidId"> & {
+export type BookFormProps = Pick<CaptureData, "medicalAids" | "referrers" | "places" | "defaultMedicalAidId"> & {
   patients: Patient[];
   startsAt: string;
   durationMinutes: number;
@@ -18,7 +18,7 @@ export type BookFormProps = Pick<CaptureData, "medicalAids" | "referrers" | "def
 type Ends = "after" | "on";
 
 /** Books a session ahead, with an optional weekly or fortnightly repeat. Captured later, after it happens. */
-export function BookForm({ medicalAids, referrers, defaultMedicalAidId, onBooked, ...props }: BookFormProps) {
+export function BookForm({ medicalAids, referrers, places, defaultMedicalAidId, onBooked, ...props }: BookFormProps) {
   const [patients, setPatients] = useState(props.patients);
   const [patientId, setPatientId] = useState("");
   const [addingPatient, setAddingPatient] = useState(patients.length === 0);
@@ -84,6 +84,7 @@ export function BookForm({ medicalAids, referrers, defaultMedicalAidId, onBooked
           <AddPatient
             medicalAids={medicalAids}
             referrers={referrers}
+            places={places}
             defaultMedicalAidId={defaultMedicalAidId}
             onCancel={patients.length ? () => setAddingPatient(false) : undefined}
             onAdded={(added) => {
