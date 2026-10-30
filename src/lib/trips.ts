@@ -183,6 +183,33 @@ export function businessShare(trips: Pick<Trip, "date" | "km" | "business">[], r
   return { share, businessKm, totalKm, from: first.readOn, to: last.readOn };
 }
 
+/** The business share across a tax year's cars: all their business km out of all their km. Null with no readings. */
+export function combinedShare(shares: BusinessShare[]): number | null {
+  const known = shares.filter((s) => s.share !== null && s.totalKm);
+  const totalKm = known.reduce((total, s) => total + s.totalKm!, 0);
+  if (!totalKm) return null;
+  return Math.min(1, known.reduce((total, s) => total + s.businessKm, 0) / totalKm);
+}
+
+/**
+ * What an expense counts as. Vehicle costs count only the business share of the tax year they were paid in, and
+ * nothing until the logbook has one: without a logbook, SARS allows no claim.
+ */
+export function claimableCents(
+  expense: { spentOn: string; amountCents: number; businessShare: boolean },
+  shares: Map<number, number | null>,
+): number {
+  if (!expense.businessShare) return expense.amountCents;
+  const share = shares.get(taxYearOfDate(expense.spentOn)) ?? null;
+  return share === null ? 0 : businessPart(expense.amountCents, share);
+}
+
+/** The tax year a date falls in, named by the year it starts (1 March). */
+export function taxYearOfDate(date: string): number {
+  const year = Number(date.slice(0, 4));
+  return Number(date.slice(5, 7)) >= 3 ? year : year - 1;
+}
+
 /** The part of an amount in cents that's business, rounded to the nearest cent. */
 export function businessPart(cents: number, share: number): number {
   return Math.round(cents * share);

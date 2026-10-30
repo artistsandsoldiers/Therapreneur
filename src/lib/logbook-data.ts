@@ -3,7 +3,7 @@ import { eventKindLabel, eventTitle } from "./events";
 import type { Practice } from "./practice";
 import type { Database } from "./supabase/database.types";
 import type { Car, Place, Reading } from "./travel";
-import { businessShare, carOn, missingDistances, pairKey, workOutTrips, type BusinessShare, type Stop, type Trip, type Visit } from "./trips";
+import { businessShare, carOn, combinedShare, missingDistances, pairKey, workOutTrips, type BusinessShare, type Stop, type Trip, type Visit } from "./trips";
 
 export type LogbookCar = Car & { readings: (Reading & { id: string })[] };
 
@@ -105,6 +105,17 @@ export async function loadLogbook(supabase: SupabaseClient<Database>, practice: 
 }
 
 export type Logbook = Awaited<ReturnType<typeof loadLogbook>>;
+
+/** The business share of each tax year asked for (named by the year it starts), across all its cars. */
+export async function loadBusinessShares(
+  supabase: SupabaseClient<Database>,
+  practice: Practice,
+  years: number[],
+): Promise<Map<number, number | null>> {
+  const unique = [...new Set(years)];
+  const logbooks = await Promise.all(unique.map((year) => loadLogbook(supabase, practice, `${year}-03-01`)));
+  return new Map(unique.map((year, i) => [year, combinedShare(logbooks[i].logbooks.map((l) => l.share))]));
+}
 
 function sumKm(trips: Trip[]): number {
   return Math.round(trips.reduce((total, trip) => total + (trip.km ?? 0), 0) * 10) / 10;

@@ -210,6 +210,7 @@ export type Database = {
       }
       expense_categories: {
         Row: {
+          business_share: boolean
           created_at: string
           hint: string | null
           id: string
@@ -218,6 +219,7 @@ export type Database = {
           practice_id: string | null
         }
         Insert: {
+          business_share?: boolean
           created_at?: string
           hint?: string | null
           id?: string
@@ -226,6 +228,7 @@ export type Database = {
           practice_id?: string | null
         }
         Update: {
+          business_share?: boolean
           created_at?: string
           hint?: string | null
           id?: string

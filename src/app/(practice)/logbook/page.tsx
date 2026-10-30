@@ -6,9 +6,10 @@ import { list, listHead, listRow, secondaryButton } from "@/app/ui";
 import { friendlyDate, toLocalInput } from "@/lib/dates";
 import { taxYearStart } from "@/lib/expenses";
 import { loadLogbook, type CarLogbook } from "@/lib/logbook-data";
+import { formatRands } from "@/lib/money";
 import { requireSetUpPractice } from "@/lib/practice";
 import { formatKm } from "@/lib/travel";
-import { stopLabel, type Trip } from "@/lib/trips";
+import { businessPart, combinedShare, stopLabel, type Trip } from "@/lib/trips";
 
 export const metadata: Metadata = { title: "Logbook · Therapreneur" };
 
@@ -27,7 +28,18 @@ export default async function LogbookPage({ searchParams }: { searchParams: Prom
   const thisYear = Number(taxYearStart(today).slice(0, 4));
   const asked = Number((await searchParams).year);
   const year = asked === thisYear - 1 ? asked : thisYear;
-  const logbook = await loadLogbook(supabase, practice, `${year}-03-01`);
+  const [logbook, vehicleCosts] = await Promise.all([
+    loadLogbook(supabase, practice, `${year}-03-01`),
+    supabase
+      .from("expenses")
+      .select("amount_cents, expense_categories!inner(business_share)")
+      .eq("expense_categories.business_share", true)
+      .gte("spent_on", `${year}-03-01`)
+      .lt("spent_on", `${year + 1}-03-01`),
+  ]);
+  if (vehicleCosts.error) throw vehicleCosts.error;
+  const vehicleCents = vehicleCosts.data.reduce((total, e) => total + e.amount_cents, 0);
+  const share = combinedShare(logbook.logbooks.map((l) => l.share));
   const nothingYet = logbook.logbooks.length === 0 && logbook.tripsWithoutCar.length === 0;
 
   return (
@@ -53,6 +65,15 @@ export default async function LogbookPage({ searchParams }: { searchParams: Prom
       </div>
 
       <Problems logbook={logbook} />
+
+      {vehicleCents > 0 && (
+        <p className="mb-8 rounded-lg border border-neutral-200 p-4 text-sm text-neutral-700">
+          Vehicle costs this tax year: {formatRands(vehicleCents)}.{" "}
+          {share === null
+            ? "They count once your logbook has a business share, which needs two odometer readings."
+            : `At your business share of ${Math.round(share * 100)}%, ${formatRands(businessPart(vehicleCents, share))} counts on Performance and Tax.`}
+        </p>
+      )}
 
       {nothingYet && (
         <p className="text-neutral-500">

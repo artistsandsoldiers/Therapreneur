@@ -32,8 +32,8 @@ type Params = { tab?: string; referrer?: string; period?: string; month?: string
 
 export default async function PerformancePage({ searchParams }: { searchParams: Promise<Params> }) {
   const params = await searchParams;
-  const { supabase } = await requireSetUpPractice();
-  const [{ invoices, expenses }, referrers] = await Promise.all([loadReportData(supabase), loadReferrers(supabase)]);
+  const { supabase, practice } = await requireSetUpPractice();
+  const [{ invoices, expenses }, referrers] = await Promise.all([loadReportData(supabase, practice), loadReferrers(supabase)]);
 
   const today = toLocalInput(new Date()).slice(0, 10);
   const tab: Tab = TABS.some(([value]) => value === params.tab) ? (params.tab as Tab) : "overall";
